@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-uset.dto';
-
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
@@ -14,7 +14,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number) {
+  async findById(id: number) {
     return this.userRepository.find({ where: { id } });
   }
 
@@ -27,12 +27,38 @@ export class UserService {
     return { status };
   }
 
-  async update(uesr: User, updateUserDto: UpdateUserDto) {
-    return this.userRepository
+  async updateUserToSeller(user: User): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException(`User with id ${user.id} not found.`);
+    }
+    existingUser.seller = true;
+    await this.userRepository.save(existingUser);
+
+    return existingUser;
+  }
+
+  async update(
+    user: User,
+    updateUserDto: UpdateUserDto,
+  ): Promise<{ success: boolean }> {
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+    const updateResult = await this.userRepository
       .createQueryBuilder('user')
       .update(User)
       .set(updateUserDto)
-      .where('id = :id', { id: uesr.id })
+      .where('id = :id', { id: user.id })
       .execute();
+
+    if (updateResult.affected && updateResult.affected > 0) {
+      return { success: true };
+    } else {
+      return { success: false };
+    }
   }
 }
