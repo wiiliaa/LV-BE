@@ -13,7 +13,8 @@ import { UserPaymentsService } from './user_payments.service';
 import { CreateUserPaymentDto } from './dto/create-user_payment.dto';
 import { UpdateUserPaymentDto } from './dto/update-user_payment.dto';
 import { UserPayment } from './entities/user_payment.entity';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('User_payments')
 @Controller('user-payments')
 export class UserPaymentsController {
   constructor(private readonly userPaymentService: UserPaymentsService) {}

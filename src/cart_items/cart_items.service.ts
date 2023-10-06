@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CartItem } from './entities/cart_item.entity';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CartItemService {

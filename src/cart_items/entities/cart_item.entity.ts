@@ -1,5 +1,6 @@
 import { Cart } from 'src/carts/entities/cart.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { Shop } from 'src/shops/entities/shop.entity';
 import {
   BaseEntity,
   Column,
@@ -30,6 +31,13 @@ export class CartItem extends BaseEntity {
 
   @Column()
   product_id: number;
+
+  @ManyToOne(() => Shop, (shop) => shop.cart_items)
+  @JoinColumn({ name: 'shop_id' })
+  shop: Shop;
+
+  @Column()
+  shop_id: number;
 
   @Column()
   quantity: number;

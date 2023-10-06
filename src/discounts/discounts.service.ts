@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { Discount } from './entities/discount.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class DiscountsService {
@@ -29,9 +30,30 @@ export class DiscountsService {
     return found;
   }
 
-  async create(createDiscountDto: CreateDiscountDto): Promise<Discount> {
-    const discount = this.discountRepository.create(createDiscountDto);
-    return await this.discountRepository.save(discount);
+  async createDiscount(
+    user: User,
+    createDiscountDto: CreateDiscountDto,
+  ): Promise<Discount> {
+    if (!user.shop) {
+      throw new NotFoundException('User does not have a shop');
+    }
+    const { name, limit, percent, description } = createDiscountDto;
+    const existingDiscount = await this.discountRepository.findOne({
+      where: { name, shop_id: user.shop.id },
+    });
+
+    if (existingDiscount) {
+      throw new NotFoundException('Discount with the same name already exists');
+    }
+    const discount = this.discountRepository.create({
+      name,
+      limit,
+      percent,
+      description,
+      shop: user.shop,
+    });
+
+    return this.discountRepository.save(discount);
   }
 
   async delete(id: number) {

@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
@@ -39,6 +40,9 @@ export class Shop extends BaseEntity {
 
   @OneToMany(() => Product, (product) => product.shop)
   products: Product[];
+
+  @OneToMany(() => CartItem, (cart_items) => cart_items.shop)
+  cart_items: CartItem[];
 
   @CreateDateColumn({
     type: 'timestamp',

@@ -10,17 +10,18 @@ import {
 import { CartItemService } from './cart_items.service';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Cart_items')
 @Controller('cart-items')
 export class CartItemController {
   constructor(private readonly cartItemService: CartItemService) {}
 
-  @Get()
+  @Get('/all')
   async findAll() {
     return await this.cartItemService.findAll();
   }
 
-  @Get(':id')
+  @Get('/id/:id')
   async findOne(@Param('id') id: number) {
     return await this.cartItemService.findOne(id);
   }
@@ -30,7 +31,7 @@ export class CartItemController {
     return await this.cartItemService.create(createCartItemDto);
   }
 
-  @Put(':id')
+  @Put('/update/:id')
   async update(
     @Param('id') id: number,
     @Body() updateCartItemDto: UpdateCartItemDto,

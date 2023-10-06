@@ -1,26 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Order } from './entities/order.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CartItemService } from 'src/cart_items/cart_items.service';
 
 @Injectable()
 export class OrderService {
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
-  }
-
-  findAll() {
-    return `This action returns all order`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
-
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
-  }
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+  ) {}
 }

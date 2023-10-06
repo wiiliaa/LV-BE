@@ -15,7 +15,8 @@ import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Shops')
 @Controller('shops')
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}

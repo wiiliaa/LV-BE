@@ -13,9 +13,10 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from '@nestjs/passport';
-
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
+@ApiTags('Product')
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}

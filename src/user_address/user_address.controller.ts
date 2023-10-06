@@ -12,7 +12,8 @@ import { CreateUserAddressDto } from './dto/create-user_address.dto';
 import { UpdateUserAddressDto } from './dto/update-user_address.dto';
 import { UserAddress } from './entities/user_address.entity';
 import { UserAddressService } from './user_address.service';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('User_address')
 @Controller('user-addresses')
 export class UserAddressController {
   constructor(private readonly userAddressService: UserAddressService) {}

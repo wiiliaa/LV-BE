@@ -43,8 +43,8 @@ export class Order extends BaseEntity {
   @Column()
   shop_id: number;
 
-  @Column()
-  accepted: boolean;
+  @Column({ default: 'pending' })
+  status: string;
 
   @ManyToOne(() => Discount, (discount) => discount.orders)
   discount: Discount;

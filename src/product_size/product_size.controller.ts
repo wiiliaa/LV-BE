@@ -1,8 +1,9 @@
 import { Controller, Put, Param, Body, Delete, Get } from '@nestjs/common';
 import { ProductSizeService } from './product_size.service';
 import { UpdateProductSizeDto } from './dto/update-product_size.dto';
-import { async } from 'rxjs';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Product_sizes')
 @Controller('product-sizes')
 export class ProductSizeController {
   constructor(private productSizeService: ProductSizeService) {}
