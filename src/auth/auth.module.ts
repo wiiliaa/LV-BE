@@ -8,6 +8,7 @@ import { User } from 'src/user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { CartsModule } from 'src/carts/carts.module';
 import { UserAddressModule } from 'src/user_address/user_address.module';
+import { GoogleStrategy } from './GG_AUTH/google.strategy';
 @Module({
   imports: [
     PassportModule.register({
@@ -24,7 +25,7 @@ import { UserAddressModule } from 'src/user_address/user_address.module';
     UserAddressModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

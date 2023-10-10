@@ -33,7 +33,7 @@ export class ProductService {
       product.brand = brand;
       product.price = price;
       product.description = description;
-      product.shop_id = user.shop_id;
+      product.shop_id = user.shop.id;
       await product.save();
       if (ProductSizes) {
         for (const sizeDto of ProductSizes) {

@@ -19,10 +19,11 @@ export class AuthService {
     private readonly userAddressService: UserAddressService,
   ) {}
   async signUp(createUserDto: CreateUserDto) {
-    const { username, password, name, phone } = createUserDto;
+    const { username, password, name, phone, email } = createUserDto;
     const user = new User();
     user.username = username;
     user.password = password;
+    user.email = email;
     user.name = name;
     user.phone = phone;
 
@@ -60,5 +61,15 @@ export class AuthService {
     } else {
       throw new UnauthorizedException('email or password is wrong');
     }
+  }
+
+  async googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+    return {
+      message: 'User Info from Google',
+      user: req.user,
+    };
   }
 }

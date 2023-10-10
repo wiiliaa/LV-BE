@@ -6,41 +6,38 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
+  Put,
 } from '@nestjs/common';
 import { OrderItemsService } from './order_items.service';
 import { CreateOrderItemDto } from './dto/create-order_item.dto';
 import { UpdateOrderItemDto } from './dto/update-order_item.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { OrderItem } from './entities/order_item.entity';
 @ApiTags('Order_item')
 @Controller('order-items')
 export class OrderItemsController {
-  constructor(private readonly orderItemsService: OrderItemsService) {}
+  constructor(private readonly orderItemService: OrderItemsService) {}
 
   @Post()
-  create(@Body() createOrderItemDto: CreateOrderItemDto) {
-    return this.orderItemsService.create(createOrderItemDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.orderItemsService.findAll();
+  async create(@Body() orderItemData: Partial<OrderItem>): Promise<OrderItem> {
+    return this.orderItemService.createOrderItem(orderItemData);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderItemsService.findOne(+id);
+  async findOne(@Param('id') orderItemId: number): Promise<OrderItem> {
+    return this.orderItemService.findOrderItemById(orderItemId);
   }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateOrderItemDto: UpdateOrderItemDto,
-  ) {
-    return this.orderItemsService.update(+id, updateOrderItemDto);
+  @Put(':id')
+  async update(
+    @Param('id') orderItemId: number,
+    @Body() orderItemData: Partial<OrderItem>,
+  ): Promise<OrderItem> {
+    return this.orderItemService.updateOrderItem(orderItemId, orderItemData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderItemsService.remove(+id);
+  async remove(@Param('id') orderItemId: number): Promise<void> {
+    return this.orderItemService.deleteOrderItem(orderItemId);
   }
 }

@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsEmail } from 'class-validator';
+import { IsString, MinLength, IsEmail, IsOptional } from 'class-validator';
 
 export class AuthCredentials {
   @IsString()
@@ -7,4 +7,9 @@ export class AuthCredentials {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @IsString()
+  @IsEmail()
+  @IsOptional()
+  email: string;
 }

@@ -31,6 +31,9 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  @Column({ unique: true, nullable: true })
+  email: string;
+
   @Column()
   name: string;
 
@@ -52,9 +55,6 @@ export class User extends BaseEntity {
   @OneToOne(() => Shop, (shop) => shop.user)
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
-
-  @Column()
-  shop_id: number;
 
   @OneToOne(() => UserAddress, (user_address) => user_address.user)
   user_address: UserAddress;
