@@ -1,4 +1,10 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { Delete, Get, Param, Body, Put } from '@nestjs/common';
 
@@ -14,6 +20,7 @@ export class UserController {
 
   @Get('')
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(ClassSerializerInterceptor)
   async find() {
     return this.usersService.find();
   }

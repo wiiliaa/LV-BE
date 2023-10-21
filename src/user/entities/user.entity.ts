@@ -19,7 +19,7 @@ import { UserAddress } from 'src/user_address/entities/user_address.entity';
 import { UserPayment } from 'src/user_payments/entities/user_payment.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { DiscountUsage } from 'src/discounts_usage/entities/discounts_usage.entity';
-
+import { Exclude } from 'class-transformer';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -27,7 +27,7 @@ export class User extends BaseEntity {
 
   @Column({ unique: true })
   username: string;
-
+  @Exclude()
   @Column()
   password: string;
 

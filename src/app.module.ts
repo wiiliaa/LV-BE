@@ -15,6 +15,7 @@ import { CartsModule } from './carts/carts.module';
 import { CartItemsModule } from './cart_items/cart_items.module';
 import { OrderModule } from './order/order.module';
 import { DiscountsUsageModule } from './discounts_usage/discounts_usage.module';
+import { PusherModule } from './pusher/pusher.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -35,6 +36,7 @@ import config from './config/TypeOrm.config';
     CartItemsModule,
     OrderModule,
     DiscountsUsageModule,
+    PusherModule,
   ],
 })
 export class AppModule {}
