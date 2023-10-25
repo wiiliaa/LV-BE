@@ -11,13 +11,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ProductSizeService } from 'src/product_size/product_size.service';
 import { CreateProductSizeDto } from 'src/product_size/dto/create-product_size.dto';
 import { User } from 'src/user/entities/user.entity';
-import { Console } from 'console';
+import { SearchKeywordService } from 'src/search_keyword/search_keyword.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product) private productRepository: Repository<Product>,
     private productSizeService: ProductSizeService,
+    private searchKeywordService: SearchKeywordService,
   ) {}
 
   async create(
@@ -75,13 +76,13 @@ export class ProductService {
     return found;
   }
 
-  async filterProducts(filter: string): Promise<Product[]> {
+  async filterProducts(user: User, filter: string): Promise<Product[]> {
     const filteredProducts = await this.productRepository
       .createQueryBuilder('product')
       .where('product.name LIKE :filter', { filter: `%${filter}%` })
       .orWhere('product.description LIKE :filter', { filter: `%${filter}%` })
       .getMany();
-
+    await this.searchKeywordService.createKeyword(user, filter);
     return filteredProducts;
   }
 

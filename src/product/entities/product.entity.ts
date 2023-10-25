@@ -3,6 +3,7 @@
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
+import { ProductCategory } from 'src/product_categories/entities/product_category.entity';
 import { ProductSize } from 'src/product_size/entities/product_size.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 import {
@@ -58,6 +59,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => OrderItem, (order_item) => order_item.product)
   order_items: OrderItem[];
+
+  @ManyToOne(() => ProductCategory, (category) => category.products)
+  category: ProductCategory;
 
   @CreateDateColumn({
     type: 'timestamp',
