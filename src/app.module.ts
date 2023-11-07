@@ -18,6 +18,7 @@ import { DiscountsUsageModule } from './discounts_usage/discounts_usage.module';
 import { PusherModule } from './pusher/pusher.module';
 import { ProductCategoriesModule } from './product_categories/product_categories.module';
 import { SearchKeywordModule } from './search_keyword/search_keyword.module';
+import { StripeModule } from './stripe/stripe.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -41,6 +42,7 @@ import config from './config/TypeOrm.config';
     PusherModule,
     ProductCategoriesModule,
     SearchKeywordModule,
+    StripeModule,
   ],
 })
 export class AppModule {}
