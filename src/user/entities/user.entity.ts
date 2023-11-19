@@ -19,7 +19,8 @@ import { UserAddress } from 'src/user_address/entities/user_address.entity';
 import { UserPayment } from 'src/user_payments/entities/user_payment.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { DiscountUsage } from 'src/discounts_usage/entities/discounts_usage.entity';
-
+import { Exclude } from 'class-transformer';
+import { SearchKeyword } from 'src/search_keyword/entities/search_keyword.entity';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -27,18 +28,24 @@ export class User extends BaseEntity {
 
   @Column({ unique: true })
   username: string;
-
+  @Exclude()
   @Column()
   password: string;
 
-  @Column()
+  @Column({ unique: true, nullable: true })
+  email: string;
+
+  @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
   @Column({ default: false })
   seller: boolean;
+
+  @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)
+  searchKeywords: SearchKeyword[];
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];

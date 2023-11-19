@@ -26,7 +26,7 @@ export class ProductController {
     return this.productService.findAll();
   }
 
-  @Get('/name/:name')
+  @Get('/search/:name')
   async findByName(@Param('name') name: string) {
     return this.productService.findByName(name);
   }
@@ -37,8 +37,8 @@ export class ProductController {
   }
 
   @Get('/search/:filter')
-  filterProducts(@Param('filter') filter: string) {
-    return this.productService.filterProducts(filter);
+  filterProducts(@GetUser() user: User, @Param('filter') filter: string) {
+    return this.productService.filterProducts(user, filter);
   }
 
   @Post('/createProduct')

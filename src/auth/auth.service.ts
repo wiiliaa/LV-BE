@@ -17,14 +17,14 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly cartService: CartsService,
     private readonly userAddressService: UserAddressService,
-  ) {}
+  ) { }
   async signUp(createUserDto: CreateUserDto) {
-    const { username, password, name, phone } = createUserDto;
+    const { username, password, name, email } = createUserDto;
     const user = new User();
     user.username = username;
     user.password = password;
-    user.name = name;
-    user.phone = phone;
+    user.email = email;
+    user.name = name || username;
 
     await user.save();
 
@@ -60,5 +60,15 @@ export class AuthService {
     } else {
       throw new UnauthorizedException('email or password is wrong');
     }
+  }
+
+  async googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+    return {
+      message: 'User Info from Google',
+      user: req.user,
+    };
   }
 }
