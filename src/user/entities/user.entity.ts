@@ -53,7 +53,7 @@ export class User extends BaseEntity {
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 
-  @Column()
+  @Column({ nullable: true })
   shop_id: number;
 
   @OneToOne(() => UserAddress, (user_address) => user_address.user)
