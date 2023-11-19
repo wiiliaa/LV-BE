@@ -19,13 +19,12 @@ export class AuthService {
     private readonly userAddressService: UserAddressService,
   ) {}
   async signUp(createUserDto: CreateUserDto) {
-    const { username, password, name, phone, email } = createUserDto;
+    const { username, password, name, email } = createUserDto;
     const user = new User();
     user.username = username;
     user.password = password;
     user.email = email;
-    user.name = name;
-    user.phone = phone;
+    user.username = name;
 
     await user.save();
 
