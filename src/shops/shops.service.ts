@@ -18,7 +18,7 @@ export class ShopService {
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
-    if (!user.seller) {
+    if (user.role === 'seller') {
       throw new UnauthorizedException('Only sellers can create shops.');
     }
     createShopDto.user_id = user.id;

@@ -25,7 +25,7 @@ export class ProductService {
     user: User,
     createProductDto: CreateProductDto,
   ): Promise<Product> {
-    if (user.seller === true) {
+    if (user.role === 'seller') {
       const { name, brand, price, description, ProductSizes } =
         createProductDto;
 

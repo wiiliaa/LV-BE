@@ -26,7 +26,6 @@ export class UserService {
     }
     return { status };
   }
-
   async updateUserToSeller(user: User): Promise<User> {
     const existingUser = await this.userRepository.findOne({
       where: { id: user.id },
@@ -35,7 +34,28 @@ export class UserService {
     if (!existingUser) {
       throw new NotFoundException(`User with id ${user.id} not found.`);
     }
-    existingUser.seller = true;
+
+    // Đặt role là "pending"
+    existingUser.role = 'pending';
+    await this.userRepository.save(existingUser);
+
+    return existingUser;
+  }
+
+  async processSellerUpdate(user: User, newRole: string): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { id: user.id, role: 'pending' },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException(
+        `Pending seller update for user with id ${user.id} not found.`,
+      );
+    }
+
+    existingUser.role = newRole;
+
+    // Lưu thay đổi
     await this.userRepository.save(existingUser);
 
     return existingUser;
