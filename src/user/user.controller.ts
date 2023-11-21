@@ -2,6 +2,8 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Post,
+  Req,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -13,6 +15,8 @@ import { User } from './entities/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { UpdateUserDto } from './dto/update-uset.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storageConfig } from 'src/helper/config';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
@@ -46,5 +50,12 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   async update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
     return this.usersService.update(user, updateUserDto);
+  }
+
+  @Post('uploadAvatar')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('avatar', { storage: storageConfig }))
+  uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+    console.log('upload avatar');
   }
 }
