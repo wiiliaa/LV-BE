@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Req } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -80,5 +80,9 @@ export class UserService {
     } else {
       return { success: false };
     }
+  }
+
+  async updateAvatar(id: number, avatar: string) {
+    return await this.userRepository.update(id, { avatar });
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ClassSerializerInterceptor,
   Controller,
   Post,
@@ -17,6 +18,7 @@ import { UpdateUserDto } from './dto/update-uset.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'src/helper/config';
+import { extname } from 'path';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
@@ -54,8 +56,38 @@ export class UserController {
 
   @Post('uploadAvatar')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('avatar', { storage: storageConfig }))
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: storageConfig('avatar'),
+      fileFilter: (req, file, cb) => {
+        const ext = extname(file.originalname);
+        const allowedExtArr = ['jpg', 'png', 'jpeg'];
+        if (!allowedExtArr.includes(ext)) {
+          req.fileValidatonError = ` Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+          cb(null, false);
+        } else {
+          const fileSize = parseInt(req.headers['content-length']);
+          if (fileSize > 1024 * 1024 * 5) {
+            req.fileValidatonError = `File size is too lagre. Accepted file size is less to 5mb`;
+            cb(null, false);
+          } else {
+            cb(null, true);
+          }
+        }
+      },
+    }),
+  )
   uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
     console.log('upload avatar');
+    if (req.fileValidatonError) {
+      throw new BadRequestException(req.fileValidatonError);
+    }
+    if (!file) {
+      throw new BadRequestException('file is require');
+    }
+    this.usersService.updateAvatar(
+      req.user_data.id,
+      file.destination + '/' + file.fieldname,
+    );
   }
 }
