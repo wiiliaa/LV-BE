@@ -24,11 +24,7 @@ export class AuthService {
     user.username = username;
     user.password = password;
     user.email = email;
-<<<<<<< HEAD
     user.name = name || username;
-=======
-    user.name = username;
->>>>>>> 8dc10ca1a6490b99384654e518f099659cc4de85
 
     await user.save();
 

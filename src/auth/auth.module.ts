@@ -17,7 +17,7 @@ import { GoogleStrategy } from './GG_AUTH/google.strategy';
     JwtModule.register({
       secret: 'LuanVan2023',
       signOptions: {
-        expiresIn: 3600, // one hour
+        expiresIn: 36000, // one hour
       },
     }),
     TypeOrmModule.forFeature([User]),
@@ -28,4 +28,4 @@ import { GoogleStrategy } from './GG_AUTH/google.strategy';
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   exports: [JwtStrategy, PassportModule],
 })
-export class AuthModule {}
+export class AuthModule { }
