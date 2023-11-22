@@ -42,12 +42,6 @@ export class UserController {
   //   return this.usersService.delete(id);
   // }
 
-  @Put('/updateToSeller')
-  @UseGuards(AuthGuard('jwt'))
-  async updateToSeller(@GetUser() user: User) {
-    return this.usersService.updateUserToSeller(user);
-  }
-
   @Put('/updateProfile')
   @UseGuards(AuthGuard('jwt'))
   async update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {

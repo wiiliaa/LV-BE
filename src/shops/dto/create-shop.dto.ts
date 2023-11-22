@@ -5,5 +5,8 @@ export class CreateShopDto {
   name: string;
 
   @IsNotEmpty()
+  description: string;
+
+  @IsNotEmpty()
   user_id: number;
 }
