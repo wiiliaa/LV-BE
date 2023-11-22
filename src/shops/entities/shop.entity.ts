@@ -25,6 +25,15 @@ export class Shop extends BaseEntity {
   @Column()
   name: string;
 
+  @Column()
+  description: string;
+
+  @Column()
+  address: string;
+
+  @Column({ nullable: true, default: null })
+  avatar: string;
+
   @OneToOne(() => User, (user) => user.shop)
   @JoinColumn({ name: 'user_id' })
   user: User;
