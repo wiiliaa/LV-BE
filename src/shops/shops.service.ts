@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -19,6 +20,10 @@ export class ShopService {
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
+    if (user.shop) {
+      throw new ConflictException('User already has a shop.');
+    }
+
     createShopDto.user_id = user.id;
     const shop = this.shopRepository.create(createShopDto);
     await this.shopRepository.save(shop);
@@ -26,6 +31,7 @@ export class ShopService {
     await user.save();
     return shop;
   }
+
   async processShopRequest(
     shopId: number,
     status: 'accept' | 'reject',
