@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -18,15 +19,49 @@ export class ShopService {
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
-    if (user.role === 'seller') {
-      throw new UnauthorizedException('Only sellers can create shops.');
-    }
     createShopDto.user_id = user.id;
     const shop = this.shopRepository.create(createShopDto);
     await this.shopRepository.save(shop);
     user.shop = shop;
     await user.save();
     return shop;
+  }
+  async processShopRequest(
+    shopId: number,
+    status: 'accept' | 'reject',
+  ): Promise<Shop> {
+    const shop = await this.shopRepository.findOne({
+      where: { id: shopId },
+      relations: ['user'],
+    });
+
+    if (!shop) {
+      throw new NotFoundException('Shop not found');
+    }
+
+    if (status === 'accept') {
+      // Update shop status to 'accept'
+      shop.status = 'accept';
+
+      // Update user role to 'seller'
+      shop.user.role = 'seller';
+
+      // Save changes
+      await this.shopRepository.save(shop);
+      await shop.user.save();
+
+      return shop;
+    } else if (status === 'reject') {
+      // Update shop status to 'reject'
+      shop.status = 'reject';
+
+      // Save changes
+      await this.shopRepository.save(shop);
+
+      return shop;
+    } else {
+      throw new BadRequestException('Invalid status');
+    }
   }
 
   async update(id: number, updateShopDto: UpdateShopDto): Promise<Shop> {

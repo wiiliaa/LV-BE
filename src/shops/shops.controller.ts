@@ -30,6 +30,23 @@ export class ShopController {
     return this.shopService.create(user, createShopDto);
   }
 
+  @Post(':id/process')
+  @UseGuards(AuthGuard('jwt'))
+  async processShopRequest(
+    @Param('id') shopId: number,
+    @Body() body: { status: 'accept' | 'reject' },
+  ) {
+    try {
+      const shop = await this.shopService.processShopRequest(
+        shopId,
+        body.status,
+      );
+      return { shop };
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Shop> {
     return this.shopService.findOne(+id);
