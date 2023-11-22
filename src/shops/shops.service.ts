@@ -27,6 +27,11 @@ export class ShopService {
     createShopDto.user_id = user.id;
     const shop = this.shopRepository.create(createShopDto);
     await this.shopRepository.save(shop);
+
+    // Update user role to 'pending'
+    user.role = 'pending';
+    await user.save();
+
     user.shop = shop;
     await user.save();
     return shop;
