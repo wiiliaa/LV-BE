@@ -38,7 +38,7 @@ export class Shop extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ nullable: true, default: null })
   user_id: number;
 
   @Column({ default: 'pending' })
