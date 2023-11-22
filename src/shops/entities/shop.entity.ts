@@ -28,7 +28,7 @@ export class Shop extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
   @Column({ nullable: true, default: null })
