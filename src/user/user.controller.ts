@@ -22,7 +22,7 @@ import { extname } from 'path';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private usersService: UserService) {}
+  constructor(private usersService: UserService) { }
 
   @Get('')
   @UseGuards(AuthGuard('jwt'))
@@ -67,7 +67,7 @@ export class UserController {
           cb(null, false);
         } else {
           const fileSize = parseInt(req.headers['content-length']);
-          if (fileSize > 1024 * 1024 * 5) {
+          if (fileSize > 1024 * 1024 * 50) {
             req.fileValidatonError = `File size is too lagre. Accepted file size is less to 5mb`;
             cb(null, false);
           } else {
