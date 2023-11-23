@@ -24,14 +24,13 @@ import { extname } from 'path';
 export class UserController {
   constructor(private usersService: UserService) {}
 
-  @Get('')
-  @UseGuards(AuthGuard('jwt'))
+  @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
   async find() {
     return this.usersService.find();
   }
 
-  @Get('/:id')
+  @Get('/findById/:id')
   async findOne(@Param('id') id: number) {
     return this.usersService.findById(id);
   }
