@@ -10,6 +10,23 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
+  async getCustomers(): Promise<User[]> {
+    return this.findByRole('customer');
+  }
+
+  async getSeller(): Promise<User[]> {
+    return this.findByRole('seller');
+  }
+
+  async getPending(): Promise<User[]> {
+    return this.findByRole('pending');
+  }
+
+  async findByRole(role: string): Promise<User[]> {
+    const users = await User.find({ where: { role } });
+    return users;
+  }
+
   async find() {
     return this.userRepository.find();
   }
@@ -26,7 +43,6 @@ export class UserService {
     }
     return { status };
   }
-  
 
   async update(
     user: User,
