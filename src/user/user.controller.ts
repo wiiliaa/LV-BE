@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ClassSerializerInterceptor,
   Controller,
+  NotFoundException,
   Post,
   Req,
   UploadedFile,
@@ -22,7 +23,7 @@ import { extname } from 'path';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private usersService: UserService) { }
+  constructor(private usersService: UserService) {}
 
   @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -62,40 +63,53 @@ export class UserController {
     return this.usersService.update(user, updateUserDto);
   }
 
-  @Post('uploadAvatar')
-  @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: storageConfig('avatar'),
-      fileFilter: (req, file, cb) => {
-        const ext = extname(file.originalname);
-        const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-        if (!allowedExtArr.includes(ext)) {
-          req.fileValidatonError = ` Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-          cb(null, false);
-        } else {
-          const fileSize = parseInt(req.headers['content-length']);
-          if (fileSize > 1024 * 1024 * 50) {
-            req.fileValidatonError = `File size is too lagre. Accepted file size is less to 5mb`;
-            cb(null, false);
-          } else {
-            cb(null, true);
-          }
-        }
-      },
-    }),
-  )
-  uploadAvatar(
+  // @Post('uploadAvatar')
+  // @UseGuards(AuthGuard('jwt'))
+  // @UseInterceptors(
+  //   FileInterceptor('avatar', {
+  //     storage: storageConfig('avatar'),
+  //     fileFilter: (req, file, cb) => {
+  //       const ext = extname(file.originalname);
+  //       const allowedExtArr = ['.jpg', '.png', '.jpeg'];
+  //       if (!allowedExtArr.includes(ext)) {
+  //         req.fileValidatonError = ` Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+  //         cb(null, false);
+  //       } else {
+  //         const fileSize = parseInt(req.headers['content-length']);
+  //         if (fileSize > 1024 * 1024 * 50) {
+  //           req.fileValidatonError = `File size is too lagre. Accepted file size is less to 5mb`;
+  //           cb(null, false);
+  //         } else {
+  //           cb(null, true);
+  //         }
+  //       }
+  //     },
+  //   }),
+  // )
+  // uploadAvatar(
+  //   @GetUser() user: User,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   console.log('upload avatar');
+  //   if (!file) {
+  //     throw new BadRequestException('file is require');
+  //   }
+  //   this.usersService.updateAvatar(
+  //     user,
+  //     file.destination + '/' + file.fieldname,
+  //   );
+  // }
+
+  @Post('/uploadAvatar')
+  saveBase64Avatar(
     @GetUser() user: User,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    console.log('upload avatar');
-    if (!file) {
-      throw new BadRequestException('file is require');
-    }
-    this.usersService.updateAvatar(
-      user,
-      file.destination + '/' + file.fieldname,
-    );
+    @Body('base64Image') base64Image: string,
+  ): Promise<void> {
+    return this.usersService.saveBase64Avatar(user, base64Image);
+  }
+
+  @Get('/getAvatar')
+  getBase64Avatar(@GetUser() user: User): Promise<string | null> {
+    return this.usersService.getBase64Avatar(user);
   }
 }
