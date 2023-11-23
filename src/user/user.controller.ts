@@ -35,6 +35,21 @@ export class UserController {
     return this.usersService.findById(id);
   }
 
+  @Get('getAll/seller')
+  async findSeller() {
+    return this.usersService.getSeller();
+  }
+
+  @Get('getAll/customer')
+  async findCustomer() {
+    return this.usersService.getCustomers();
+  }
+
+  @Get('getAll/pending')
+  async findPending() {
+    return this.usersService.getPending();
+  }
+
   // @Delete('/:id')
   // @UseGuards(AuthGuard('jwt'))
   // async delete(@Param('id') id: number) {
