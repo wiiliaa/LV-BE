@@ -21,6 +21,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { DiscountUsage } from 'src/discounts_usage/entities/discounts_usage.entity';
 import { Exclude } from 'class-transformer';
 import { SearchKeyword } from 'src/search_keyword/entities/search_keyword.entity';
+import { text } from 'stream/consumers';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -44,7 +45,7 @@ export class User extends BaseEntity {
   @Column({ default: 'customer' })
   role: string;
 
-  @Column({ nullable: true, default: null, type: 'text' })
+  @Column({ nullable: true })
   avatar: string;
 
   @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)

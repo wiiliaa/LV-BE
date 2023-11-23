@@ -72,34 +72,25 @@ export class UserService {
   //   const condition = { id: userId };
   //   return await this.userRepository.update(condition, { avatar });
   // }
-
-  async saveBase64Avatar(user: User, base64Image: string) {
-    const userToSave = await this.userRepository.find({
+  async saveBase64Avatar(user: User, Image: string) {
+    const userToSave = await this.userRepository.findOne({
       where: { id: user.id },
     });
 
-    if (userToSave) {
-      // Giải mã base64 thành dữ liệu nhị phân
-      const imageBuffer = Buffer.from(base64Image, 'base64');
+    // Lưu dữ liệu nhị phân vào trường avatar
+    userToSave.avatar = Image;
 
-      // Lưu dữ liệu nhị phân vào trường avatar
-      user.avatar = imageBuffer.toString('binary');
-
-      // Lưu thông tin người dùng với ảnh avatar mới
-      await user.save();
-    }
+    // Lưu thông tin người dùng với ảnh avatar mới
+    await userToSave.save();
   }
 
   async getBase64Avatar(user: User) {
     const userToGet = await this.userRepository.find({
       where: { id: user.id },
     });
-
-    if (userToGet && user.avatar) {
-      // Chuyển đổi dữ liệu nhị phân thành base64
-      return Buffer.from(user.avatar, 'binary').toString('base64');
+    if (!userToGet) {
+      return user.avatar;
     }
-
     return null;
   }
 }

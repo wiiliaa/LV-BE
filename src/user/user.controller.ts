@@ -101,15 +101,14 @@ export class UserController {
   // }
 
   @Post('/uploadAvatar')
-  async saveBase64Avatar(
-    @GetUser() user: User,
-    @Body() base64Image: string,
-  ): Promise<void> {
-    return this.usersService.saveBase64Avatar(user, base64Image);
+  @UseGuards(AuthGuard('jwt'))
+  async saveBase64Avatar(@GetUser() user: User, @Body() Image: string) {
+    return this.usersService.saveBase64Avatar(user, Image);
   }
 
   @Get('/getAvatar')
-  async getBase64Avatar(@GetUser() user: User): Promise<string | null> {
+  @UseGuards(AuthGuard('jwt'))
+  async getBase64Avatar(@GetUser() user: User) {
     return this.usersService.getBase64Avatar(user);
   }
 }
