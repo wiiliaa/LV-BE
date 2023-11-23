@@ -23,7 +23,7 @@ import { extname } from 'path';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private usersService: UserService) {}
+  constructor(private usersService: UserService) { }
 
   @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -105,9 +105,10 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   async saveBase64Avatar(
     @GetUser() user: User,
-    @Body() body: { Image: string },
+    @Body() body: { avatar: string },
   ) {
-    const { Image } = body;
-    return this.usersService.saveBase64Avatar(user, Image);
+    const { avatar } = body;
+    console.log(avatar);
+    return this.usersService.saveBase64Avatar(user, avatar);
   }
 }

@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
@@ -32,7 +32,7 @@ export class UserService {
   }
 
   async findById(id: number) {
-    return this.userRepository.find({ where: { id } });
+    return this.userRepository.findOne({ where: { id } });
   }
 
   async delete(id: number) {
@@ -72,12 +72,12 @@ export class UserService {
   //   const condition = { id: userId };
   //   return await this.userRepository.update(condition, { avatar });
   // }
-  async saveBase64Avatar(user: User, Image: string) {
+  async saveBase64Avatar(user: User, avatar) {
     const userToSave = await this.userRepository.findOne({
       where: { id: user.id },
     });
 
-    userToSave.avatar = Image;
+    userToSave.avatar = avatar;
 
     // Lưu thông tin người dùng với ảnh avatar mới
     await userToSave.save();
