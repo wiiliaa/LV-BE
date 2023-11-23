@@ -75,7 +75,7 @@ export class UserController {
           cb(null, false);
         } else {
           const fileSize = parseInt(req.headers['content-length']);
-          if (fileSize > 1024 * 1024 * 5) {
+          if (fileSize > 1024 * 1024 * 50) {
             req.fileValidatonError = `File size is too lagre. Accepted file size is less to 5mb`;
             cb(null, false);
           } else {
