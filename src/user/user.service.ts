@@ -77,20 +77,9 @@ export class UserService {
       where: { id: user.id },
     });
 
-    // Lưu dữ liệu nhị phân vào trường avatar
     userToSave.avatar = Image;
 
     // Lưu thông tin người dùng với ảnh avatar mới
     await userToSave.save();
-  }
-
-  async getBase64Avatar(user: User) {
-    const userToGet = await this.userRepository.find({
-      where: { id: user.id },
-    });
-    if (!userToGet) {
-      return user.avatar;
-    }
-    return null;
   }
 }

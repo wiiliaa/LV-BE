@@ -33,7 +33,8 @@ export class UserController {
 
   @Get('/findById/:id')
   async findOne(@Param('id') id: number) {
-    return this.usersService.findById(id);
+    const user = await this.usersService.findById(id);
+    return user;
   }
 
   @Get('getAll/seller')
@@ -102,13 +103,11 @@ export class UserController {
 
   @Post('/uploadAvatar')
   @UseGuards(AuthGuard('jwt'))
-  async saveBase64Avatar(@GetUser() user: User, @Body() Image: string) {
+  async saveBase64Avatar(
+    @GetUser() user: User,
+    @Body() body: { Image: string },
+  ) {
+    const { Image } = body;
     return this.usersService.saveBase64Avatar(user, Image);
-  }
-
-  @Get('/getAvatar')
-  @UseGuards(AuthGuard('jwt'))
-  async getBase64Avatar(@GetUser() user: User) {
-    return this.usersService.getBase64Avatar(user);
   }
 }

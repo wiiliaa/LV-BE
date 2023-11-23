@@ -45,7 +45,7 @@ export class User extends BaseEntity {
   @Column({ default: 'customer' })
   role: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   avatar: string;
 
   @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)
