@@ -69,7 +69,7 @@ export class UserController {
       storage: storageConfig('avatar'),
       fileFilter: (req, file, cb) => {
         const ext = extname(file.originalname);
-        const allowedExtArr = ['jpg', 'png', 'jpeg'];
+        const allowedExtArr = ['.jpg', '.png', '.jpeg'];
         if (!allowedExtArr.includes(ext)) {
           req.fileValidatonError = ` Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
           cb(null, false);
@@ -85,16 +85,16 @@ export class UserController {
       },
     }),
   )
-  uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+  uploadAvatar(
+    @GetUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     console.log('upload avatar');
-    if (req.fileValidatonError) {
-      throw new BadRequestException(req.fileValidatonError);
-    }
     if (!file) {
       throw new BadRequestException('file is require');
     }
     this.usersService.updateAvatar(
-      req.user_data.id,
+      user,
       file.destination + '/' + file.fieldname,
     );
   }

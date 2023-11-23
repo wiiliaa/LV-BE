@@ -65,7 +65,11 @@ export class UserService {
     }
   }
 
-  async updateAvatar(id: number, avatar: string) {
-    return await this.userRepository.update(id, { avatar });
+  async updateAvatar(user: User, avatar: string) {
+    const userId = user.id;
+
+    // Create a condition to update the user with the specified userId
+    const condition = { id: userId };
+    return await this.userRepository.update(condition, { avatar });
   }
 }
