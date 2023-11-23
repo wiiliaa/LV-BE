@@ -101,7 +101,7 @@ export class UserController {
   // }
 
   @Post('/uploadAvatar')
-  saveBase64Avatar(
+  async saveBase64Avatar(
     @GetUser() user: User,
     @Body() base64Image: string,
   ): Promise<void> {
@@ -109,7 +109,7 @@ export class UserController {
   }
 
   @Get('/getAvatar')
-  getBase64Avatar(@GetUser() user: User): Promise<string | null> {
+  async getBase64Avatar(@GetUser() user: User): Promise<string | null> {
     return this.usersService.getBase64Avatar(user);
   }
 }

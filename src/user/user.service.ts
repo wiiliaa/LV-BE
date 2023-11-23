@@ -73,7 +73,7 @@ export class UserService {
   //   return await this.userRepository.update(condition, { avatar });
   // }
 
-  async saveBase64Avatar(user: User, base64Image: string): Promise<void> {
+  async saveBase64Avatar(user: User, base64Image: string) {
     const userToSave = await this.userRepository.find({
       where: { id: user.id },
     });
@@ -90,7 +90,7 @@ export class UserService {
     }
   }
 
-  async getBase64Avatar(user: User): Promise<string | null> {
+  async getBase64Avatar(user: User) {
     const userToGet = await this.userRepository.find({
       where: { id: user.id },
     });
