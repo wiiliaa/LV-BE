@@ -103,7 +103,7 @@ export class UserController {
   @Post('/uploadAvatar')
   saveBase64Avatar(
     @GetUser() user: User,
-    @Body('base64Image') base64Image: string,
+    @Body() base64Image: string,
   ): Promise<void> {
     return this.usersService.saveBase64Avatar(user, base64Image);
   }

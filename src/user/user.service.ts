@@ -74,8 +74,9 @@ export class UserService {
   // }
 
   async saveBase64Avatar(user: User, base64Image: string): Promise<void> {
-    const userId = user.id as number;
-    const userToSave = await this.findById(userId);
+    const userToSave = await this.userRepository.find({
+      where: { id: user.id },
+    });
 
     if (userToSave) {
       // Giải mã base64 thành dữ liệu nhị phân
@@ -90,8 +91,9 @@ export class UserService {
   }
 
   async getBase64Avatar(user: User): Promise<string | null> {
-    const userId = user.id as number;
-    const userToGet = await this.findById(userId);
+    const userToGet = await this.userRepository.find({
+      where: { id: user.id },
+    });
 
     if (userToGet && user.avatar) {
       // Chuyển đổi dữ liệu nhị phân thành base64
