@@ -108,7 +108,6 @@ export class UserController {
     @Body() body: { avatar: string },
   ) {
     const { avatar } = body;
-    console.log(avatar);
     return this.usersService.saveBase64Avatar(user, avatar);
   }
 }
