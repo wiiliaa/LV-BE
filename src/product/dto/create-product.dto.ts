@@ -14,12 +14,4 @@ export class CreateProductDto {
   type: string;
 
   origin: string;
-
-  ProductSizes: sizeDto[];
-}
-
-interface sizeDto {
-  sizeName: string;
-  productId: number;
-  quantity: number;
 }
