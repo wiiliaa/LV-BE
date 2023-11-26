@@ -41,7 +41,7 @@ export class ProductController {
     return this.productService.filterProducts(user, filter);
   }
 
-  @Get('/shop/all/:id')
+  @Get('/shop/:id/all')
   @UseGuards(AuthGuard('jwt'))
   async findProductsByShopId(
     @GetUser() user: User,
@@ -49,6 +49,7 @@ export class ProductController {
   ) {
     return this.productService.findProductsByShopId(user, shopId);
   }
+
   @Post('/createProduct')
   @UseGuards(AuthGuard('jwt'))
   create(@GetUser() user: User, @Body() createProductDto: CreateProductDto) {
