@@ -40,7 +40,7 @@ export class ProductService {
       product.type = type;
       product.gender = gender;
       product.origin = origin;
-      product.shop_id = user.shop.id;
+      product.shop_id = user.shop_id;
       if (image) {
         const publicPath = path.join(__dirname, '..', 'public');
         const imageBuffer = Buffer.from(image, 'base64');
