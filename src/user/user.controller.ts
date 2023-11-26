@@ -17,13 +17,11 @@ import { User } from './entities/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { UpdateUserDto } from './dto/update-uset.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { storageConfig } from 'src/helper/config';
-import { extname } from 'path';
+
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private usersService: UserService) { }
+  constructor(private usersService: UserService) {}
 
   @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
