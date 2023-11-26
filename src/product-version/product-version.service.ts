@@ -8,6 +8,7 @@ import { UpdateProductVersionDto } from './dto/update-product-version.dto';
 import { ProductVersion } from './entities/product-version.entity';
 import { ProductSizeService } from 'src/product_size/product_size.service';
 import { ProductService } from 'src/product/product.service';
+import { imageConfigDefault } from 'next/dist/shared/lib/image-config';
 
 @Injectable()
 export class ProductVersionService {

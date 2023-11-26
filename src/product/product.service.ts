@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import * as fs from 'fs';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +13,8 @@ import { ProductSizeService } from 'src/product_size/product_size.service';
 import { CreateProductSizeDto } from 'src/product_size/dto/create-product_size.dto';
 import { User } from 'src/user/entities/user.entity';
 import { SearchKeywordService } from 'src/search_keyword/search_keyword.service';
+import path from 'path';
+import { promisify } from 'util';
 
 @Injectable()
 export class ProductService {
@@ -26,15 +29,37 @@ export class ProductService {
     createProductDto: CreateProductDto,
   ): Promise<Product> {
     if (user.role === 'seller') {
-      const { name, brand, price, description, ProductSizes } =
-        createProductDto;
+      const {
+        name,
+        brand,
+        price,
+        description,
+        image,
+        type,
+        gender,
+        origin,
+        ProductSizes,
+      } = createProductDto;
 
       const product = new Product();
       product.name = name;
       product.brand = brand;
       product.price = price;
       product.description = description;
+      product.image = image;
+      product.type = type;
+      product.gender = gender;
+      product.origin = origin;
       product.shop_id = user.shop.id;
+      if (image) {
+        const publicPath = path.join(__dirname, '..', 'public');
+        const imageBuffer = Buffer.from(image, 'base64');
+        const imageName = `${name.replace(/\s+/g, '_')}_${Date.now()}.png`; // Đặt tên cho file dựa trên tên sản phẩm
+        const imagePath = path.join(publicPath, imageName);
+
+        await promisify(fs.writeFile)(imagePath, imageBuffer);
+        product.image = imageName;
+      }
       await product.save();
       if (ProductSizes) {
         for (const sizeDto of ProductSizes) {
@@ -50,28 +75,6 @@ export class ProductService {
       return product;
     }
     throw new InternalServerErrorException(`You don't have permission`);
-  }
-
-  async addImage(
-    user: User,
-    productId: number,
-    image: string,
-  ): Promise<Product> {
-    // Kiểm tra xem người dùng có quyền thêm hình ảnh hay không (có thể thêm logic kiểm tra quyền ở đây)
-
-    // Tìm sản phẩm cần thêm hình ảnh
-    const product = await this.productRepository.findOne({
-      where: { id: productId },
-    });
-    if (product.shop_id !== user.shop_id) {
-      throw new NotFoundException(`You don't have permission`);
-    }
-    // Cập nhật hình ảnh cho sản phẩm
-    product.image = image;
-    // Lưu thông tin sản phẩm với hình ảnh mới
-    await this.productRepository.save(product);
-
-    return product;
   }
 
   async findAll(): Promise<Product[]> {

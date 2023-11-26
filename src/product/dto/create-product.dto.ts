@@ -7,6 +7,14 @@ export class CreateProductDto {
 
   description: string;
 
+  image: string;
+
+  gender: string;
+
+  type: string;
+
+  origin: string;
+
   ProductSizes: sizeDto[];
 }
 

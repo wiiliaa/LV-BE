@@ -47,17 +47,6 @@ export class ProductController {
     return this.productService.create(user, createProductDto);
   }
 
-  @Post('/uploadAvatar/:productId')
-  @UseGuards(AuthGuard('jwt'))
-  async saveBase64ProductImage(
-    @GetUser() user: User,
-    @Param('productId') productId: number,
-    @Body() body: { Image: string },
-  ) {
-    const { Image } = body;
-    return this.productService.addImage(user, productId, Image);
-  }
-
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   async update(

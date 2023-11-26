@@ -42,6 +42,15 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   hasVersion: boolean;
 
+  @Column({ nullable: true })
+  gender: string;
+
+  @Column({ nullable: true })
+  type: string;
+
+  @Column({ nullable: true })
+  origin: string;
+
   @ManyToOne(() => Shop, (shop) => shop.products)
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;

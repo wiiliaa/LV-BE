@@ -16,4 +16,7 @@ export class UpdateProductDto {
   @IsOptional()
   @IsNotEmpty()
   description: string;
+
+  @IsOptional()
+  image: string;
 }
