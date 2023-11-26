@@ -8,15 +8,12 @@ import {
 } from 'typeorm';
 
 import { Product } from 'src/product/entities/product.entity';
+import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 
 @Entity()
 export class ProductSize extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ManyToOne(() => Product, (product) => product.productSizes)
-  @JoinColumn({ name: 'productId' })
-  product: Product;
 
   @Column()
   productId: number;
@@ -26,4 +23,7 @@ export class ProductSize extends BaseEntity {
 
   @Column()
   quantity: number;
+  @ManyToOne(() => ProductVersion, (productVersion) => productVersion.sizes)
+  @JoinColumn({ name: 'product_version_id' })
+  productVersion: ProductVersion;
 }

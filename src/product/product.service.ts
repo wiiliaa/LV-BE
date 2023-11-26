@@ -52,6 +52,28 @@ export class ProductService {
     throw new InternalServerErrorException(`You don't have permission`);
   }
 
+  async addImage(
+    user: User,
+    productId: number,
+    image: string,
+  ): Promise<Product> {
+    // Kiểm tra xem người dùng có quyền thêm hình ảnh hay không (có thể thêm logic kiểm tra quyền ở đây)
+
+    // Tìm sản phẩm cần thêm hình ảnh
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+    if (product.shop_id !== user.shop_id) {
+      throw new NotFoundException(`You don't have permission`);
+    }
+    // Cập nhật hình ảnh cho sản phẩm
+    product.image = image;
+    // Lưu thông tin sản phẩm với hình ảnh mới
+    await this.productRepository.save(product);
+
+    return product;
+  }
+
   async findAll(): Promise<Product[]> {
     return await this.productRepository.find();
   }

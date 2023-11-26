@@ -3,6 +3,7 @@
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
+import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 import { ProductCategory } from 'src/product_categories/entities/product_category.entity';
 import { ProductSize } from 'src/product_size/entities/product_size.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
@@ -35,6 +36,12 @@ export class Product extends BaseEntity {
   @Column()
   description: string;
 
+  @Column({ nullable: true, type: 'text' })
+  image: string;
+
+  @Column({ default: false })
+  hasVersion: boolean;
+
   @ManyToOne(() => Shop, (shop) => shop.products)
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
@@ -51,8 +58,8 @@ export class Product extends BaseEntity {
   })
   comments: Comment[];
 
-  @OneToMany(() => ProductSize, (productSize) => productSize.product)
-  productSizes: ProductSize[];
+  @OneToMany(() => ProductVersion, (version) => version.product)
+  versions: ProductVersion[];
 
   @OneToMany(() => CartItem, (cart_item) => cart_item.product)
   cart_items: CartItem[];

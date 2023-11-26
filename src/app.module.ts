@@ -19,6 +19,8 @@ import { PusherModule } from './pusher/pusher.module';
 import { ProductCategoriesModule } from './product_categories/product_categories.module';
 import { SearchKeywordModule } from './search_keyword/search_keyword.module';
 import { StripeModule } from './stripe/stripe.module';
+import { ImageModule } from './image/image.module';
+import { ProductVersionModule } from './product-version/product-version.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -43,6 +45,8 @@ import config from './config/TypeOrm.config';
     ProductCategoriesModule,
     SearchKeywordModule,
     StripeModule,
+    ImageModule,
+    ProductVersionModule,
   ],
 })
 export class AppModule {}

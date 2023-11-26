@@ -32,7 +32,7 @@ export class UserService {
   }
 
   async findById(id: number) {
-    return this.userRepository.find({ where: { id } });
+    return this.userRepository.findOne({ where: { id } });
   }
 
   async delete(id: number) {
