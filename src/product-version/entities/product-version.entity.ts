@@ -25,7 +25,7 @@ export class ProductVersion extends BaseEntity {
   @Column()
   image: string;
 
-  @Column()
+  @Column({ default: 0, nullable: true })
   total: number;
 
   @BeforeInsert()

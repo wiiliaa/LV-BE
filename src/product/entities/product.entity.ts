@@ -53,7 +53,7 @@ export class Product extends BaseEntity {
   @Column({ nullable: true })
   origin: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, nullable: true })
   total: number;
 
   @BeforeInsert()
