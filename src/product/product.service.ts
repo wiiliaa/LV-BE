@@ -69,6 +69,14 @@ export class ProductService {
     return found;
   }
 
+  async findProductsByShopId(user: User, shopId: number): Promise<Product[]> {
+    const products = await this.productRepository.find({
+      where: { shop_id: shopId },
+    });
+
+    return products;
+  }
+
   async findByName(name: string): Promise<Product[]> {
     const found = await this.productRepository
       .createQueryBuilder('Product')

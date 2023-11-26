@@ -41,6 +41,14 @@ export class ProductController {
     return this.productService.filterProducts(user, filter);
   }
 
+  @Get('/shop/all/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async findProductsByShopId(
+    @GetUser() user: User,
+    @Param('id') shopId: number,
+  ) {
+    return this.productService.findProductsByShopId(user, shopId);
+  }
   @Post('/createProduct')
   @UseGuards(AuthGuard('jwt'))
   create(@GetUser() user: User, @Body() createProductDto: CreateProductDto) {
