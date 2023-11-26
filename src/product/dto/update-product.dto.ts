@@ -19,4 +19,13 @@ export class UpdateProductDto {
 
   @IsOptional()
   image: string;
+
+  @IsOptional()
+  gender: string;
+
+  @IsOptional()
+  type: string;
+
+  @IsOptional()
+  origin: string;
 }
