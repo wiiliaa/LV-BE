@@ -10,6 +10,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  BeforeUpdate,
+  BeforeInsert,
 } from 'typeorm';
 
 @Entity()
@@ -23,11 +25,25 @@ export class ProductVersion extends BaseEntity {
   @Column()
   image: string;
 
+  @Column()
+  total: number;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  updateTotal() {
+    // Tính toán tổng số lượng từ các size và cập nhật vào trường total
+    this.total = this.calculateTotal();
+  }
+
+  private calculateTotal(): number {
+    return this.sizes.reduce((total, size) => total + size.quantity, 0);
+  }
+
   @ManyToOne(() => Product, (product) => product.versions)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @OneToMany(() => ProductSize, (productSize) => productSize.productVersion)
+  @OneToMany(() => ProductSize, (productSize) => productSize.version)
   sizes: ProductSize[];
 
   @CreateDateColumn({

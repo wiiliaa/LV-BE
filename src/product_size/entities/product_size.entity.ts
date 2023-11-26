@@ -23,7 +23,11 @@ export class ProductSize extends BaseEntity {
 
   @Column()
   quantity: number;
-  @ManyToOne(() => ProductVersion, (productVersion) => productVersion.sizes)
-  @JoinColumn({ name: 'product_version_id' })
-  productVersion: ProductVersion;
+
+  @ManyToOne(() => ProductVersion, (version) => version.sizes)
+  @JoinColumn({ name: 'version_id' })
+  version: ProductVersion;
+
+  @Column()
+  version_id: number;
 }

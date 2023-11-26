@@ -17,6 +17,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 
 @Entity()
@@ -50,6 +52,20 @@ export class Product extends BaseEntity {
 
   @Column({ nullable: true })
   origin: string;
+
+  @Column({ default: 0 })
+  total: number;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  updateTotal() {
+    // Tính toán tổng số lượng từ các phiên bản và cập nhật vào trường total
+    this.total = this.calculateTotal();
+  }
+
+  private calculateTotal(): number {
+    return this.versions.reduce((total, version) => total + version.total, 0);
+  }
 
   @ManyToOne(() => Shop, (shop) => shop.products)
   @JoinColumn({ name: 'shop_id' })

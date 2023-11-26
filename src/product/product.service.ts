@@ -20,7 +20,6 @@ import { promisify } from 'util';
 export class ProductService {
   constructor(
     @InjectRepository(Product) private productRepository: Repository<Product>,
-    private productSizeService: ProductSizeService,
     private searchKeywordService: SearchKeywordService,
   ) {}
 
@@ -61,16 +60,6 @@ export class ProductService {
         product.image = imageName;
       }
       await product.save();
-      if (ProductSizes) {
-        for (const sizeDto of ProductSizes) {
-          const productSize: CreateProductSizeDto = {
-            sizeName: sizeDto.sizeName,
-            quantity: sizeDto.quantity,
-            productId: product.id,
-          };
-          await this.productSizeService.create(productSize);
-        }
-      }
 
       return product;
     }

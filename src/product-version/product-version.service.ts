@@ -47,7 +47,7 @@ export class ProductVersionService {
         const productSize = new ProductSize();
         productSize.sizeName = sizeDto.sizeName;
         productSize.quantity = sizeDto.quantity;
-        productSize.productVersion = productVersion;
+        productSize.version = productVersion;
 
         await this.productSizeService.create(productSize);
       }
