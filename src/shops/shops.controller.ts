@@ -19,7 +19,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Shops')
 @Controller('shops')
 export class ShopController {
-  constructor(private readonly shopService: ShopService) {}
+  constructor(private readonly shopService: ShopService) { }
 
   @Post('/createShop')
   @UseGuards(AuthGuard('jwt'))
@@ -31,7 +31,6 @@ export class ShopController {
   }
 
   @Post(':id/process')
-  @UseGuards(AuthGuard('jwt'))
   async processShopRequest(
     @Param('id') shopId: number,
     @Body() body: { status: 'accept' | 'reject' },
