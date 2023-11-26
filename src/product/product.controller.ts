@@ -31,7 +31,7 @@ export class ProductController {
     return this.productService.findByName(name);
   }
 
-  @Get('/id/:id')
+  @Get('/detail/:id')
   async findOne(@Param('id') id: number) {
     return this.productService.findById(id);
   }
