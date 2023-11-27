@@ -5,7 +5,7 @@ import { ImageService } from './image.service';
 import { join } from 'path';
 @Controller('images')
 export class ImageController {
-  constructor(private readonly imageService: ImageService) {}
+  constructor(private readonly imageService: ImageService) { }
 
   @Get(':path')
   async getImage(@Param('path') imagePath: string, @Res() res: Response) {
@@ -14,7 +14,6 @@ export class ImageController {
       'src/public/userAvatar',
       imagePath,
     );
-    console.log('tets', absolutePath);
     const imageData = await this.imageService.getImage(absolutePath);
 
     if (imageData !== null) {
