@@ -11,7 +11,6 @@ import { UpdateUserDto } from './dto/update-uset.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
 import { promisify } from 'util';
-import * as path from 'path';
 import * as fs from 'fs';
 import { ImageService } from 'src/image/image.service';
 @Injectable()

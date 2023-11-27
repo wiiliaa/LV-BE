@@ -5,13 +5,13 @@ import { ImageService } from './image.service';
 import { join } from 'path';
 @Controller('images')
 export class ImageController {
-  constructor(private readonly imageService: ImageService) { }
+  constructor(private readonly imageService: ImageService) {}
 
   @Get(':path')
   async getImage(@Param('path') imagePath: string, @Res() res: Response) {
     const absolutePath = await join(
       // process.cwd(),
-      'src/public/userAvatar',
+      'public/userAvatar',
       imagePath,
     );
     const imageData = await this.imageService.getImage(absolutePath);

@@ -21,7 +21,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get('/all')
+  @Get('/getAll')
   async getAll() {
     return this.productService.findAll();
   }
@@ -56,7 +56,7 @@ export class ProductController {
     return this.productService.create(user, createProductDto);
   }
 
-  @Put(':id')
+  @Put('updateProduct/:id')
   @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: number,

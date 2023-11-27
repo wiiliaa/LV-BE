@@ -8,9 +8,9 @@ const readFileAsync = promisify(fs.readFile);
 @Injectable()
 export class ImageService {
   async getImage(imagePath: string): Promise<string | null> {
-    const absolutePath = await join(process.cwd(), 'public/uploads', imagePath);
+    const filePath = `public/uploads/${imagePath}`;
     try {
-      const imageContent = await readFileAsync(absolutePath, 'utf-8');
+      const imageContent = await readFileAsync(filePath, 'utf-8');
       return imageContent;
     } catch (error) {
       console.error('Lỗi khi đọc nội dung tệp tin:', error.message);
