@@ -2,6 +2,7 @@
 /dist
 /node_modules
 
+
 # Logs
 logs
 *.log
@@ -34,6 +35,6 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/public
+public
 
 /config/TypeOrm.config.ts
