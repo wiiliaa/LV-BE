@@ -61,10 +61,8 @@ export class ProductCategoriesService {
         // Tạo đường dẫn và tên file cho mã base64
         const fileName = `${name}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
-        console.log(filePath);
         // Lưu mã base64 vào tệp văn bản
         await writeFileAsync(filePath, image);
-        console.log(writeFileAsync);
         // Lưu đường dẫn tệp vào trường image của sản phẩm
         category.image = fileName;
       } catch (error) {

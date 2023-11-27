@@ -25,7 +25,7 @@ export class ProductService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     private searchKeywordService: SearchKeywordService,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async create(
     user: User,
@@ -50,7 +50,7 @@ export class ProductService {
         try {
           // Tạo đường dẫn và tên file cho mã base64
           const fileName = `${name.replace(/ /g, '_')}_${Date.now()}-image.txt`;
-          const filePath = `/public/uploads/${fileName}`;
+          const filePath = `public/uploads/${fileName}`;
 
           // Lưu mã base64 vào tệp văn bản
           await writeFileAsync(filePath, image);
