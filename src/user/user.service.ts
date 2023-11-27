@@ -19,7 +19,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
@@ -45,6 +45,7 @@ export class UserService {
   async findById(id: number) {
     const res = await this.userRepository.findOne({ where: { id } });
     const image = await this.imageService.getImage(res.avatar);
+    console.log('image', image);
     return { ...res, avatar: image };
   }
 
@@ -82,16 +83,18 @@ export class UserService {
         // Kiểm tra xem có ảnh cũ không
         if (userToUpdate.avatar) {
           const oldImagePath = join('src/public/uploads/', userToUpdate.avatar);
+          console.error('Hello commm2');
 
           // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
             await unlinkAsync(oldImagePath);
           }
         }
+        console.error('Hello commm');
 
         // Tạo đường dẫn và tên file cho ảnh mới
         const fileName = `${userToUpdate.username}-avatar.txt`;
-        const filePath = join('src/public/uploads/', fileName);
+        const filePath = join('public/uploads/', fileName);
 
         // Lưu ảnh mới vào tệp văn bản
         await writeFileAsync(filePath, updateUserDto.avatar);
@@ -114,6 +117,7 @@ export class UserService {
         return { success: false };
       }
     } catch (error) {
+
       console.error('Lỗi khi cập nhật người dùng:', error);
       throw new InternalServerErrorException('Lỗi khi cập nhật người dùng');
     }
