@@ -19,7 +19,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
@@ -45,7 +45,6 @@ export class UserService {
   async findById(id: number) {
     const res = await this.userRepository.findOne({ where: { id } });
     const image = await this.imageService.getImage(res.avatar);
-    console.log('image', image);
     return { ...res, avatar: image };
   }
 
@@ -89,7 +88,6 @@ export class UserService {
             await unlinkAsync(oldImagePath);
           }
         }
-
         const fileName = `${userToUpdate.username}-avatar.txt`;
         const filePath = join('/public/uploads/', fileName);
 

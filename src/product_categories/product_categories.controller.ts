@@ -18,7 +18,7 @@ import { ProductCategoriesService } from './product_categories.service';
 export class ProductCategoryController {
   constructor(
     private readonly productCategoriesService: ProductCategoriesService,
-  ) {}
+  ) { }
 
   @Get('getAll')
   findAll(): Promise<ProductCategory[]> {

@@ -20,7 +20,7 @@ export class ProductCategoriesService {
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<ProductCategory[]> {
     // Lấy danh sách danh mục sản phẩm từ cơ sở dữ liệu
