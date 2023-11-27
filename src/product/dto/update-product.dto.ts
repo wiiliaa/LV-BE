@@ -2,11 +2,9 @@ import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateProductDto {
   @IsOptional()
-  @IsNotEmpty()
   name: string;
 
   @IsOptional()
-  @IsNotEmpty()
   brand: string;
 
   @IsOptional()
@@ -14,7 +12,6 @@ export class UpdateProductDto {
   price: number;
 
   @IsOptional()
-  @IsNotEmpty()
   description: string;
 
   @IsOptional()
