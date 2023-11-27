@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProductSize } from './entities/product_size.entity';
 import { CreateProductSizeDto } from './dto/create-product_size.dto';
 import { UpdateProductSizeDto } from './dto/update-product_size.dto';
+import { ProductVersionService } from 'src/product-version/product-version.service';
 
 @Injectable()
 export class ProductSizeService {
@@ -12,18 +13,38 @@ export class ProductSizeService {
     private productSizeRepository: Repository<ProductSize>,
   ) {}
 
-  async create(createProductSizeDto: CreateProductSizeDto) {
-    const { sizeName, quantity, productId } = createProductSizeDto;
-    const meta = new ProductSize();
+  // async createForVersion(
+  //   productVersionId: number,
+  //   createProductSizeDtos: CreateProductSizeDto[],
+  // ) {
+  //   // Kiểm tra xem phiên bản sản phẩm có tồn tại không
+  //   const productVersion = await this.productVersionService.findById(
+  //     productVersionId,
+  //   );
 
-    meta.sizeName = sizeName;
-    meta.quantity = quantity;
-    meta.productId = productId;
+  //   if (!productVersion) {
+  //     throw new NotFoundException(
+  //       `Product version with ID ${productVersionId} not found`,
+  //     );
+  //   }
 
-    await meta.save();
+  //   const productSizes: ProductSize[] = [];
 
-    return meta;
-  }
+  //   for (const createProductSizeDto of createProductSizeDtos) {
+  //     const { sizeName, quantity } = createProductSizeDto;
+
+  //     const productSize = new ProductSize();
+  //     productSize.sizeName = sizeName;
+  //     productSize.quantity = quantity;
+  //     productSize.version = productVersion;
+
+  //     await productSize.save();
+  //     productSizes.push(productSize);
+  //   }
+
+  //   return productSizes;
+  // }
+
   async update(
     productId: number,
     sizeName: string,

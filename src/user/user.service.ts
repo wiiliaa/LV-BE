@@ -45,7 +45,7 @@ export class UserService {
     const users = await this.userRepository.find();
 
     // Duyệt qua từng người dùng và thêm thông tin ảnh nếu có
-    const usersWithImages: User[] = await Promise.all(
+    const usersWithImages: (User | null)[] = await Promise.all(
       users.map(async (user) => {
         // Lấy thông tin ảnh từ imageService
         if (user.avatar) {
@@ -56,12 +56,18 @@ export class UserService {
             ...user,
             avatar,
           } as User;
+        } else {
+          // Nếu không có ảnh, trả về người dùng với avatar là null
+          return {
+            ...user,
+            avatar: null,
+          } as User;
         }
       }),
     );
 
-    // Trả về danh sách người dùng với thông tin ảnh (nếu có)
-    return usersWithImages;
+    // Lọc ra những người dùng không có hình (null) và trả về danh sách
+    return usersWithImages.filter((user) => user !== null) as User[];
   }
 
   async findById(id: number) {

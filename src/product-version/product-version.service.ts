@@ -19,8 +19,6 @@ export class ProductVersionService {
     private readonly productVersionRepository: Repository<ProductVersion>,
 
     private productService: ProductService,
-
-    private productSizeService: ProductSizeService,
   ) {}
 
   async create(

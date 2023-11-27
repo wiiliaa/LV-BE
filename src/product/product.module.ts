@@ -13,7 +13,7 @@ import { ImageModule } from 'src/image/image.module';
   providers: [ProductService],
   imports: [
     TypeOrmModule.forFeature([Product]),
-    ProductSizeModule,
+
     SearchKeywordModule,
     ImageModule,
   ],
