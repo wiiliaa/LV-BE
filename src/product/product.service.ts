@@ -31,6 +31,7 @@ export class ProductService {
       const { name, brand, price, description, image, type, gender, origin } =
         createProductDto;
 
+      const writeFileAsync = promisify(fs.writeFile);
       const product = new Product();
       product.name = name;
       product.brand = brand;
@@ -41,15 +42,25 @@ export class ProductService {
       product.gender = gender;
       product.origin = origin;
       product.shop_id = user.shop_id;
-      if (image) {
-        const publicPath = path.join(__dirname, '..', 'public');
-        const imageBuffer = Buffer.from(image, 'base64');
-        const imageName = `${name.replace(/\s+/g, '_')}_${Date.now()}.png`; // Đặt tên cho file dựa trên tên sản phẩm
-        const imagePath = path.join(publicPath, imageName);
 
-        await promisify(fs.writeFile)(imagePath, imageBuffer);
-        product.image = imageName;
+      if (image) {
+        try {
+          // Create a path and filename for the image
+          const imagePath = `./src/public/uploads/${Date.now()}-image.png`;
+
+          // Decode base64 and save the image to the public/uploads folder
+          const imageBuffer = Buffer.from(image, 'base64');
+          await writeFileAsync(imagePath, imageBuffer);
+
+          // Save the file path to the product
+          product.image = imagePath;
+        } catch (error) {
+          throw new InternalServerErrorException(
+            'Error processing base64 image',
+          );
+        }
       }
+
       await product.save();
 
       return product;
