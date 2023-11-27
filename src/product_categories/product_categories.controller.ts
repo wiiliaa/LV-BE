@@ -30,14 +30,14 @@ export class ProductCategoryController {
     return this.productCategoriesService.findOne(id);
   }
 
-  @Post()
+  @Post('createCategory')
   create(
     @Body() createProductCategoryDto: CreateProductCategoryDto,
   ): Promise<ProductCategory> {
     return this.productCategoriesService.create(createProductCategoryDto);
   }
 
-  @Put(':id')
+  @Put('updateCategory/:id')
   update(
     @Param('id') id: number,
     @Body() updateProductCategoryDto: UpdateProductCategoryDto,
@@ -45,12 +45,7 @@ export class ProductCategoryController {
     return this.productCategoriesService.update(id, updateProductCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
-    return this.productCategoriesService.remove(id);
-  }
-
-  @Delete(':id/delete-category')
+  @Delete('delete/:id')
   deleteCategory(@Param('id') id: number): Promise<{ success: boolean }> {
     return this.productCategoriesService.deleteCategory(id);
   }

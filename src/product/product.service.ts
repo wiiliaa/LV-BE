@@ -71,7 +71,25 @@ export class ProductService {
   }
 
   async findAll(): Promise<Product[]> {
-    return await this.productRepository.find();
+    // Lấy danh sách sản phẩm từ cơ sở dữ liệu
+    const products = await this.productRepository.find();
+
+    // Duyệt qua từng sản phẩm và thêm thông tin ảnh
+    const productsWithImages: Product[] = await Promise.all(
+      products.map(async (product) => {
+        // Lấy thông tin ảnh từ imageService
+        const image = await this.imageService.getImage(product.image);
+
+        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+        return {
+          ...product,
+          image,
+        } as Product;
+      }),
+    );
+
+    // Trả về danh sách sản phẩm với thông tin ảnh
+    return productsWithImages;
   }
 
   async findById(id: number) {

@@ -82,6 +82,8 @@ export class UserService {
         // Kiểm tra xem có ảnh cũ không
         if (userToUpdate.avatar) {
           const oldImagePath = join('/public/uploads/', userToUpdate.avatar);
+
+          // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
             await unlinkAsync(oldImagePath);
           }
@@ -106,7 +108,6 @@ export class UserService {
         return { success: false };
       }
     } catch (error) {
-
       console.error('Lỗi khi cập nhật người dùng:', error);
       throw new InternalServerErrorException('Lỗi khi cập nhật người dùng');
     }
