@@ -20,5 +20,8 @@ export class UpdateDiscountDto {
   description?: string;
 
   @IsOptional()
+  image: string;
+
+  @IsOptional()
   active?: Date;
 }

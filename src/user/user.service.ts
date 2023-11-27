@@ -81,26 +81,18 @@ export class UserService {
       if (updateUserDto.avatar) {
         // Kiểm tra xem có ảnh cũ không
         if (userToUpdate.avatar) {
-          const oldImagePath = join('src/public/uploads/', userToUpdate.avatar);
-
-          // Nếu file cũ tồn tại, xóa nó đi
+          const oldImagePath = join('/public/uploads/', userToUpdate.avatar);
           if (existsSync(oldImagePath)) {
             await unlinkAsync(oldImagePath);
           }
         }
-
-        // Tạo đường dẫn và tên file cho ảnh mới
         const fileName = `${userToUpdate.username}-avatar.txt`;
-        const filePath = join('src/public/uploads/', fileName);
+        const filePath = join('/public/uploads/', fileName);
 
         // Lưu ảnh mới vào tệp văn bản
         await writeFileAsync(filePath, updateUserDto.avatar);
-
-        // Lưu đường dẫn tệp vào trường avatar của người dùng
         updateUserDto.avatar = fileName;
       }
-
-      // Thực hiện cập nhật thông tin người dùng
       const updateResult = await this.userRepository
         .createQueryBuilder('user')
         .update(User)

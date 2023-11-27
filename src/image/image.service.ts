@@ -10,7 +10,7 @@ export class ImageService {
   async getImage(imagePath: string): Promise<string | null> {
     const absolutePath = await join(
       process.cwd(),
-      'src/public/uploads',
+      '/public/uploads',
       imagePath,
     );
     try {
