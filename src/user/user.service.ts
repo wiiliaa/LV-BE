@@ -91,7 +91,7 @@ export class UserService {
 
         // Tạo đường dẫn và tên file cho ảnh mới
         const fileName = `${userToUpdate.username}-avatar.txt`;
-        const filePath = join('src/public/userAvatar/', fileName);
+        const filePath = join('src/public/uploads/', fileName);
 
         // Lưu ảnh mới vào tệp văn bản
         await writeFileAsync(filePath, updateUserDto.avatar);

@@ -148,7 +148,7 @@ export class ProductService {
       if (updateProductDto.image) {
         // Kiểm tra xem có hình ảnh cũ không
         if (product.image) {
-          const oldImagePath = join('src/public/ProductImage/', product.image);
+          const oldImagePath = join('src/public/uploads/', product.image);
 
           // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
@@ -161,7 +161,7 @@ export class ProductService {
           / /g,
           '_',
         )}_${Date.now()}-image.txt`;
-        const filePath = join('src/public/ProductImage/', fileName);
+        const filePath = join('src/public/uploads/', fileName);
 
         // Lưu mã base64 mới vào tệp văn bản
         await writeFileAsync(filePath, updateProductDto.image);
@@ -193,7 +193,7 @@ export class ProductService {
 
       // Nếu sản phẩm có hình ảnh, xóa nội dung của file hình ảnh
       if (product.image) {
-        const imagePath = `src/public/ProductImage/${product.image}`;
+        const imagePath = `src/public/uploads/${product.image}`;
         await unlinkAsync(imagePath);
       }
 
