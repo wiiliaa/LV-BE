@@ -23,7 +23,25 @@ export class ProductCategoriesService {
   ) { }
 
   async findAll(): Promise<ProductCategory[]> {
-    return this.productCategoryRepository.find();
+    // Lấy danh sách danh mục sản phẩm từ cơ sở dữ liệu
+    const categories = await this.productCategoryRepository.find();
+
+    // Duyệt qua từng danh mục sản phẩm và thêm thông tin ảnh
+    const categoriesWithImages: ProductCategory[] = await Promise.all(
+      categories.map(async (category) => {
+        // Lấy thông tin ảnh từ imageService
+        const image = await this.imageService.getImage(category.image);
+
+        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+        return {
+          ...category,
+          image,
+        } as ProductCategory;
+      }),
+    );
+
+    // Trả về danh sách danh mục sản phẩm với thông tin ảnh
+    return categoriesWithImages;
   }
 
   async findOne(id: number) {
