@@ -33,20 +33,20 @@ export class ProductCategoriesService {
   }
 
   async create(categoryData: CreateProductCategoryDto) {
-    const writeFileAsync = promisify(fs.writeFile);
     const { name, image } = categoryData;
+    const writeFileAsync = promisify(fs.writeFile);
     const category = new ProductCategory();
-
     category.name = name;
     category.image = image;
     if (image) {
       try {
         // Tạo đường dẫn và tên file cho mã base64
-        const fileName = `${name.replace(/ /g, '_')}_${Date.now()}-image.txt`;
-        const filePath = `/public/ProductImage/${fileName}`;
-
+        const fileName = `${name}-image.txt`;
+        const filePath = `public/uploads/${fileName}`;
+        console.log(filePath);
         // Lưu mã base64 vào tệp văn bản
         await writeFileAsync(filePath, image);
+        console.log(writeFileAsync);
         // Lưu đường dẫn tệp vào trường image của sản phẩm
         category.image = fileName;
       } catch (error) {
@@ -56,6 +56,7 @@ export class ProductCategoriesService {
     await category.save();
     return category;
   }
+
   async update(
     id: number,
     updateCategoryDto: UpdateProductCategoryDto,
@@ -74,7 +75,7 @@ export class ProductCategoriesService {
 
       if (updateCategoryDto.image) {
         if (category.image) {
-          const oldImagePath = join('/public/uploads/', category.image);
+          const oldImagePath = join('public/uploads/', category.image);
 
           if (existsSync(oldImagePath)) {
             await unlink(oldImagePath);
@@ -85,7 +86,7 @@ export class ProductCategoriesService {
           / /g,
           '_',
         )}_${Date.now()}-image.txt`;
-        const filePath = join('/public/uploads/', fileName);
+        const filePath = `public/uploads/${fileName}`;
 
         await writeFile(filePath, updateCategoryDto.image);
 

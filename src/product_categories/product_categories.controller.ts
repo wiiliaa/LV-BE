@@ -14,7 +14,7 @@ import { CreateProductCategoryDto } from './dto/create-product_category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product_category.dto';
 import { ProductCategoriesService } from './product_categories.service';
 
-@Controller('api/product-categories')
+@Controller('categories')
 export class ProductCategoryController {
   constructor(
     private readonly productCategoriesService: ProductCategoriesService,
@@ -31,9 +31,7 @@ export class ProductCategoryController {
   }
 
   @Post('createCategory')
-  create(
-    @Body() createProductCategoryDto: CreateProductCategoryDto,
-  ): Promise<ProductCategory> {
+  create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
     return this.productCategoriesService.create(createProductCategoryDto);
   }
 

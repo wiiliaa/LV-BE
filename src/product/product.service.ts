@@ -50,7 +50,7 @@ export class ProductService {
         try {
           // Tạo đường dẫn và tên file cho mã base64
           const fileName = `${name.replace(/ /g, '_')}_${Date.now()}-image.txt`;
-          const filePath = `/public/ProductImage/${fileName}`;
+          const filePath = `/public/uploads/${fileName}`;
 
           // Lưu mã base64 vào tệp văn bản
           await writeFileAsync(filePath, image);
@@ -179,7 +179,7 @@ export class ProductService {
           / /g,
           '_',
         )}_${Date.now()}-image.txt`;
-        const filePath = join('/public/uploads/', fileName);
+        const filePath = `public/uploads/${fileName}`;
 
         // Lưu mã base64 mới vào tệp văn bản
         await writeFileAsync(filePath, updateProductDto.image);
