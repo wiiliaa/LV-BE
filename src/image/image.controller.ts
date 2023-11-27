@@ -8,12 +8,14 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Get(':path')
-  async getImageData(@Param('path') imagePath: string, @Res() res: Response) {
-    const absolutePath = join(process.cwd(), 'src/public/uploads', imagePath);
-
-    const imageData = await this.imageService.getImageDataFromPath(
-      absolutePath,
+  async getImage(@Param('path') imagePath: string, @Res() res: Response) {
+    const absolutePath = await join(
+      // process.cwd(),
+      'src/public/userAvatar',
+      imagePath,
     );
+    console.log('tets', absolutePath);
+    const imageData = await this.imageService.getImage(absolutePath);
 
     if (imageData !== null) {
       res.setHeader('Content-Type', 'text/plain');

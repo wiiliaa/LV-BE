@@ -13,10 +13,12 @@ import { join } from 'path';
 import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
+import { ImageService } from 'src/image/image.service';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private imageService: ImageService,
   ) {}
 
   async getCustomers(): Promise<User[]> {
@@ -41,7 +43,9 @@ export class UserService {
   }
 
   async findById(id: number) {
-    return this.userRepository.findOne({ where: { id } });
+    const res = await this.userRepository.findOne({ where: { id } });
+    const image = await this.imageService.getImage(res.avatar);
+    return { ...res, avatar: image };
   }
 
   async delete(id: number) {
