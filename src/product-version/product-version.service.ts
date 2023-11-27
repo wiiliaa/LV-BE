@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from 'src/product/entities/product.entity';
-import { ProductSize } from 'src/product_size/entities/product_size.entity';
 import { CreateProductVersionDto } from './dto/create-product-version.dto';
 import { UpdateProductVersionDto } from './dto/update-product-version.dto';
 import { ProductVersion } from './entities/product-version.entity';
 import { ProductSizeService } from 'src/product_size/product_size.service';
 import { ProductService } from 'src/product/product.service';
-
+import { promisify } from 'util';
+import * as fs from 'fs';
 @Injectable()
 export class ProductVersionService {
   constructor(
@@ -30,14 +33,27 @@ export class ProductVersionService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
+    const writeFileAsync = promisify(fs.writeFile);
+    const { name, image } = createProductVersionDto;
     const productVersion = new ProductVersion();
     product.hasVersion = true;
-    productVersion.Name = createProductVersionDto.versionName;
-    productVersion.image = createProductVersionDto.image;
+    productVersion.name = name;
+    productVersion.image = image;
+    if (image) {
+      try {
+        // Tạo đường dẫn và tên file cho mã base64
+        const fileName = `${name}-image.txt`;
+        const filePath = `public/uploads/${fileName}`;
 
+        // Lưu mã base64 vào tệp văn bản
+        await writeFileAsync(filePath, image);
+        // Lưu đường dẫn tệp vào trường image của phiên bản sản phẩm
+        productVersion.image = fileName;
+      } catch (error) {
+        throw new InternalServerErrorException('Lỗi khi lưu mã base64 vào tệp');
+      }
+    }
     await this.productVersionRepository.save(productVersion);
-
-    // Tạo các kích thước sản phẩm cho phiên bản nếu có
 
     return productVersion;
   }
@@ -58,10 +74,7 @@ export class ProductVersionService {
     return productVersion;
   }
 
-  async update(
-    id: number,
-    updateProductVersionDto: UpdateProductVersionDto,
-  ): Promise<ProductVersion> {
+  async update(id: number, updateProductVersionDto: UpdateProductVersionDto) {
     await this.productVersionRepository.update(id, updateProductVersionDto);
 
     return await this.productVersionRepository.findOne({

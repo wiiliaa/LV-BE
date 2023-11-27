@@ -26,7 +26,7 @@ export class UserController {
   @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
   async find() {
-    return this.usersService.find();
+    return this.usersService.findAll();
   }
 
   @Get('/findById/:id')

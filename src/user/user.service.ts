@@ -19,7 +19,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private imageService: ImageService,
-  ) { }
+  ) {}
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
@@ -38,8 +38,31 @@ export class UserService {
     return users;
   }
 
-  async find() {
+  async find(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async findAll(): Promise<User[]> {
+    const users = await this.userRepository.find();
+
+    // Duyệt qua từng người dùng và thêm thông tin ảnh nếu có
+    const usersWithImages: User[] = await Promise.all(
+      users.map(async (user) => {
+        // Lấy thông tin ảnh từ imageService
+        if (user.avatar) {
+          const avatar = await this.imageService.getImage(user.avatar);
+
+          // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+          return {
+            ...user,
+            avatar,
+          } as User;
+        }
+      }),
+    );
+
+    // Trả về danh sách người dùng với thông tin ảnh (nếu có)
+    return usersWithImages;
   }
 
   async findById(id: number) {

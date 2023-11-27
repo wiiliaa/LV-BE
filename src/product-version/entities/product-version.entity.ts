@@ -20,7 +20,7 @@ export class ProductVersion extends BaseEntity {
   id: number;
 
   @Column()
-  Name: string;
+  name: string;
 
   @Column()
   image: string;

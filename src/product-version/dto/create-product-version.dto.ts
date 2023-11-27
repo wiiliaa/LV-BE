@@ -4,7 +4,7 @@ import { CreateProductSizeDto } from 'src/product_size/dto/create-product_size.d
 export class CreateProductVersionDto {
   @IsNotEmpty()
   @IsString()
-  versionName: string;
+  name: string;
 
   @IsOptional()
   @IsString()
