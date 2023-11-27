@@ -1,48 +1,57 @@
-// product-category.controller.ts
+// product-categories.controller.ts
 import {
   Controller,
   Get,
+  Param,
   Post,
+  Body,
   Put,
   Delete,
-  Param,
-  Body,
 } from '@nestjs/common';
-import { ProductCategoriesService } from './product_categories.service';
+
+import { ProductCategory } from './entities/product_category.entity';
 import { CreateProductCategoryDto } from './dto/create-product_category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product_category.dto';
+import { ProductCategoriesService } from './product_categories.service';
 
-@Controller('product-categories')
+@Controller('api/product-categories')
 export class ProductCategoryController {
   constructor(
-    private readonly productCategoryService: ProductCategoriesService,
+    private readonly productCategoriesService: ProductCategoriesService,
   ) {}
 
   @Get()
-  findAll() {
-    return this.productCategoryService.findAll();
+  findAll(): Promise<ProductCategory[]> {
+    return this.productCategoriesService.findAll();
   }
 
-  @Get(':id')
+  @Get('detail/:id')
   findOne(@Param('id') id: number) {
-    return this.productCategoryService.findOne(id);
+    return this.productCategoriesService.findOne(id);
   }
 
   @Post()
-  create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
-    return this.productCategoryService.create(createProductCategoryDto);
+  create(
+    @Body() createProductCategoryDto: CreateProductCategoryDto,
+  ): Promise<ProductCategory> {
+    return this.productCategoriesService.create(createProductCategoryDto);
   }
 
   @Put(':id')
   update(
     @Param('id') id: number,
     @Body() updateProductCategoryDto: UpdateProductCategoryDto,
-  ) {
-    return this.productCategoryService.update(id, updateProductCategoryDto);
+  ): Promise<{ success: boolean }> {
+    return this.productCategoriesService.update(id, updateProductCategoryDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.productCategoryService.remove(id);
+  remove(@Param('id') id: number): Promise<void> {
+    return this.productCategoriesService.remove(id);
+  }
+
+  @Delete(':id/delete-category')
+  deleteCategory(@Param('id') id: number): Promise<{ success: boolean }> {
+    return this.productCategoriesService.deleteCategory(id);
   }
 }

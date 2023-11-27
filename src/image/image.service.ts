@@ -10,7 +10,11 @@ export class ImageService {
   async getImage(imagePath: string): Promise<string | null> {
     const absolutePath = await join(
       process.cwd(),
+<<<<<<< HEAD
       'public/uploads',
+=======
+      '/public/uploads',
+>>>>>>> 87d371b5e04526143acfa48aa43cd4848f4316c6
       imagePath,
     );
     try {

@@ -17,12 +17,14 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { promisify } from 'util';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product) private productRepository: Repository<Product>,
     private searchKeywordService: SearchKeywordService,
+    private imageService: ImageService,
   ) {}
 
   async create(
@@ -48,7 +50,7 @@ export class ProductService {
         try {
           // Tạo đường dẫn và tên file cho mã base64
           const fileName = `${name.replace(/ /g, '_')}_${Date.now()}-image.txt`;
-          const filePath = `src/public/ProductImage/${fileName}`;
+          const filePath = `/public/ProductImage/${fileName}`;
 
           // Lưu mã base64 vào tệp văn bản
           await writeFileAsync(filePath, image);
@@ -73,11 +75,9 @@ export class ProductService {
   }
 
   async findById(id: number) {
-    const found = await this.productRepository.findOne({ where: { id } });
-    if (!found) {
-      throw new InternalServerErrorException(`Product:${id} non-exist`);
-    }
-    return found;
+    const res = await this.productRepository.findOne({ where: { id } });
+    const image1 = await this.imageService.getImage(res.image);
+    return { ...res, image: image1 };
   }
 
   async findProductsByShopId(user: User, shopId: number): Promise<Product[]> {
@@ -148,7 +148,7 @@ export class ProductService {
       if (updateProductDto.image) {
         // Kiểm tra xem có hình ảnh cũ không
         if (product.image) {
-          const oldImagePath = join('src/public/uploads/', product.image);
+          const oldImagePath = join('/public/uploads/', product.image);
 
           // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
@@ -161,7 +161,7 @@ export class ProductService {
           / /g,
           '_',
         )}_${Date.now()}-image.txt`;
-        const filePath = join('src/public/uploads/', fileName);
+        const filePath = join('/public/uploads/', fileName);
 
         // Lưu mã base64 mới vào tệp văn bản
         await writeFileAsync(filePath, updateProductDto.image);
@@ -193,7 +193,7 @@ export class ProductService {
 
       // Nếu sản phẩm có hình ảnh, xóa nội dung của file hình ảnh
       if (product.image) {
-        const imagePath = `src/public/uploads/${product.image}`;
+        const imagePath = `/public/uploads/${product.image}`;
         await unlinkAsync(imagePath);
       }
 

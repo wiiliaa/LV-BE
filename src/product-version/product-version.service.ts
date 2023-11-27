@@ -34,7 +34,6 @@ export class ProductVersionService {
     product.hasVersion = true;
     productVersion.versionName = createProductVersionDto.versionName;
     productVersion.image = createProductVersionDto.image;
-    productVersion.product = product;
 
     await this.productVersionRepository.save(productVersion);
 

@@ -33,11 +33,27 @@ export class Discount extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
-  active: Date;
+  @Column({ default: false })
+  active: boolean;
 
   @Column({ default: 'pending' })
   status: string;
+
+  @Column({ nullable: true, type: 'text' })
+  image: string;
+
+  checkStatus(): void {
+    if (this.limit <= 0 || this.limitUsagesRemaining() <= 0) {
+      this.active = false;
+    }
+  }
+
+  // Phương thức để lấy số lượt sử dụng còn lại
+  limitUsagesRemaining(): number {
+    return (
+      this.limit - (this.discount_usages ? this.discount_usages.length : 0)
+    );
+  }
 
   @ManyToOne(() => Shop, (shop) => shop.discounts)
   @JoinColumn({ name: 'shop_id' })
