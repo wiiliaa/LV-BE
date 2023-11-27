@@ -1,26 +1,19 @@
+// image/image.service.ts
 import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { promisify } from 'util';
+import * as fs from 'fs';
+
+const readFileAsync = promisify(fs.readFile);
 
 @Injectable()
 export class ImageService {
-  create(createImageDto: CreateImageDto) {
-    return 'This action adds a new image';
-  }
-
-  findAll() {
-    return `This action returns all image`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
-  }
-
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  async getImageDataFromPath(imagePath: string): Promise<string | null> {
+    try {
+      const imageContent = await readFileAsync(imagePath, 'utf-8');
+      return imageContent;
+    } catch (error) {
+      console.error('Lỗi khi đọc nội dung tệp tin:', error.message);
+      return null;
+    }
   }
 }

@@ -1,34 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+// image/image.controller.ts
+import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ImageService } from './image.service';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
-
-@Controller('image')
+import { join } from 'path';
+@Controller('images')
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  @Post()
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imageService.create(createImageDto);
-  }
+  @Get(':path')
+  async getImageData(@Param('path') imagePath: string, @Res() res: Response) {
+    const absolutePath = join(process.cwd(), 'src/public/uploads', imagePath);
 
-  @Get()
-  findAll() {
-    return this.imageService.findAll();
-  }
+    const imageData = await this.imageService.getImageDataFromPath(
+      absolutePath,
+    );
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.imageService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imageService.update(+id, updateImageDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.imageService.remove(+id);
+    if (imageData !== null) {
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(imageData);
+    } else {
+      res.status(404).send('Image not found');
+    }
   }
 }

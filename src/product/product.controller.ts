@@ -66,7 +66,7 @@ export class ProductController {
     return this.productService.update(id, updateProductDto, user);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   @UseGuards(AuthGuard('jwt'))
   async delete(@Param('id') id: number, @GetUser() user: User) {
     return this.productService.delete(id, user);

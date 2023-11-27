@@ -71,7 +71,7 @@ export class Product extends BaseEntity {
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 
-  @Column()
+  @Column({ nullable: true })
   shop_id: number;
 
   @OneToMany(() => Comment, (comment) => comment.product, {
