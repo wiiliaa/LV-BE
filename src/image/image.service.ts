@@ -8,11 +8,7 @@ const readFileAsync = promisify(fs.readFile);
 @Injectable()
 export class ImageService {
   async getImage(imagePath: string): Promise<string | null> {
-    const absolutePath = await join(
-      process.cwd(),
-      '/public/uploads',
-      imagePath,
-    );
+    const absolutePath = await join(process.cwd(), 'public/uploads', imagePath);
     try {
       const imageContent = await readFileAsync(absolutePath, 'utf-8');
       return imageContent;

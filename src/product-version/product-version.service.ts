@@ -32,25 +32,12 @@ export class ProductVersionService {
 
     const productVersion = new ProductVersion();
     product.hasVersion = true;
-    productVersion.versionName = createProductVersionDto.versionName;
+    productVersion.Name = createProductVersionDto.versionName;
     productVersion.image = createProductVersionDto.image;
 
     await this.productVersionRepository.save(productVersion);
 
     // Tạo các kích thước sản phẩm cho phiên bản nếu có
-    if (
-      createProductVersionDto.sizes &&
-      createProductVersionDto.sizes.length > 0
-    ) {
-      for (const sizeDto of createProductVersionDto.sizes) {
-        const productSize = new ProductSize();
-        productSize.sizeName = sizeDto.sizeName;
-        productSize.quantity = sizeDto.quantity;
-        productSize.version = productVersion;
-
-        await this.productSizeService.create(productSize);
-      }
-    }
 
     return productVersion;
   }
