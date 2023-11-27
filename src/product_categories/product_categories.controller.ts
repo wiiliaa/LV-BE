@@ -31,9 +31,7 @@ export class ProductCategoryController {
   }
 
   @Post('createCategory')
-  create(
-    @Body() createProductCategoryDto: CreateProductCategoryDto,
-  ): Promise<ProductCategory> {
+  create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
     return this.productCategoriesService.create(createProductCategoryDto);
   }
 
