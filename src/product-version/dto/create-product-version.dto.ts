@@ -9,8 +9,4 @@ export class CreateProductVersionDto {
   @IsOptional()
   @IsString()
   image?: string;
-
-  @IsOptional()
-  @IsArray()
-  sizes?: CreateProductSizeDto[];
 }

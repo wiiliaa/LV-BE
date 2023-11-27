@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CartsModule } from 'src/carts/carts.module';
 import { UserAddressModule } from 'src/user_address/user_address.module';
 import { GoogleStrategy } from './GG_AUTH/google.strategy';
+import { ImageModule } from 'src/image/image.module';
 @Module({
   imports: [
     PassportModule.register({
@@ -23,6 +24,7 @@ import { GoogleStrategy } from './GG_AUTH/google.strategy';
     TypeOrmModule.forFeature([User]),
     CartsModule,
     UserAddressModule,
+    ImageModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, GoogleStrategy],

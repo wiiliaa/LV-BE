@@ -14,10 +14,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { ImageService } from 'src/image/image.service';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private readonly imageService: ImageService,
+  ) {}
 
   @Get('/google')
   @UseGuards(AuthGuard('google'))
@@ -38,9 +42,16 @@ export class AuthController {
   login(@Body() authCredentials: AuthCredentials) {
     return this.authService.login(authCredentials);
   }
+  // @Get('/me')
+  // @UseGuards(AuthGuard('jwt'))
+  // async getUser(@GetUser() user: User) {
+  //   return { user };
+  // }
+
   @Get('/me')
   @UseGuards(AuthGuard('jwt'))
   async getUser(@GetUser() user: User) {
-    return { user };
+    const image = await this.imageService.getImage(user.avatar);
+    return { ...user, avatar: image };
   }
 }
