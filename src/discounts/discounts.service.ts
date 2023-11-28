@@ -1,16 +1,17 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
+import * as fs from 'fs';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { Discount } from './entities/discount.entity';
 import { User } from 'src/user/entities/user.entity';
 import { ProductService } from 'src/product/product.service';
-import { identity } from 'rxjs';
+import { promisify } from 'util';
 
 @Injectable()
 export class DiscountsService {
@@ -40,7 +41,7 @@ export class DiscountsService {
     if (user.role !== 'seller') {
       throw new NotFoundException('User does not have a shop');
     }
-    const { name, limit, percent, description } = createDiscountDto;
+    const { name, limit, percent, description, image } = createDiscountDto;
     const existingDiscount = await this.discountRepository.findOne({
       where: { name, shop_id: user.shop_id },
     });
@@ -48,6 +49,7 @@ export class DiscountsService {
     if (existingDiscount) {
       throw new NotFoundException('Discount with the same name already exists');
     }
+    const writeFileAsync = promisify(fs.writeFile);
     const discount = this.discountRepository.create({
       name,
       limit,
@@ -55,6 +57,20 @@ export class DiscountsService {
       description,
       shop_id: user.shop_id,
     });
+    if (image) {
+      try {
+        await discount.save();
+        const fileName = `${discount.id}-image.txt`;
+        const filePath = `public/uploads/${fileName}`;
+
+        // Lưu mã base64 vào tệp văn bản
+        await writeFileAsync(filePath, image);
+        // Lưu đường dẫn tệp vào trường image của sản phẩm
+        discount.image = fileName;
+      } catch (error) {
+        throw new InternalServerErrorException('Lỗi khi lưu mã base64 vào tệp');
+      }
+    }
 
     return this.discountRepository.save(discount);
   }
@@ -98,11 +114,6 @@ export class DiscountsService {
     if (!discount) {
       throw new NotFoundException('Discount not found');
     }
-    const product = await this.discountRepository
-      .createQueryBuilder()
-      .relation(Discount, 'product')
-      .of(discount)
-      .loadOne();
 
     // Kiểm tra xem sản phẩm đã có giảm giá chưa
     if (await this.hasDiscount(productId)) {
@@ -114,7 +125,7 @@ export class DiscountsService {
     this.productService.addDis(productId, discountId);
     discount.product_id = productId;
     discount.active = true;
-
+    this.productService.updateDiscountedPrice(productId);
     // Lưu giảm giá đã được kích hoạt
     await this.discountRepository.save(discount);
   }

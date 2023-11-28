@@ -23,6 +23,7 @@ import {
   OneToOne,
   AfterLoad,
   AfterInsert,
+  AfterUpdate,
 } from 'typeorm';
 
 @Entity()

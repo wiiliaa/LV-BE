@@ -77,26 +77,4 @@ export class Discount extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updated_at: Date;
-
-  @BeforeInsert()
-  initializeActiveDay() {
-    if (this.active) {
-      // Nếu active là true, thì khởi tạo activeDay bằng cách gọi hàm calculateActiveDay
-      this.activeDay = this.calculateActiveDay();
-    } else {
-      // Nếu active là false, đặt activeDay về 0
-      this.activeDay = 0;
-    }
-  }
-
-  private calculateActiveDay(): number {
-    const today = new Date();
-    const endDate = new Date(
-      today.getTime() + this.activeDay * 24 * 60 * 60 * 1000,
-    ); // Thêm số ngày vào ngày hiện tại
-    const remainingDays = Math.floor(
-      (endDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000),
-    ); // Đếm ngược số ngày còn lại
-    return (this.activeDay = remainingDays);
-  }
 }
