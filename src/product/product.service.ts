@@ -48,12 +48,8 @@ export class ProductService {
 
       if (image) {
         try {
-          // Tạo đường dẫn và tên file cho mã base64
-          const randomSuffix = Math.floor(Math.random() * 100000000)
-            .toString()
-            .padStart(8, '0');
-          const fileName = `${randomSuffix}-image.txt`;
-
+          await product.save();
+          const fileName = `${product.id}-image.txt`;
           const filePath = `public/uploads/${fileName}`;
 
           // Lưu mã base64 vào tệp văn bản
@@ -179,10 +175,7 @@ export class ProductService {
         }
 
         // Tạo đường dẫn và tên file cho hình mới
-        const randomSuffix = Math.floor(Math.random() * 100000000)
-          .toString()
-          .padStart(8, '0');
-        const fileName = `${randomSuffix}-image.txt`;
+        const fileName = `${product.id}_${Date.now()}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
 
         // Lưu mã base64 mới vào tệp văn bản
@@ -215,7 +208,7 @@ export class ProductService {
 
       // Nếu sản phẩm có hình ảnh, xóa nội dung của file hình ảnh
       if (product.image) {
-        const imagePath = `/public/uploads/${product.image}`;
+        const imagePath = `public/uploads/${product.image}`;
         await unlinkAsync(imagePath);
       }
 

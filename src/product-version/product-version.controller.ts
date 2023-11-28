@@ -30,30 +30,14 @@ export class ProductVersionController {
     return this.productVersionService.findAll();
   }
 
-  @Get(':id')
-  async findid(@Param('id') id: number) {
-    const result = await this.productVersionService.findById(id);
-
-    if (!result.found) {
-      // Trả về lỗi 404 nếu không tìm thấy sản phẩm
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
-
-    // Trả về thông tin sản phẩm và danh sách ảnh nếu có
-    return result;
-  }
-
   @Get('/detail/:id')
-  async findById(@Param('id') id: number): Promise<ProductVersion> {
-    const { productVersion, found } = await this.productVersionService.findById(
-      id,
-    );
-
-    if (!found) {
-      throw new NotFoundException(`ProductVersion with ID ${id} not found`);
+  async findById(@Param('id') id: number) {
+    try {
+      const result = await this.productVersionService.findById(id);
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
-
-    return productVersion!;
   }
 
   @Put('updateVersion/:id')
