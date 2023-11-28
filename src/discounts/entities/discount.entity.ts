@@ -39,9 +39,6 @@ export class Discount extends BaseEntity {
   @Column({ default: false })
   active: boolean;
 
-  @Column({ default: 'pending' })
-  status: string;
-
   @Column({ nullable: true, type: 'text' })
   image: string;
 

@@ -46,7 +46,6 @@ export class ProductService {
       product.gender = gender;
       product.origin = origin;
       product.shop_id = user.shop_id;
-
       if (image) {
         try {
           await product.save();
@@ -271,21 +270,25 @@ export class ProductService {
       relations: ['discount'], // Đảm bảo lấy thông tin về discount
     });
 
-    if (product && product.discount && product.discount.percent) {
-      // Kiểm tra sự tồn tại của discount và percent
-      console.log(product.discount.percent);
-
-      // Thực hiện tính toán dựa trên dữ liệu đã nạp
-      product.discountedPrice =
-        product.price - (product.price * product.discount.percent) / 100;
+    if (product && product.discount) {
+      // Kiểm tra sự tồn tại của discount
+      if (product.discount.percent) {
+        // Nếu có percent, thực hiện tính toán dựa trên dữ liệu đã nạp
+        product.discountedPrice =
+          product.price - (product.price * product.discount.percent) / 100;
+      } else {
+        // Nếu không có percent, đặt discountedPrice bằng price
+        product.discountedPrice = product.price;
+      }
 
       // Lưu lại sản phẩm với giá đã được tính toán
       return this.productRepository.save(product);
     } else {
-      // Nếu không có discount hoặc percent, trả về sản phẩm ban đầu
+      // Nếu không có discount, trả về sản phẩm ban đầu
       return product;
     }
   }
+
   async updateTotal(productId: number) {
     const product = await this.productRepository.findOne({
       where: { id: productId },

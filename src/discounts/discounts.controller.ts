@@ -41,15 +41,6 @@ export class DiscountsController {
   async delete(@Param('id') id: number) {
     return this.discountsService.delete(id);
   }
-  @Post('accept/:id')
-  async acceptDiscount(@Param('id') discountId: number) {
-    try {
-      await this.discountsService.acceptDiscount(discountId);
-      return { success: true, message: 'Discount accepted successfully' };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  }
 
   @Post('/checkDiscount/:id')
   async getdis(@Param('id') id: number) {

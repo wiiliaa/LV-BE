@@ -84,27 +84,6 @@ export class DiscountsService {
     return { status };
   }
 
-  async acceptDiscount(discountId: number) {
-    return this.updateDiscountStatus(discountId, 'approved');
-  }
-
-  async rejectDiscount(discountId: number) {
-    return this.updateDiscountStatus(discountId, 'rejected');
-  }
-
-  private async updateDiscountStatus(discountId: number, status: string) {
-    const result = await this.discountRepository.update(
-      { id: discountId, status: 'pending' },
-      { status },
-    );
-
-    if (status === 'rejected' && result.affected === 0) {
-      throw new BadRequestException('Discount not found or already rejected');
-    }
-
-    return result;
-  }
-
   async activateDiscount(discountId: number, productId: number): Promise<void> {
     // Kiểm tra xem giảm giá có tồn tại không
     const discount = await this.discountRepository.findOne({
