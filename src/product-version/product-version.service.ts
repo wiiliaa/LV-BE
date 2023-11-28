@@ -34,7 +34,6 @@ export class ProductVersionService {
     const writeFileAsync = promisify(fs.writeFile);
     const { color, image, price } = createProductVersionDto;
     const productVersion = new ProductVersion();
-    product.hasVersion = true;
     productVersion.color = color;
     productVersion.price = price;
     productVersion.image = image;

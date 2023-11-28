@@ -29,7 +29,7 @@ export class DiscountsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('create')
+  @Post('createDiscount')
   async createDiscount(
     @GetUser() user: User,
     @Body() createDiscountDto: CreateDiscountDto,
@@ -40,5 +40,32 @@ export class DiscountsController {
   @Delete('/:id')
   async delete(@Param('id') id: number) {
     return this.discountsService.delete(id);
+  }
+  @Post('accept/:id')
+  async acceptDiscount(@Param('id') discountId: number) {
+    try {
+      await this.discountsService.acceptDiscount(discountId);
+      return { success: true, message: 'Discount accepted successfully' };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  @Post('/checkDiscount/:id')
+  async getdis(@Param('id') id: number) {
+    return this.discountsService.hasDiscount(id);
+  }
+
+  @Post('activateDiscount/:discountId/:productId')
+  async activateWithDiscountReplacement(
+    @Param('discountId') discountId: number,
+    @Param('productId') productId: number,
+  ) {
+    try {
+      await this.discountsService.activateDiscount(discountId, productId);
+      return { success: true, message: 'Discount activated success' };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 }

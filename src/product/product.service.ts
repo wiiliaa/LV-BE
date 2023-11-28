@@ -225,4 +225,30 @@ export class ProductService {
       throw new InternalServerErrorException('Lỗi khi xóa sản phẩm');
     }
   }
+
+  async addDis(id: number, idDis: number) {
+    const found = await this.productRepository.findOne({
+      where: { id },
+    });
+    if (found) {
+      found.discount_id = idDis;
+      this.productRepository.save(found);
+    }
+  }
+  async findVer(id: number): Promise<Product | null> {
+    try {
+      const product = await Product.findOne({
+        where: { id: id },
+        relations: ['versions', 'versions.sizes'], // Liên kết thông tin về versions và sizes của versions
+      });
+
+      return product || null;
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy sản phẩm, phiên bản và kích thước:',
+        error.message,
+      );
+      return null;
+    }
+  }
 }

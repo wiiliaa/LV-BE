@@ -21,6 +21,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToOne,
+  AfterLoad,
+  AfterInsert,
 } from 'typeorm';
 
 @Entity()
@@ -46,9 +48,6 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, type: 'text' })
   image: string;
 
-  @Column({ default: false })
-  hasVersion: boolean;
-
   @Column({ nullable: true })
   gender: string;
 
@@ -61,7 +60,7 @@ export class Product extends BaseEntity {
   @Column({ default: 0, nullable: true })
   total: number;
 
-  @OneToOne(() => Discount, (discount) => discount.product, { nullable: true })
+  @OneToOne(() => Discount, (discount) => discount.product)
   @JoinColumn({ name: 'discount_id' })
   discount: Discount;
 
