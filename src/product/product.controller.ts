@@ -47,7 +47,7 @@ export class ProductController {
     @GetUser() user: User,
     @Param('id') shopId: number,
   ) {
-    return this.productService.findProductsByShopId(user, shopId);
+    return this.productService.findProductsByShop(user, shopId);
   }
 
   @Post('/createProduct')

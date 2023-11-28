@@ -129,21 +129,32 @@ export class ProductService {
     return filteredProducts;
   }
 
-  async findProductByShop(productId: number, shopId: number): Promise<Product> {
-    const product = await this.productRepository.findOne({
+  async findProductsByShop(user: User, shopId: number): Promise<Product[]> {
+    // Lấy danh sách sản phẩm từ cơ sở dữ liệu dựa trên shopId
+    const products = await this.productRepository.find({
       where: {
-        id: productId,
         shop: {
           id: shopId,
         },
       },
     });
-    if (!product) {
-      throw new NotFoundException(
-        `Product with ID ${productId} not found for shop with ID ${shopId}`,
-      );
-    }
-    return product;
+
+    // Duyệt qua từng sản phẩm và thêm thông tin ảnh
+    const productsWithImages: Product[] = await Promise.all(
+      products.map(async (product) => {
+        // Lấy thông tin ảnh từ imageService
+        const image = await this.imageService.getImage(product.image);
+
+        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+        return {
+          ...product,
+          image,
+        } as Product;
+      }),
+    );
+
+    // Trả về danh sách sản phẩm với thông tin ảnh
+    return productsWithImages;
   }
 
   async update(
