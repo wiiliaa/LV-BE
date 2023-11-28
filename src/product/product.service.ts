@@ -225,4 +225,53 @@ export class ProductService {
       throw new InternalServerErrorException('Lỗi khi xóa sản phẩm');
     }
   }
+
+  async addDis(id: number, idDis: number) {
+    const found = await this.productRepository.findOne({
+      where: { id },
+    });
+    if (found) {
+      found.discount_id = idDis;
+      this.productRepository.save(found);
+    }
+  }
+  async findVer(id: number): Promise<Product | null> {
+    try {
+      const product = await Product.findOne({
+        where: { id: id },
+        relations: ['versions', 'versions.sizes'], // Liên kết thông tin về versions và sizes của versions
+      });
+
+      return product || null;
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy sản phẩm, phiên bản và kích thước:',
+        error.message,
+      );
+      return null;
+    }
+  }
+
+  async updateDiscountedPrice(id: number): Promise<Product> {
+    // Tìm sản phẩm theo ID
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['discount'], // Đảm bảo lấy thông tin về discount
+    });
+
+    if (product && product.discount && product.discount.percent) {
+      // Kiểm tra sự tồn tại của discount và percent
+      console.log(product.discount.percent);
+
+      // Thực hiện tính toán dựa trên dữ liệu đã nạp
+      product.discountedPrice =
+        product.price - (product.price * product.discount.percent) / 100;
+
+      // Lưu lại sản phẩm với giá đã được tính toán
+      return this.productRepository.save(product);
+    } else {
+      // Nếu không có discount hoặc percent, trả về sản phẩm ban đầu
+      return product;
+    }
+  }
 }

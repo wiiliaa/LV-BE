@@ -6,6 +6,8 @@ import { Shop } from 'src/shops/entities/shop.entity';
 
 import {
   BaseEntity,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -28,7 +30,7 @@ export class Discount extends BaseEntity {
   @Column()
   limit: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Column({ default: 0 })
   percent: number;
 
   @Column()
@@ -36,6 +38,9 @@ export class Discount extends BaseEntity {
 
   @Column({ default: false })
   active: boolean;
+
+  @Column({ nullable: true })
+  activeDay: number;
 
   @Column({ default: 'pending' })
   status: string;

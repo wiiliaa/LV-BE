@@ -71,4 +71,18 @@ export class ProductController {
   async delete(@Param('id') id: number, @GetUser() user: User) {
     return this.productService.delete(id, user);
   }
+
+  @Get('/version/:id')
+  async findVer(@Param('id') id: number) {
+    try {
+      const product = await this.productService.findVer(id);
+      return product || null;
+    } catch (error) {
+      console.error(
+        'Lỗi khi lấy sản phẩm, phiên bản và kích thước:',
+        error.message,
+      );
+      return null;
+    }
+  }
 }
