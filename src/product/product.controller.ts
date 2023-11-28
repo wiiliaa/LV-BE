@@ -56,7 +56,7 @@ export class ProductController {
     return this.productService.create(user, createProductDto);
   }
 
-  @Put('updateProduct/:id')
+  @Put('/updateProduct:id')
   @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: number,

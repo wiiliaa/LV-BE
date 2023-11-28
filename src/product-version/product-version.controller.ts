@@ -33,13 +33,17 @@ export class ProductVersionController {
     return this.productVersionService.findAll();
   }
 
-  @Get(':id')
+  @Get('/detail/:id')
   async findById(@Param('id') id: number): Promise<ProductVersion> {
-    const productVersion = await this.productVersionService.findById(id);
-    if (!productVersion) {
+    const { productVersion, found } = await this.productVersionService.findById(
+      id,
+    );
+
+    if (!found) {
       throw new NotFoundException(`ProductVersion with ID ${id} not found`);
     }
-    return productVersion;
+
+    return productVersion!;
   }
 
   @Put(':id/update')

@@ -11,52 +11,49 @@ export class ProductSizeService {
   constructor(
     @InjectRepository(ProductSize)
     private productSizeRepository: Repository<ProductSize>,
+    private productVersionService: ProductVersionService,
   ) {}
 
-  // async createForVersion(
-  //   productVersionId: number,
-  //   createProductSizeDtos: CreateProductSizeDto[],
-  // ) {
-  //   // Kiểm tra xem phiên bản sản phẩm có tồn tại không
-  //   const productVersion = await this.productVersionService.findById(
-  //     productVersionId,
-  //   );
+  async create(
+    id: number,
+    createProductSizeDtos: CreateProductSizeDto[],
+  ): Promise<{ success: boolean }> {
+    const productSizes: ProductSize[] = [];
+    const found = await this.productVersionService.findById(id);
 
-  //   if (!productVersion) {
-  //     throw new NotFoundException(
-  //       `Product version with ID ${productVersionId} not found`,
-  //     );
-  //   }
+    try {
+      for (const createProductSizeDto of createProductSizeDtos) {
+        const { sizeName, quantity, product_id, version_id } =
+          createProductSizeDto;
+        const productSize = new ProductSize();
+        productSize.sizeName = sizeName;
+        productSize.quantity = quantity;
 
-  //   const productSizes: ProductSize[] = [];
+        if (found.productVersion && found.productVersion.product_id) {
+          productSize.version_id = found.productVersion.id;
+        } else {
+          productSize.product_id = id;
+        }
 
-  //   for (const createProductSizeDto of createProductSizeDtos) {
-  //     const { sizeName, quantity } = createProductSizeDto;
+        await productSize.save();
+        productSizes.push(productSize);
+      }
 
-  //     const productSize = new ProductSize();
-  //     productSize.sizeName = sizeName;
-  //     productSize.quantity = quantity;
-  //     productSize.version = productVersion;
-
-  //     await productSize.save();
-  //     productSizes.push(productSize);
-  //   }
-
-  //   return productSizes;
-  // }
+      return { success: true };
+    } catch (error) {
+      console.error('Error creating product sizes:', error);
+      return { success: false };
+    }
+  }
 
   async update(
-    productId: number,
+    id: number,
     sizeName: string,
     updateDto: UpdateProductSizeDto,
   ): Promise<ProductSize | null> {
     const productSize = await this.productSizeRepository.findOne({
-      where: { productId, sizeName },
+      where: { id, sizeName },
     });
-
-    if (!productSize) {
-      return null; // Size not found for the given product and size name
-    }
 
     const { quantity } = updateDto;
     productSize.quantity = quantity;
@@ -66,28 +63,14 @@ export class ProductSizeService {
     return productSize;
   }
 
-  async findBySizeName(sizeName: string): Promise<ProductSize[]> {
+  async findByProductId(id: number): Promise<ProductSize[]> {
     const foundSizes = await this.productSizeRepository.find({
-      where: { sizeName },
+      where: { id },
     });
 
     if (!foundSizes || foundSizes.length === 0) {
       throw new NotFoundException(
-        `No product sizes found for sizeName ${sizeName}`,
-      );
-    }
-
-    return foundSizes;
-  }
-
-  async findByProductId(productId: number): Promise<ProductSize[]> {
-    const foundSizes = await this.productSizeRepository.find({
-      where: { productId },
-    });
-
-    if (!foundSizes || foundSizes.length === 0) {
-      throw new NotFoundException(
-        `No product sizes found for product with ID ${productId}`,
+        `No product sizes found for product with ID ${id}`,
       );
     }
 

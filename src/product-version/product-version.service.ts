@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import { CreateProductVersionDto } from './dto/create-product-version.dto';
 import { UpdateProductVersionDto } from './dto/update-product-version.dto';
 import { ProductVersion } from './entities/product-version.entity';
-import { ProductSizeService } from 'src/product_size/product_size.service';
 import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
 import * as fs from 'fs';
@@ -38,6 +37,7 @@ export class ProductVersionService {
     product.hasVersion = true;
     productVersion.name = name;
     productVersion.image = image;
+    productVersion.product_id = productId;
     if (image) {
       try {
         // Tạo đường dẫn và tên file cho mã base64
@@ -90,17 +90,20 @@ export class ProductVersionService {
       (productVersion) => productVersion !== null,
     ) as ProductVersion[];
   }
-
-  async findById(id: number): Promise<ProductVersion> {
+  async findById(
+    id: number,
+  ): Promise<{ productVersion: ProductVersion | null; found: boolean }> {
     const productVersion = await this.productVersionRepository.findOne({
       where: { id },
     });
 
     if (!productVersion) {
-      throw new NotFoundException(`ProductVersion with ID ${id} not found`);
+      // Không tìm thấy phiên bản sản phẩm, trả về kết quả và false
+      return { productVersion: null, found: false };
     }
 
-    return productVersion;
+    // Tìm thấy phiên bản sản phẩm, trả về kết quả và true
+    return { productVersion, found: true };
   }
 
   async update(
@@ -145,9 +148,22 @@ export class ProductVersionService {
     });
 
     if (!productVersion) {
-      throw new NotFoundException(`ProductVersion with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy ProductVersion với ID ${id}`);
     }
 
+    // Nếu có ảnh, thì xóa ảnh trước khi xóa phiên bản sản phẩm
+    if (productVersion.image) {
+      try {
+        const imagePath = `public/uploads/${productVersion.image}`;
+
+        // Xóa tệp ảnh
+        await promisify(fs.unlink)(imagePath);
+      } catch (error) {
+        throw new InternalServerErrorException('Lỗi khi xóa ảnh');
+      }
+    }
+
+    // Xóa phiên bản sản phẩm từ cơ sở dữ liệu
     await this.productVersionRepository.remove(productVersion);
   }
 }

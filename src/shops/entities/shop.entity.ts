@@ -4,6 +4,7 @@ import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
+
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,

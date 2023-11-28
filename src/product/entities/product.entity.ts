@@ -53,8 +53,8 @@ export class Product extends BaseEntity {
   @Column({ nullable: true })
   origin: string;
 
-  // @Column({ default: 0, nullable: true })
-  // total: number;
+  @Column({ default: 0, nullable: true })
+  total: number;
 
   // @BeforeInsert()
   // @BeforeUpdate()
@@ -66,6 +66,9 @@ export class Product extends BaseEntity {
   // private calculateTotal(): number {
   //   return this.versions.reduce((total, version) => total + version.total, 0);
   // }
+
+  @OneToMany(() => ProductSize, (size) => size.product)
+  sizes: ProductSize[];
 
   @ManyToOne(() => Shop, (shop) => shop.products)
   @JoinColumn({ name: 'shop_id' })

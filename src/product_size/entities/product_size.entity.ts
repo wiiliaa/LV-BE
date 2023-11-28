@@ -16,9 +16,6 @@ export class ProductSize extends BaseEntity {
   id: number;
 
   @Column()
-  productId: number;
-
-  @Column()
   sizeName: string;
 
   @Column()
@@ -27,7 +24,12 @@ export class ProductSize extends BaseEntity {
   @ManyToOne(() => ProductVersion, (version) => version.sizes)
   @JoinColumn({ name: 'version_id' })
   version: ProductVersion;
-
-  @Column()
+  @Column({ nullable: true })
   version_id: number;
+
+  @ManyToOne(() => Product, (product) => product.sizes)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
+  @Column({ nullable: true })
+  product_id: number;
 }
