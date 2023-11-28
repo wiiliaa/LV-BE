@@ -32,10 +32,11 @@ export class ProductVersionService {
     }
 
     const writeFileAsync = promisify(fs.writeFile);
-    const { name, image } = createProductVersionDto;
+    const { color, image, price } = createProductVersionDto;
     const productVersion = new ProductVersion();
     product.hasVersion = true;
-    productVersion.name = name;
+    productVersion.color = color;
+    productVersion.price = price;
     productVersion.image = image;
     productVersion.product_id = productId;
     if (image) {
@@ -111,9 +112,10 @@ export class ProductVersionService {
       throw new NotFoundException(`ProductVersion with ID ${id} not found`);
     }
 
-    const { name, image } = updateProductVersionDto;
+    const { color, image, price } = updateProductVersionDto;
 
-    productVersion.name = name;
+    productVersion.color = color;
+    productVersion.price = price;
 
     if (image) {
       try {

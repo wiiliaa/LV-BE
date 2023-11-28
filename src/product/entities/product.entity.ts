@@ -2,6 +2,7 @@
 
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Discount } from 'src/discounts/entities/discount.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 import { ProductCategory } from 'src/product_categories/entities/product_category.entity';
@@ -19,6 +20,7 @@ import {
   OneToMany,
   BeforeInsert,
   BeforeUpdate,
+  OneToOne,
 } from 'typeorm';
 
 @Entity()
@@ -34,6 +36,9 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  discountedPrice: number;
 
   @Column()
   description: string;
@@ -56,16 +61,12 @@ export class Product extends BaseEntity {
   @Column({ default: 0, nullable: true })
   total: number;
 
-  // @BeforeInsert()
-  // @BeforeUpdate()
-  // updateTotal() {
-  //   // Tính toán tổng số lượng từ các phiên bản và cập nhật vào trường total
-  //   this.total = this.calculateTotal();
-  // }
+  @OneToOne(() => Discount, (discount) => discount.product, { nullable: true })
+  @JoinColumn({ name: 'discount_id' })
+  discount: Discount;
 
-  // private calculateTotal(): number {
-  //   return this.versions.reduce((total, version) => total + version.total, 0);
-  // }
+  @Column({ nullable: true })
+  discount_id: number;
 
   @OneToMany(() => ProductSize, (size) => size.product)
   sizes: ProductSize[];

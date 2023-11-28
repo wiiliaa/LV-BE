@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { Order } from 'src/order/entities/order.entity';
+import { Product } from 'src/product/entities/product.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 
 import {
@@ -11,6 +12,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -50,6 +52,13 @@ export class Discount extends BaseEntity {
 
   @OneToMany(() => Order, (order) => order.discount)
   orders: Order[];
+
+  @OneToOne(() => Product, (product) => product.discount)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
+
+  @Column({ nullable: true })
+  product_id: number;
 
   @CreateDateColumn({
     type: 'timestamp',
