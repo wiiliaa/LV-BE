@@ -10,7 +10,7 @@ export class ImageService {
   async getImage(imagePath: string): Promise<string | null> {
     if (!imagePath) {
       console.error('Đường dẫn hình ảnh không hợp lệ.');
-      return null;
+      return 'không có ảnh';
     }
 
     const absolutePath = await join('public/uploads', imagePath);
