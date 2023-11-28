@@ -29,8 +29,9 @@ export class ProductSizeService {
         productSize.sizeName = sizeName;
         productSize.quantity = quantity;
 
-        if (found.productVersion && found.productVersion.product_id) {
-          productSize.version_id = found.productVersion.id;
+        // Kiểm tra xem found có thuộc tính productVersion hay không
+        if (found.id && found) {
+          productSize.version_id = found.id;
         } else {
           productSize.product_id = id;
         }

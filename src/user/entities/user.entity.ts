@@ -18,7 +18,6 @@ import { Shop } from 'src/shops/entities/shop.entity';
 import { UserAddress } from 'src/user_address/entities/user_address.entity';
 import { UserPayment } from 'src/user_payments/entities/user_payment.entity';
 import { Order } from 'src/order/entities/order.entity';
-import { DiscountUsage } from 'src/discounts_usage/entities/discounts_usage.entity';
 import { Exclude } from 'class-transformer';
 import { SearchKeyword } from 'src/search_keyword/entities/search_keyword.entity';
 import { text } from 'stream/consumers';
@@ -72,9 +71,6 @@ export class User extends BaseEntity {
 
   @OneToMany(() => UserPayment, (user_payment) => user_payment.user)
   user_payments: UserPayment[];
-
-  @OneToMany(() => DiscountUsage, (discount_usages) => discount_usages.user)
-  discount_usages: DiscountUsage[];
 
   @CreateDateColumn({
     type: 'timestamp',

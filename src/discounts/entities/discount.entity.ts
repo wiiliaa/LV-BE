@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { join } from 'path';
-import { DiscountUsage } from 'src/discounts_usage/entities/discounts_usage.entity';
+
 import { Order } from 'src/order/entities/order.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
-import { User } from 'src/user/entities/user.entity';
+
 import {
   BaseEntity,
   Column,
@@ -42,19 +41,6 @@ export class Discount extends BaseEntity {
   @Column({ nullable: true, type: 'text' })
   image: string;
 
-  checkStatus(): void {
-    if (this.limit <= 0 || this.limitUsagesRemaining() <= 0) {
-      this.active = false;
-    }
-  }
-
-  // Phương thức để lấy số lượt sử dụng còn lại
-  limitUsagesRemaining(): number {
-    return (
-      this.limit - (this.discount_usages ? this.discount_usages.length : 0)
-    );
-  }
-
   @ManyToOne(() => Shop, (shop) => shop.discounts)
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
@@ -64,9 +50,6 @@ export class Discount extends BaseEntity {
 
   @OneToMany(() => Order, (order) => order.discount)
   orders: Order[];
-
-  @OneToMany(() => DiscountUsage, (discount_usages) => discount_usages.discount)
-  discount_usages: DiscountUsage[];
 
   @CreateDateColumn({
     type: 'timestamp',
