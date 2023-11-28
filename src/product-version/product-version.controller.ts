@@ -13,24 +13,34 @@ import { CreateProductVersionDto } from './dto/create-product-version.dto';
 import { UpdateProductVersionDto } from './dto/update-product-version.dto';
 import { ProductVersion } from './entities/product-version.entity';
 
-@Controller('product-versions')
+@Controller('versions')
 export class ProductVersionController {
   constructor(private readonly productVersionService: ProductVersionService) {}
 
-  @Post('/:productId/createVersion')
+  @Post('/createVersion/:id')
   async create(
-    @Param('productId') productId: number,
+    @Param('id') id: number,
     @Body() createProductVersionDto: CreateProductVersionDto,
   ): Promise<ProductVersion> {
-    return this.productVersionService.create(
-      productId,
-      createProductVersionDto,
-    );
+    return this.productVersionService.create(id, createProductVersionDto);
   }
 
   @Get()
   async findAll(): Promise<ProductVersion[]> {
     return this.productVersionService.findAll();
+  }
+
+  @Get(':id')
+  async findid(@Param('id') id: number) {
+    const result = await this.productVersionService.findById(id);
+
+    if (!result.found) {
+      // Trả về lỗi 404 nếu không tìm thấy sản phẩm
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Trả về thông tin sản phẩm và danh sách ảnh nếu có
+    return result;
   }
 
   @Get('/detail/:id')
@@ -46,7 +56,7 @@ export class ProductVersionController {
     return productVersion!;
   }
 
-  @Put(':id/update')
+  @Put('updateVersion/:id')
   async update(
     @Param('id') id: number,
     @Body() updateProductVersionDto: UpdateProductVersionDto,

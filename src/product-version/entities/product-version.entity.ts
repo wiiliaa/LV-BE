@@ -25,19 +25,22 @@ export class ProductVersion extends BaseEntity {
   @Column()
   image: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  price: number;
+
   @Column({ default: 0, nullable: true })
   total: number;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  updateTotal() {
-    // Tính toán tổng số lượng từ các size và cập nhật vào trường total
-    this.total = this.calculateTotal();
-  }
+  // @BeforeInsert()
+  // @BeforeUpdate()
+  // updateTotal() {
+  //   // Tính toán tổng số lượng từ các size và cập nhật vào trường total
+  //   this.total = this.calculateTotal();
+  // }
 
-  private calculateTotal(): number {
-    return this.sizes.reduce((total, size) => total + size.quantity, 0);
-  }
+  // private calculateTotal(): number {
+  //   return this.sizes.reduce((total, size) => total + size.quantity, 0);
+  // }
 
   @ManyToOne(() => Product, (product) => product.versions)
   @JoinColumn({ name: 'product_id' })
