@@ -56,7 +56,7 @@ export class ProductVersionService {
       }
     }
     await this.productVersionRepository.save(productVersion);
-
+    await this.productService.updateTotal(productId);
     return productVersion;
   }
 
@@ -162,5 +162,33 @@ export class ProductVersionService {
 
     // Xóa phiên bản sản phẩm từ cơ sở dữ liệu
     await this.productVersionRepository.remove(productVersion);
+  }
+
+  async findQuantityByVersionAndSize(
+    versionId: number,
+    sizeId: number,
+  ): Promise<number> {
+    const productVersion = await this.productVersionRepository.findOne({
+      where: { id: versionId },
+
+      relations: ['sizes'],
+    });
+
+    if (!productVersion) {
+      throw new Error('Không tìm thấy phiên bản sản phẩm');
+    }
+    const size = productVersion.sizes.find((s) => s.id === sizeId);
+
+    if (!size) {
+      throw new Error('Không tìm thấy kích thước trong phiên bản sản phẩm');
+    }
+    productVersion.total = productVersion.sizes.reduce(
+      (total, s) => total + (s.quantity || 0),
+      0,
+    );
+
+    await this.productVersionRepository.save(productVersion);
+
+    return size.quantity;
   }
 }

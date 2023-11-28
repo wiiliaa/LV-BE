@@ -18,6 +18,7 @@ import { join } from 'path';
 
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
+import { versions } from 'process';
 
 @Injectable()
 export class ProductService {
@@ -64,7 +65,7 @@ export class ProductService {
       }
 
       await product.save();
-
+      await this.updateTotal(product.id);
       return product;
     }
     throw new InternalServerErrorException(`You don't have permission`);
@@ -187,7 +188,7 @@ export class ProductService {
 
       // Thực hiện cập nhật thông tin sản phẩm
       await this.productRepository.update(id, updateProductDto);
-
+      await this.updateTotal(id);
       return { success: true };
     } catch (error) {
       console.error('Lỗi khi cập nhật sản phẩm:', error);
@@ -273,5 +274,23 @@ export class ProductService {
       // Nếu không có discount hoặc percent, trả về sản phẩm ban đầu
       return product;
     }
+  }
+  async updateTotal(productId: number) {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: ['versions'],
+    });
+
+    if (!product) {
+      throw new Error('Không tìm thấy sản phẩm');
+    }
+
+    // Tính toán tổng số lượng từ trường total của tất cả các phiên bản sản phẩm
+    product.total = product.versions.reduce((total, version) => {
+      return total + (version.total || 0);
+    }, 0);
+
+    // Cập nhật tổng số lượng cho sản phẩm
+    await this.productRepository.save(product);
   }
 }

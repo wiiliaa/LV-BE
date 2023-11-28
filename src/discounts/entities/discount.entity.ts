@@ -39,9 +39,6 @@ export class Discount extends BaseEntity {
   @Column({ default: false })
   active: boolean;
 
-  @Column({ nullable: true })
-  activeDay: number;
-
   @Column({ default: 'pending' })
   status: string;
 
