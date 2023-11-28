@@ -5,6 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
   BaseEntity,
+  BeforeUpdate,
+  BeforeInsert,
+  AfterUpdate,
 } from 'typeorm';
 
 import { Product } from 'src/product/entities/product.entity';

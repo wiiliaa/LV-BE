@@ -4,9 +4,13 @@ import { UpdateProductSizeDto } from 'src/product_size/dto/update-product_size.d
 export class UpdateProductVersionDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  color?: string;
 
   @IsOptional()
   @IsString()
   image?: string;
+
+  @IsOptional()
+  @IsString()
+  price: number;
 }
