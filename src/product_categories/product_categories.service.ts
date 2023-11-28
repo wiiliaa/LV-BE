@@ -20,7 +20,7 @@ export class ProductCategoriesService {
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
     private imageService: ImageService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<ProductCategory[]> {
     // Lấy danh sách danh mục sản phẩm từ cơ sở dữ liệu
@@ -59,7 +59,10 @@ export class ProductCategoriesService {
     if (image) {
       try {
         // Tạo đường dẫn và tên file cho mã base64
-        const fileName = `${name}-image.txt`;
+        const randomSuffix = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0');
+        const fileName = `${randomSuffix}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
         // Lưu mã base64 vào tệp văn bản
         await writeFileAsync(filePath, image);
@@ -98,10 +101,10 @@ export class ProductCategoriesService {
           }
         }
 
-        const fileName = `${category.name.replace(
-          / /g,
-          '_',
-        )}_${Date.now()}-image.txt`;
+        const randomSuffix = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0');
+        const fileName = `${randomSuffix}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
 
         await writeFile(filePath, updateCategoryDto.image);

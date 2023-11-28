@@ -179,10 +179,10 @@ export class ProductService {
         }
 
         // Tạo đường dẫn và tên file cho hình mới
-        const fileName = `${product.name.replace(
-          / /g,
-          '_',
-        )}_${Date.now()}-image.txt`;
+        const randomSuffix = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0');
+        const fileName = `${randomSuffix}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
 
         // Lưu mã base64 mới vào tệp văn bản
