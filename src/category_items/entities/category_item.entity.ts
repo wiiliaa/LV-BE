@@ -7,16 +7,18 @@ import {
   BaseEntity,
   ManyToMany,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
-export class ProductCategory extends BaseEntity {
+export class CategoryItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  name: string;
+  @OneToMany(() => Product, (product) => product.categoryItem)
+  @JoinColumn({ name: 'product_id' })
+  products: Product[];
 
-  @Column({ nullable: true, type: 'text' })
-  image: string;
+  @Column({ nullable: true })
+  product_id: number;
 }

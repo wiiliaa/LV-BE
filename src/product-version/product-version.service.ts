@@ -164,10 +164,7 @@ export class ProductVersionService {
     await this.productVersionRepository.remove(productVersion);
   }
 
-  async findQuantityByVersionAndSize(
-    versionId: number,
-    sizeId: number,
-  ): Promise<number> {
+  async updateTotalVer(versionId: number, sizeId: number): Promise<number> {
     const productVersion = await this.productVersionRepository.findOne({
       where: { id: versionId },
 
@@ -188,7 +185,7 @@ export class ProductVersionService {
     );
 
     await this.productVersionRepository.save(productVersion);
-
+    await this.productService.updateTotal(productVersion.product_id);
     return size.quantity;
   }
 }

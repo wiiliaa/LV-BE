@@ -92,12 +92,32 @@ export class DiscountsService {
     return this.discountRepository.save(discount);
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<{ status: boolean }> {
     let status = true;
-    const target = await this.discountRepository.delete(id);
-    if (!target) {
+    const unlinkAsync = promisify(fs.unlink);
+    // Tìm thông tin chi tiết của discount
+    const discount = await this.discountRepository.findOne({ where: { id } });
+
+    if (!discount) {
+      // Nếu không tìm thấy discount, đặt status về false
       status = false;
+    } else {
+      // Nếu discount được tìm thấy, xóa ảnh nếu tồn tại
+      if (discount.image) {
+        try {
+          const imagePath = `public/uploads/${discount.image}`;
+          // Xóa ảnh từ thư mục
+          await unlinkAsync(imagePath);
+        } catch (error) {
+          // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
+          status = false;
+        }
+      }
+
+      // Tiến hành xóa discount từ cơ sở dữ liệu
+      await this.discountRepository.delete(id);
     }
+
     return { status };
   }
 
