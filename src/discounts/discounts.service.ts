@@ -13,6 +13,7 @@ import { User } from 'src/user/entities/user.entity';
 import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class DiscountsService {
@@ -124,34 +125,46 @@ export class DiscountsService {
 
     return { status };
   }
+  async activateDiscount(productId: number, discountId: number) {
+    try {
+      // Find the product by ID
+      const product = await this.productService.findById(productId);
 
-  async activateDiscount(discountId: number, productId: number): Promise<void> {
-    // Kiểm tra xem giảm giá có tồn tại không
+      if (!product) {
+        throw new NotFoundException('Product not found');
+      }
+
+      product.discount_id = discountId;
+
+      // Save changes to the database
+      return await this.productService.addDis(productId, discountId);
+    } catch (error) {
+      // Handle errors
+      console.error('Error activating discount:', error);
+      throw new InternalServerErrorException('Error activating discount');
+    }
+  }
+
+  async findAllProductsByDiscountId(discountId: number): Promise<Product[]> {
+    // Find the discount by ID with its associated products
     const discount = await this.discountRepository.findOne({
       where: { id: discountId },
       relations: ['product'],
     });
+
     if (!discount) {
       throw new NotFoundException('Discount not found');
     }
 
-    // Kiểm tra xem sản phẩm đã có giảm giá chưa
-    if (await this.hasDiscount(productId)) {
-      // Nếu đã có giảm giá, xóa giảm giá cũ trên sản phẩm
-      discount.product.discount_id = null;
-      discount.product = null;
-    }
-    // Kích hoạt giảm giá cho sản phẩm
-    this.productService.addDis(productId, discountId);
-    discount.product_id = productId;
-    discount.active = true;
-    this.productService.updateDiscountedPrice(productId);
-    // Lưu giảm giá đã được kích hoạt
-    await this.discountRepository.save(discount);
-  }
+    // Retrieve images for each associated product
+    const productsWithImages = await Promise.all(
+      discount.product.map(async (product) => ({
+        ...product,
+        image: await this.imageService.getImage(product.image), // Replace with your actual service or logic
+      })),
+    );
 
-  async hasDiscount(productId: number): Promise<boolean> {
-    const product = await this.productService.findById(productId);
-    return !!product?.discount_id;
+    // Return the associated products with images
+    return productsWithImages as Product[];
   }
 }

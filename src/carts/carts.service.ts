@@ -12,10 +12,6 @@ export class CartsService {
   constructor(
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
-    @InjectRepository(CartItem)
-    private readonly cartItemRepository: Repository<CartItem>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
   ) {}
 
   async findALl() {
@@ -37,41 +33,25 @@ export class CartsService {
 
     return cart?.user?.id || null;
   }
-
-  async getCartByUserId(user: User): Promise<Cart | null> {
+  async getCartItemsByUser(user: User) {
     try {
-      const cart = await this.cartRepository.findOne({
-        where: { user_id: user.id },
-        relations: ['cart_items'],
-      });
+      // Sử dụng `createQueryBuilder` để thực hiện truy vấn liên kết
+      const userCartItems = await this.cartRepository
+        .createQueryBuilder('cart')
+        .leftJoinAndSelect('cart.cart_items', 'cart_items')
+        .leftJoin('cart.user', 'user')
+        .where('user.id = :userId', { userId: user.id })
+        .getOne();
 
-      if (!cart) {
+      if (!userCartItems) {
         throw new NotFoundException(
-          `Cart not found for user with ID ${user.id}`,
+          `Cart items not found for user with ID ${user.id}`,
         );
       }
 
-      return cart;
+      return userCartItems.cart_items;
     } catch (error) {
       throw new NotFoundException(error.message);
     }
-
-    // async removeFromCart(userId: number, productId: number): Promise<void> {
-    //   const cart = await this.cartRepository.findOne({ where: { id: userId } });
-    //   if (!cart) throw new NotFoundException('Cart not found');
-    //   const product = await this.productRepository.findOne({
-    //     where: { id: productId },
-    //   });
-
-    //   if (!product) throw new NotFoundException('Product not found');
-
-    //   const cartItem = await this.cartItemRepository.findOne({
-    //     where: { cart: { id: cart.id }, product: { id: product.id } },
-    //   });
-
-    //   if (!cartItem) throw new NotFoundException('CartItem not found');
-
-    //   await this.cartItemRepository.remove(cartItem);
-    // }
   }
 }

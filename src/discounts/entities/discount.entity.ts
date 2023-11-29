@@ -52,12 +52,8 @@ export class Discount extends BaseEntity {
   @OneToMany(() => Order, (order) => order.discount)
   orders: Order[];
 
-  @OneToOne(() => Product, (product) => product.discount)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
-
-  @Column({ nullable: true })
-  product_id: number;
+  @OneToMany(() => Product, (product) => product.discount)
+  product: Product[];
 
   @CreateDateColumn({
     type: 'timestamp',

@@ -43,21 +43,17 @@ export class DiscountsController {
     return this.discountsService.delete(id);
   }
 
-  @Post('/checkDiscount/:id')
-  async getdis(@Param('id') id: number) {
-    return this.discountsService.hasDiscount(id);
-  }
-
-  @Post('activateDiscount/:discountId/:productId')
-  async activateWithDiscountReplacement(
+  @Post('activate/:discountId/:productId')
+  async activateDiscount(
     @Param('discountId') discountId: number,
     @Param('productId') productId: number,
   ) {
-    try {
-      await this.discountsService.activateDiscount(discountId, productId);
-      return { success: true, message: 'Discount activated success' };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
+    await this.discountsService.activateDiscount(discountId, productId);
+    return { success: true };
+  }
+
+  @Get('getAllProductByDiscount/:discountId')
+  async findAllProductsByDiscountId(@Param('discountId') discountId: number) {
+    return this.discountsService.findAllProductsByDiscountId(discountId);
   }
 }

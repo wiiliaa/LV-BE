@@ -27,6 +27,9 @@ export class ProductCategoriesService {
     // Lấy danh sách danh mục sản phẩm từ cơ sở dữ liệu
     const categories = await this.productCategoryRepository.find();
 
+    // Sắp xếp danh sách theo id
+    categories.sort((a, b) => a.id - b.id);
+
     // Duyệt qua từng danh mục sản phẩm và thêm thông tin ảnh
     const categoriesWithImages: ProductCategory[] = await Promise.all(
       categories.map(async (category) => {
@@ -41,7 +44,7 @@ export class ProductCategoriesService {
       }),
     );
 
-    // Trả về danh sách danh mục sản phẩm với thông tin ảnh
+    // Trả về danh sách danh mục sản phẩm với thông tin ảnh và đã sắp xếp theo id
     return categoriesWithImages;
   }
 
