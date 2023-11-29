@@ -97,6 +97,7 @@ export class Product extends BaseEntity {
   order_items: OrderItem[];
 
   @ManyToOne(() => ProductCategory, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
   category: ProductCategory;
 
   @CreateDateColumn({
@@ -111,16 +112,4 @@ export class Product extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updated_at: Date;
-
-  @BeforeUpdate()
-  @AfterUpdate()
-  @BeforeInsert()
-  calculateDiscountedPrice() {
-    if (this.discount_id === null || this.discount_id === undefined) {
-      // Nếu discount_id rỗng, đặt discountedPrice bằng price
-      this.discountedPrice = this.price;
-      console.log(this.price);
-    }
-    console.log('hahahaahahahahahahahahahahahahahahahsfahsifhakjsf');
-  }
 }

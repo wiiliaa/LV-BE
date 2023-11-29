@@ -12,6 +12,7 @@ import { Discount } from './entities/discount.entity';
 import { User } from 'src/user/entities/user.entity';
 import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class DiscountsService {
@@ -19,19 +20,35 @@ export class DiscountsService {
     @InjectRepository(Discount)
     private readonly discountRepository: Repository<Discount>,
     private productService: ProductService,
+    private imageService: ImageService,
   ) {}
 
-  async find() {
-    return this.discountRepository.find();
+  async findAll(): Promise<Discount[]> {
+    const discount = await this.discountRepository.find();
+    const discountsWithImages: Discount[] = await Promise.all(
+      discount.map(async (discount) => {
+        // Lấy thông tin ảnh từ imageService
+        const image = await this.imageService.getImage(discount.image);
+
+        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+        return {
+          ...discount,
+          image,
+        } as Discount;
+      }),
+    );
+
+    //
+    return discountsWithImages;
   }
 
   async findOne(id: number) {
-    const found = await this.discountRepository.findOne({ where: { id } });
-
-    if (!found) {
-      throw new BadRequestException(`Discount:${id} non exist`);
+    const res = await this.discountRepository.findOne({ where: { id } });
+    if (res.image) {
+      const image1 = await this.imageService.getImage(res.image);
+      return { ...res, image: image1 };
     }
-    return found;
+    return { ...res };
   }
 
   async createDiscount(
