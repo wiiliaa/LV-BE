@@ -18,7 +18,6 @@ import { join } from 'path';
 
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
-import { versions } from 'process';
 
 @Injectable()
 export class ProductService {
@@ -96,14 +95,6 @@ export class ProductService {
     const res = await this.productRepository.findOne({ where: { id } });
     const image1 = await this.imageService.getImage(res.image);
     return { ...res, image: image1 };
-  }
-
-  async findProductsByShopId(user: User, shopId: number): Promise<Product[]> {
-    const products = await this.productRepository.find({
-      where: { shop_id: shopId },
-    });
-
-    return products;
   }
 
   async findByName(name: string): Promise<Product[]> {

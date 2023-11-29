@@ -14,12 +14,14 @@ import { existsSync } from 'fs';
 import * as fs from 'fs';
 import { UpdateProductCategoryDto } from './dto/update-product_category.dto';
 import { ImageService } from 'src/image/image.service';
+import { ProductService } from 'src/product/product.service';
 @Injectable()
 export class ProductCategoriesService {
   constructor(
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
     private imageService: ImageService,
+    private productService: ProductService,
   ) {}
 
   async findAll(): Promise<ProductCategory[]> {
@@ -121,10 +123,6 @@ export class ProductCategoriesService {
     }
   }
 
-  async remove(id: number): Promise<void> {
-    await this.productCategoryRepository.delete(id);
-  }
-
   async deleteCategory(categoryId: number): Promise<{ success: boolean }> {
     const unlink = promisify(fs.unlink);
 
@@ -139,7 +137,7 @@ export class ProductCategoriesService {
 
       // Nếu danh mục có hình ảnh, xóa nội dung của file hình ảnh
       if (category.image) {
-        const imagePath = `/public/uploads/${category.image}`;
+        const imagePath = `public/uploads/${category.image}`;
         await unlink(imagePath);
       }
 

@@ -38,10 +38,7 @@ export class ProductSizeService {
 
         await productSize.save();
         productSizes.push(productSize);
-        await this.productVersionService.findQuantityByVersionAndSize(
-          id,
-          productSize.id,
-        );
+        await this.productVersionService.updateTotalVer(id, productSize.id);
       }
 
       return { success: true };

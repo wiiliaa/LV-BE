@@ -18,12 +18,12 @@ import { User } from 'src/user/entities/user.entity';
 @Controller('discounts')
 export class DiscountsController {
   constructor(private readonly discountsService: DiscountsService) {}
-  @Get('/')
+  @Get('/getAll')
   async find() {
-    return this.discountsService.find();
+    return this.discountsService.findAll();
   }
 
-  @Get('/:id')
+  @Get('/detail/:id')
   async findOne(@Param('id') id: number) {
     return this.discountsService.findOne(id);
   }
@@ -37,7 +37,7 @@ export class DiscountsController {
     return this.discountsService.createDiscount(user, createDiscountDto);
   }
 
-  @Delete('/:id')
+  @Delete('/delete/:id')
   async delete(@Param('id') id: number) {
     return this.discountsService.delete(id);
   }

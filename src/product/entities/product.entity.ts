@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
+import { CategoryItem } from 'src/category_items/entities/category_item.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
@@ -24,6 +25,8 @@ import {
   AfterLoad,
   AfterInsert,
   AfterUpdate,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 @Entity()
@@ -96,8 +99,8 @@ export class Product extends BaseEntity {
   @OneToMany(() => OrderItem, (order_item) => order_item.product)
   order_items: OrderItem[];
 
-  @ManyToOne(() => ProductCategory, (category) => category.products)
-  category: ProductCategory;
+  @ManyToOne(() => CategoryItem, (categoryItem) => categoryItem.products)
+  categoryItem: CategoryItem;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -111,16 +114,4 @@ export class Product extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updated_at: Date;
-
-  @BeforeUpdate()
-  @AfterUpdate()
-  @BeforeInsert()
-  calculateDiscountedPrice() {
-    if (this.discount_id === null || this.discount_id === undefined) {
-      // Nếu discount_id rỗng, đặt discountedPrice bằng price
-      this.discountedPrice = this.price;
-      console.log(this.price);
-    }
-    console.log('hahahaahahahahahahahahahahahahahahahsfahsifhakjsf');
-  }
 }
