@@ -25,10 +25,4 @@ export class UpdateProductDto {
 
   @IsOptional()
   origin: string;
-  @IsOptional()
-  discountedPrice: number;
-  constructor() {
-    // Thiết lập mặc định cho discountedPrice bằng giá price
-    this.discountedPrice = this.price;
-  }
 }

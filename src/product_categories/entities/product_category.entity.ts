@@ -19,4 +19,12 @@ export class ProductCategory extends BaseEntity {
 
   @Column({ nullable: true, type: 'text' })
   image: string;
+
+  @ManyToMany(() => Product)
+  @JoinTable({
+    name: 'product_category_relation', // Tên bảng trung gian
+    joinColumn: { name: 'category_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'product_id', referencedColumnName: 'id' },
+  })
+  products: Product[];
 }

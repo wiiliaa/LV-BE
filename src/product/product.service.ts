@@ -9,15 +9,13 @@ import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
-import { ProductSizeService } from 'src/product_size/product_size.service';
-import { CreateProductSizeDto } from 'src/product_size/dto/create-product_size.dto';
 import { User } from 'src/user/entities/user.entity';
 import { SearchKeywordService } from 'src/search_keyword/search_keyword.service';
 import { existsSync } from 'fs';
 import { join } from 'path';
-
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
+import { ProductCategoriesService } from 'src/product_categories/product_categories.service';
 
 @Injectable()
 export class ProductService {
@@ -25,6 +23,7 @@ export class ProductService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     private searchKeywordService: SearchKeywordService,
     private imageService: ImageService,
+    private productCategoryService: ProductCategoriesService,
   ) {}
 
   async create(
@@ -64,6 +63,7 @@ export class ProductService {
 
       await product.save();
       await this.updateTotal(product.id);
+      await this.updateDiscountedPrice(product.id);
       return product;
     }
     throw new InternalServerErrorException(`You don't have permission`);
@@ -78,7 +78,7 @@ export class ProductService {
       products.map(async (product) => {
         // Lấy thông tin ảnh từ imageService
         const image = await this.imageService.getImage(product.image);
-
+        await this.updateDiscountedPrice(product.id);
         // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
         return {
           ...product,
@@ -92,8 +92,17 @@ export class ProductService {
   }
 
   async findById(id: number) {
-    const res = await this.productRepository.findOne({ where: { id } });
+    const res = await this.productRepository.findOne({
+      where: { id },
+      relations: ['categories'], // Thêm tùy chọn relations để load thông tin của categories
+    });
+
+    if (!res) {
+      throw new Error(`Product with ID ${id} not found`);
+    }
+
     const image1 = await this.imageService.getImage(res.image);
+    await this.updateDiscountedPrice(res.id);
     return { ...res, image: image1 };
   }
 
@@ -132,7 +141,7 @@ export class ProductService {
     // Duyệt qua từng sản phẩm và thêm thông tin ảnh
     const productsWithImages: Product[] = await Promise.all(
       products.map(async (product) => {
-        // Lấy thông tin ảnh từ imageService
+        await this.updateDiscountedPrice(product.id);
         const image = await this.imageService.getImage(product.image);
 
         // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
@@ -190,6 +199,7 @@ export class ProductService {
       // Thực hiện cập nhật thông tin sản phẩm
       await this.productRepository.update(id, updateProductDto);
       await this.updateTotal(id);
+      await this.updateDiscountedPrice(id);
       return { success: true };
     } catch (error) {
       console.error('Lỗi khi cập nhật sản phẩm:', error);
@@ -272,10 +282,10 @@ export class ProductService {
         product.discountedPrice = product.price;
       }
 
-      // Lưu lại sản phẩm với giá đã được tính toán
       return this.productRepository.save(product);
     } else {
-      // Nếu không có discount, trả về sản phẩm ban đầu
+      product.discountedPrice = product.price;
+      await this.productRepository.save(product);
       return product;
     }
   }
@@ -296,6 +306,60 @@ export class ProductService {
     }, 0);
 
     // Cập nhật tổng số lượng cho sản phẩm
+    await this.productRepository.save(product);
+  }
+
+  async addProductToCategories(
+    productId: number,
+    categoryIds: number | number[],
+  ): Promise<void> {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: ['categories'],
+    });
+
+    const categoryIdsArray = Array.isArray(categoryIds)
+      ? categoryIds
+      : [categoryIds];
+
+    const categories = await Promise.all(
+      categoryIdsArray.map((id) => this.productCategoryService.findById(id)),
+    );
+
+    if (!product || categories.some((category) => !category)) {
+      throw new Error('Product or categories not found');
+    }
+
+    product.categories = [
+      ...product.categories,
+      ...categories.filter((category) => !!category),
+    ];
+
+    await this.productRepository.save(product);
+  }
+
+  async deleteProductFromCategories(
+    productId: number,
+    categoryIds: number | number[],
+  ): Promise<void> {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: ['categories'],
+    });
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    const categoryIdsArray = Array.isArray(categoryIds)
+      ? categoryIds
+      : [categoryIds];
+
+    // Lọc bỏ các danh mục có id nằm trong mảng categoryIds
+    product.categories = product.categories.filter(
+      (category) => !categoryIdsArray.includes(category.id),
+    );
+
     await this.productRepository.save(product);
   }
 }

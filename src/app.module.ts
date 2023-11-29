@@ -20,7 +20,6 @@ import { SearchKeywordModule } from './search_keyword/search_keyword.module';
 import { StripeModule } from './stripe/stripe.module';
 import { ImageModule } from './image/image.module';
 import { ProductVersionModule } from './product-version/product-version.module';
-import { CategoryItemsModule } from './category_items/category_items.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -46,7 +45,6 @@ import config from './config/TypeOrm.config';
     StripeModule,
     ImageModule,
     ProductVersionModule,
-    CategoryItemsModule,
   ],
 })
 export class AppModule {}

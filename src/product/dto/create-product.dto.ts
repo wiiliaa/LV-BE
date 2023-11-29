@@ -14,11 +14,4 @@ export class CreateProductDto {
   type: string;
 
   origin: string;
-
-  discountedPrice: number;
-
-  dconstructor() {
-    // Thiết lập mặc định cho discountedPrice bằng giá price
-    this.discountedPrice = this.price;
-  }
 }
