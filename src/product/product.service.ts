@@ -236,7 +236,12 @@ export class ProductService {
         throw new NotFoundException('Sản phẩm không tồn tại');
       }
 
-      // Nếu có hình ảnh mới được cung cấp trong DTO, thực hiện cập nhật
+      // Extract categoryIds from updateProductDto and remove it
+      const categoryIds = updateProductDto.categoryIds;
+      delete updateProductDto.categoryIds;
+
+      // Update the product fields
+      await this.productRepository.update(id, updateProductDto);
       if (updateProductDto.image) {
         // Kiểm tra xem có hình ảnh cũ không
         if (product.image) {
@@ -259,14 +264,11 @@ export class ProductService {
         updateProductDto.image = fileName;
       }
 
-      // Cập nhật thông tin sản phẩm
-      await this.productRepository.update(id, updateProductDto);
-
-      // Nếu có categoryIds được cung cấp, cập nhật categories của sản phẩm
-      if (updateProductDto.categoryIds) {
-        const categoryIdsArray = Array.isArray(updateProductDto.categoryIds)
-          ? updateProductDto.categoryIds
-          : [updateProductDto.categoryIds];
+      // If there are categoryIds provided, update the categories of the product
+      if (categoryIds) {
+        const categoryIdsArray = Array.isArray(categoryIds)
+          ? categoryIds
+          : [categoryIds];
 
         const categories = await Promise.all(
           categoryIdsArray.map((categoryId) =>
