@@ -10,6 +10,7 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -78,7 +79,14 @@ export class ProductController {
   async findVer(@Param('id') id: number) {
     try {
       const product = await this.productService.findVer(id);
-      return product || null;
+
+      if (!product) {
+        throw new NotFoundException(
+          `Không tìm thấy version của product: ${id}`,
+        );
+      }
+
+      return product;
     } catch (error) {
       console.error(
         'Lỗi khi lấy sản phẩm, phiên bản và kích thước:',

@@ -21,7 +21,7 @@ export class CartItemService {
     return await this.cartItemRepository.findOne({ where: { id } });
   }
 
-  async create(createCartItemDto: CreateCartItemDto) {
+  async create(user: User, createCartItemDto: CreateCartItemDto) {
     const { cartId, productId, quantity } = createCartItemDto;
     const cartItem = new CartItem();
     cartItem.cart_id = cartId;

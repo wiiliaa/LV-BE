@@ -247,23 +247,24 @@ export class ProductService {
       this.productRepository.save(found);
     }
   }
-  async findVer(id: number): Promise<Product | null> {
+  async findVer(id: number) {
     try {
-      const product = await Product.findOne({
+      const product = await this.productRepository.findOne({
         where: { id: id },
         relations: ['versions', 'versions.sizes'], // Liên kết thông tin về versions và sizes của versions
       });
 
-      return product || null;
+      if (!product) {
+        throw new NotFoundException(`Không tìm thấy sản phẩm với ID: ${id}`);
+      }
+
+      // Trả về mảng phiên bản từ sản phẩm
+      return product.versions || [];
     } catch (error) {
-      console.error(
-        'Lỗi khi lấy sản phẩm, phiên bản và kích thước:',
-        error.message,
-      );
+      console.error('Lỗi khi lấy phiên bản và kích thước:', error.message);
       return null;
     }
   }
-
   async updateDiscountedPrice(id: number): Promise<Product> {
     // Tìm sản phẩm theo ID
     const product = await this.productRepository.findOne({
