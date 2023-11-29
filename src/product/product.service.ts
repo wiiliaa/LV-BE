@@ -110,13 +110,23 @@ export class ProductService {
   async findByName(name: string): Promise<Product[]> {
     const found = await this.productRepository
       .createQueryBuilder('Product')
-      .where('Product.name like :name', { name: `${name}` })
+      .where('Product.name like :name', { name: `%${name}%` }) // Use '%' to perform a partial match
+      .leftJoinAndSelect('Product.categories', 'categories') // Include categories in the query
       .getMany();
 
     if (!found) {
       throw new InternalServerErrorException(`Product: ${name} non-exist`);
     }
-    return found;
+
+    const productsWithImages: Product[] = await Promise.all(
+      found.map(async (product) => {
+        await this.updateDiscountedPrice(product.id);
+        const image = await this.imageService.getImage(product.image);
+        return { ...product, image } as Product;
+      }),
+    );
+
+    return productsWithImages;
   }
 
   async filterProducts(user: User, filter: string): Promise<Product[]> {
