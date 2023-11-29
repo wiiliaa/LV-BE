@@ -13,11 +13,6 @@ export class CartsController {
   async findAll() {
     return this.cartsService.findALl();
   }
-  @Get(':cartId')
-  async getUserIdByCartId(@Param('cartId') cartId: number) {
-    const userId = await this.cartsService.getUserIdByCartId(cartId);
-    return { userId };
-  }
 
   @Post(':userId')
   async create(@Param('userId') userId: number) {
@@ -27,14 +22,10 @@ export class CartsController {
     } catch (error) {}
   }
 
+  // Cập nhật decorator để sử dụng đường dẫn chính xác
   @Get('myCart')
   @UseGuards(AuthGuard('jwt'))
   async getCartByUserId(@GetUser() user: User) {
-    try {
-      const userCart = await this.cartsService.getCartByUserId(user);
-      return { userCart };
-    } catch (error) {
-      return { error: error.message };
-    }
+    return await this.cartsService.getCartItemsByUser(user);
   }
 }
