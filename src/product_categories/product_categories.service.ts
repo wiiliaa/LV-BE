@@ -14,7 +14,7 @@ import { existsSync } from 'fs';
 import * as fs from 'fs';
 import { UpdateProductCategoryDto } from './dto/update-product_category.dto';
 import { ImageService } from 'src/image/image.service';
-import { ProductService } from 'src/product/product.service';
+
 @Injectable()
 export class ProductCategoriesService {
   constructor(

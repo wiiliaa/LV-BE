@@ -39,6 +39,7 @@ export class CartsService {
       const userCartItems = await this.cartRepository
         .createQueryBuilder('cart')
         .leftJoinAndSelect('cart.cart_items', 'cart_items')
+        .leftJoinAndSelect('cart_items.version', 'version') // Liên kết với bảng version
         .leftJoin('cart.user', 'user')
         .where('user.id = :userId', { userId: user.id })
         .getOne();
@@ -49,7 +50,16 @@ export class CartsService {
         );
       }
 
-      return userCartItems.cart_items;
+      // Bây giờ bạn chỉ cần truy cập trường 'image' từ version
+      const cartItemsWithImages = userCartItems.cart_items.map((cartItem) => {
+        const { version, ...restCartItem } = cartItem; // Destructure 'version' and get the rest of the 'cartItem'
+        return {
+          ...restCartItem,
+          image: version.image, // Lấy trường 'image' từ version
+        };
+      });
+
+      return cartItemsWithImages;
     } catch (error) {
       throw new NotFoundException(error.message);
     }
