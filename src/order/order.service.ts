@@ -41,7 +41,6 @@ export class OrderService {
       const orderItem = new OrderItem();
       orderItem.quantity = cartItem.quantity;
       orderItem.order_id = order.id;
-      orderItem.product_id = cartItem.product_id;
 
       await this.orderItemRepository.save(orderItem);
       await this.cartItemRepository.remove(cartItem);

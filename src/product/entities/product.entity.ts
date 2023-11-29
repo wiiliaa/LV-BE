@@ -87,9 +87,6 @@ export class Product extends BaseEntity {
   @OneToMany(() => ProductVersion, (version) => version.product)
   versions: ProductVersion[];
 
-  @OneToMany(() => CartItem, (cart_item) => cart_item.product)
-  cart_items: CartItem[];
-
   @OneToMany(() => OrderItem, (order_item) => order_item.product)
   order_items: OrderItem[];
 

@@ -37,51 +37,51 @@ export class CartsService {
     return cart?.user?.id || null;
   }
 
-  async addToCart(
-    userId: number,
-    productId: number,
-    quantity: number,
-  ): Promise<CartItem> {
-    const cart = await this.cartRepository.findOne({
-      where: { user_id: userId },
-    });
-    if (!cart) throw new NotFoundException('Cart not found');
+  // async addToCart(
+  //   userId: number,
+  //   productId: number,
+  //   quantity: number,
+  // ): Promise<CartItem> {
+  //   const cart = await this.cartRepository.findOne({
+  //     where: { user_id: userId },
+  //   });
+  //   if (!cart) throw new NotFoundException('Cart not found');
 
-    const product = await this.productRepository.findOne({
-      where: { id: productId },
-    });
+  //   const product = await this.productRepository.findOne({
+  //     where: { id: productId },
+  //   });
 
-    if (!product) throw new NotFoundException('Product not found');
+  //   if (!product) throw new NotFoundException('Product not found');
 
-    let cartItem = await this.cartItemRepository.findOne({
-      where: { cart: { id: cart.id }, product: { id: product.id } },
-    });
+  //   let cartItem = await this.cartItemRepository.findOne({
+  //     where: { cart: { id: cart.id }, product: { id: product.id } },
+  //   });
 
-    if (!cartItem) {
-      cartItem = new CartItem();
-      cartItem.cart = cart;
-      cartItem.product = product;
-    }
+  //   if (!cartItem) {
+  //     cartItem = new CartItem();
+  //     cartItem.cart = cart;
+  //     cartItem.product = product;
+  //   }
 
-    cartItem.quantity = quantity;
-    return await this.cartItemRepository.save(cartItem);
-  }
+  //   cartItem.quantity = quantity;
+  //   return await this.cartItemRepository.save(cartItem);
+  // }
 
-  async removeFromCart(userId: number, productId: number): Promise<void> {
-    const cart = await this.cartRepository.findOne({ where: { id: userId } });
-    if (!cart) throw new NotFoundException('Cart not found');
-    const product = await this.productRepository.findOne({
-      where: { id: productId },
-    });
+  // async removeFromCart(userId: number, productId: number): Promise<void> {
+  //   const cart = await this.cartRepository.findOne({ where: { id: userId } });
+  //   if (!cart) throw new NotFoundException('Cart not found');
+  //   const product = await this.productRepository.findOne({
+  //     where: { id: productId },
+  //   });
 
-    if (!product) throw new NotFoundException('Product not found');
+  //   if (!product) throw new NotFoundException('Product not found');
 
-    const cartItem = await this.cartItemRepository.findOne({
-      where: { cart: { id: cart.id }, product: { id: product.id } },
-    });
+  //   const cartItem = await this.cartItemRepository.findOne({
+  //     where: { cart: { id: cart.id }, product: { id: product.id } },
+  //   });
 
-    if (!cartItem) throw new NotFoundException('CartItem not found');
+  //   if (!cartItem) throw new NotFoundException('CartItem not found');
 
-    await this.cartItemRepository.remove(cartItem);
-  }
+  //   await this.cartItemRepository.remove(cartItem);
+  // }
 }

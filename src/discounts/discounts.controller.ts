@@ -18,9 +18,10 @@ import { User } from 'src/user/entities/user.entity';
 @Controller('discounts')
 export class DiscountsController {
   constructor(private readonly discountsService: DiscountsService) {}
-  @Get('/getAll')
-  async find() {
-    return this.discountsService.findAll();
+  @Get('/shop/:id/all')
+  @UseGuards(AuthGuard('jwt'))
+  async find(@GetUser() user: User, @Param('id') shopId: number) {
+    return this.discountsService.findAllByShop(user, shopId);
   }
 
   @Get('/detail/:id')

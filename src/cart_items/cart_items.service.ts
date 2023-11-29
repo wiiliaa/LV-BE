@@ -22,23 +22,25 @@ export class CartItemService {
   }
 
   async create(user: User, createCartItemDto: CreateCartItemDto) {
-    const { cartId, productId, quantity } = createCartItemDto;
+    const { cart_id, versionId, quantity, shop_id } = createCartItemDto;
     const cartItem = new CartItem();
-    cartItem.cart_id = cartId;
-    cartItem.product_id = productId;
+    cartItem.cart_id = user.cart_id;
+    cartItem.version_id = versionId;
     cartItem.quantity = quantity;
+    cartItem.shop_id = shop_id;
 
     await cartItem.save();
 
     return cartItem;
   }
 
-  async update(id: number, updateCartItemDto: UpdateCartItemDto) {
+  async update(user: User, updateCartItemDto: UpdateCartItemDto) {
+    const cart_id = user.cart.id;
     const cart_item = await this.cartItemRepository
       .createQueryBuilder('cart_item')
       .update()
       .set(updateCartItemDto)
-      .where('id = :id', { id })
+      .where('id = :id', { cart_id })
       .execute();
     return cart_item;
   }
