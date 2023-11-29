@@ -23,14 +23,19 @@ export class DiscountsService {
     private imageService: ImageService,
   ) {}
 
-  async findAll(): Promise<Discount[]> {
-    const discount = await this.discountRepository.find();
+  async findAllByShop(user: User, shopId: number): Promise<Discount[]> {
+    const discounts = await this.discountRepository.find({
+      where: {
+        shop: {
+          id: shopId,
+        },
+      },
+    });
+
     const discountsWithImages: Discount[] = await Promise.all(
-      discount.map(async (discount) => {
-        // Lấy thông tin ảnh từ imageService
+      discounts.map(async (discount) => {
         const image = await this.imageService.getImage(discount.image);
 
-        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
         return {
           ...discount,
           image,
@@ -38,7 +43,6 @@ export class DiscountsService {
       }),
     );
 
-    //
     return discountsWithImages;
   }
 
