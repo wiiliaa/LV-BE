@@ -16,6 +16,7 @@ import { join } from 'path';
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
 import { ProductCategoriesService } from 'src/product_categories/product_categories.service';
+import { version } from 'os';
 
 @Injectable()
 export class ProductService {
@@ -156,6 +157,57 @@ export class ProductService {
     return productsWithImages;
   }
 
+  // async update(
+  //   id: number,
+  //   updateProductDto: UpdateProductDto,
+  //   user: User,
+  // ): Promise<{ success: boolean }> {
+  //   const unlinkAsync = promisify(fs.unlink);
+  //   const writeFileAsync = promisify(fs.writeFile);
+
+  //   try {
+  //     const product = await this.productRepository.findOne({
+  //       where: { id },
+  //     });
+
+  //     if (!product) {
+  //       throw new NotFoundException('Sản phẩm không tồn tại');
+  //     }
+
+  //     // Nếu có hình ảnh mới được cung cấp trong DTO, thực hiện cập nhật
+  //     if (updateProductDto.image) {
+  //       // Kiểm tra xem có hình ảnh cũ không
+  //       if (product.image) {
+  //         const oldImagePath = join('/public/uploads/', product.image);
+
+  //         // Nếu file cũ tồn tại, xóa nó đi
+  //         if (existsSync(oldImagePath)) {
+  //           await unlinkAsync(oldImagePath);
+  //         }
+  //       }
+
+  //       // Tạo đường dẫn và tên file cho hình mới
+  //       const fileName = `${product.id}_${Date.now()}-image.txt`;
+  //       const filePath = `public/uploads/${fileName}`;
+
+  //       // Lưu mã base64 mới vào tệp văn bản
+  //       await writeFileAsync(filePath, updateProductDto.image);
+
+  //       // Lưu đường dẫn tệp vào trường image của sản phẩm
+  //       updateProductDto.image = fileName;
+  //     }
+
+  //     // Thực hiện cập nhật thông tin sản phẩm
+  //     await this.productRepository.update(id, updateProductDto);
+  //     await this.updateTotal(id);
+  //     await this.updateDiscountedPrice(id);
+  //     return { success: true };
+  //   } catch (error) {
+  //     console.error('Lỗi khi cập nhật sản phẩm:', error);
+  //     throw new InternalServerErrorException('Lỗi khi cập nhật sản phẩm');
+  //   }
+  // }
+
   async update(
     id: number,
     updateProductDto: UpdateProductDto,
@@ -167,6 +219,7 @@ export class ProductService {
     try {
       const product = await this.productRepository.findOne({
         where: { id },
+        relations: ['categories'],
       });
 
       if (!product) {
@@ -196,10 +249,29 @@ export class ProductService {
         updateProductDto.image = fileName;
       }
 
-      // Thực hiện cập nhật thông tin sản phẩm
+      // Cập nhật thông tin sản phẩm
       await this.productRepository.update(id, updateProductDto);
+
+      // Nếu có categoryIds được cung cấp, cập nhật categories của sản phẩm
+      if (updateProductDto.categoryIds) {
+        const categoryIdsArray = Array.isArray(updateProductDto.categoryIds)
+          ? updateProductDto.categoryIds
+          : [updateProductDto.categoryIds];
+
+        const categories = await Promise.all(
+          categoryIdsArray.map((categoryId) =>
+            this.productCategoryService.findById(categoryId),
+          ),
+        );
+
+        product.categories = [...categories.filter((category) => !!category)];
+
+        await this.productRepository.save(product);
+      }
+
       await this.updateTotal(id);
       await this.updateDiscountedPrice(id);
+
       return { success: true };
     } catch (error) {
       console.error('Lỗi khi cập nhật sản phẩm:', error);
@@ -251,20 +323,27 @@ export class ProductService {
     try {
       const product = await this.productRepository.findOne({
         where: { id: id },
-        relations: ['versions', 'versions.sizes'], // Liên kết thông tin về versions và sizes của versions
+        relations: ['versions', 'versions.sizes'],
       });
 
       if (!product) {
         throw new NotFoundException(`Không tìm thấy sản phẩm với ID: ${id}`);
       }
 
-      // Trả về mảng phiên bản từ sản phẩm
-      return product.versions || [];
+      const versionsWithImages = await Promise.all(
+        product.versions.map(async (version) => ({
+          ...version,
+          image: await this.imageService.getImage(version.image),
+        })),
+      );
+
+      return versionsWithImages;
     } catch (error) {
-      console.error('Lỗi khi lấy phiên bản và kích thước:', error.message);
+      console.error('Lỗi:', error.message);
       return null;
     }
   }
+
   async updateDiscountedPrice(id: number): Promise<Product> {
     // Tìm sản phẩm theo ID
     const product = await this.productRepository.findOne({

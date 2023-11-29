@@ -39,12 +39,13 @@ export class CartItemController {
     return await this.cartItemService.create(user, createCartItemDto);
   }
 
-  @Put('/update/:id')
+  @Put('/update')
+  @UseGuards(AuthGuard('jwt'))
   async update(
-    @Param('id') id: number,
+    @GetUser() user: User,
     @Body() updateCartItemDto: UpdateCartItemDto,
   ) {
-    return await this.cartItemService.update(id, updateCartItemDto);
+    return await this.cartItemService.update(user, updateCartItemDto);
   }
 
   @Delete(':id')

@@ -1,4 +1,5 @@
 import { Cart } from 'src/carts/entities/cart.entity';
+import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 import {
@@ -23,14 +24,12 @@ export class CartItem extends BaseEntity {
   @Column()
   cart_id: number;
 
-  @ManyToOne(() => Product, (product) => product.cart_items, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+  @ManyToOne(() => ProductVersion, (version) => version.cart_items)
+  @JoinColumn({ name: 'version_id' })
+  version: ProductVersion;
 
   @Column()
-  product_id: number;
+  version_id: number;
 
   @ManyToOne(() => Shop, (shop) => shop.cart_items)
   @JoinColumn({ name: 'shop_id' })

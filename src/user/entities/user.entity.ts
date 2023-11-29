@@ -54,7 +54,11 @@ export class User extends BaseEntity {
   comments: Comment[];
 
   @OneToOne(() => Cart, (cart) => cart.user)
+  @JoinColumn({ name: 'cart_id' })
   cart: Cart;
+
+  @Column({ nullable: true })
+  cart_id: number;
 
   @OneToMany(() => Order, (order) => order.user)
   order: Order[];
