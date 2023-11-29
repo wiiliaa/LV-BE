@@ -34,7 +34,30 @@ export class UserService {
 
   async findByRole(role: string): Promise<User[]> {
     const users = await User.find({ where: { role } });
-    return users;
+
+    // Duyệt qua từng người dùng và thêm thông tin ảnh nếu có
+    const usersWithImages: User[] = await Promise.all(
+      users.map(async (user) => {
+        // Lấy thông tin ảnh từ imageService
+        if (user.avatar) {
+          const avatar = await this.imageService.getImage(user.avatar);
+
+          // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+          return {
+            ...user,
+            avatar,
+          } as User;
+        } else {
+          // Nếu không có ảnh, trả về người dùng với avatar là null
+          return {
+            ...user,
+            avatar: null,
+          } as User;
+        }
+      }),
+    );
+
+    return usersWithImages;
   }
 
   async find(): Promise<User[]> {

@@ -37,17 +37,16 @@ export class UserController {
 
   @Get('getAll/seller')
   async findSeller() {
-    return this.usersService.getSeller();
+    return this.usersService.findByRole('seller');
   }
 
   @Get('getAll/customer')
   async findCustomer() {
-    return this.usersService.getCustomers();
+    return this.usersService.findByRole('customer');
   }
-
   @Get('getAll/pending')
   async findPending() {
-    return this.usersService.getPending();
+    return this.usersService.findByRole('pending');
   }
 
   // @Delete('/:id')
