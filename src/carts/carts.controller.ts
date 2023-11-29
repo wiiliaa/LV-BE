@@ -1,6 +1,9 @@
-import { Controller, Post, Param, Get } from '@nestjs/common';
+import { Controller, Post, Param, Get, UseGuards } from '@nestjs/common';
 import { CartsService } from './carts.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/user/entities/user.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
 @ApiTags('Carts')
 @Controller('carts')
 export class CartsController {
@@ -22,5 +25,16 @@ export class CartsController {
       const cart = await this.cartsService.create(userId);
       return cart;
     } catch (error) {}
+  }
+
+  @Get('myCart')
+  @UseGuards(AuthGuard('jwt'))
+  async getCartByUserId(@GetUser() user: User) {
+    try {
+      const userCart = await this.cartsService.getCartByUserId(user);
+      return { userCart };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }

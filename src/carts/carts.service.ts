@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CartsService {
@@ -37,51 +38,40 @@ export class CartsService {
     return cart?.user?.id || null;
   }
 
-  // async addToCart(
-  //   userId: number,
-  //   productId: number,
-  //   quantity: number,
-  // ): Promise<CartItem> {
-  //   const cart = await this.cartRepository.findOne({
-  //     where: { user_id: userId },
-  //   });
-  //   if (!cart) throw new NotFoundException('Cart not found');
+  async getCartByUserId(user: User): Promise<Cart | null> {
+    try {
+      const cart = await this.cartRepository.findOne({
+        where: { user_id: user.id },
+        relations: ['cart_items'],
+      });
 
-  //   const product = await this.productRepository.findOne({
-  //     where: { id: productId },
-  //   });
+      if (!cart) {
+        throw new NotFoundException(
+          `Cart not found for user with ID ${user.id}`,
+        );
+      }
 
-  //   if (!product) throw new NotFoundException('Product not found');
+      return cart;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
 
-  //   let cartItem = await this.cartItemRepository.findOne({
-  //     where: { cart: { id: cart.id }, product: { id: product.id } },
-  //   });
+    // async removeFromCart(userId: number, productId: number): Promise<void> {
+    //   const cart = await this.cartRepository.findOne({ where: { id: userId } });
+    //   if (!cart) throw new NotFoundException('Cart not found');
+    //   const product = await this.productRepository.findOne({
+    //     where: { id: productId },
+    //   });
 
-  //   if (!cartItem) {
-  //     cartItem = new CartItem();
-  //     cartItem.cart = cart;
-  //     cartItem.product = product;
-  //   }
+    //   if (!product) throw new NotFoundException('Product not found');
 
-  //   cartItem.quantity = quantity;
-  //   return await this.cartItemRepository.save(cartItem);
-  // }
+    //   const cartItem = await this.cartItemRepository.findOne({
+    //     where: { cart: { id: cart.id }, product: { id: product.id } },
+    //   });
 
-  // async removeFromCart(userId: number, productId: number): Promise<void> {
-  //   const cart = await this.cartRepository.findOne({ where: { id: userId } });
-  //   if (!cart) throw new NotFoundException('Cart not found');
-  //   const product = await this.productRepository.findOne({
-  //     where: { id: productId },
-  //   });
+    //   if (!cartItem) throw new NotFoundException('CartItem not found');
 
-  //   if (!product) throw new NotFoundException('Product not found');
-
-  //   const cartItem = await this.cartItemRepository.findOne({
-  //     where: { cart: { id: cart.id }, product: { id: product.id } },
-  //   });
-
-  //   if (!cartItem) throw new NotFoundException('CartItem not found');
-
-  //   await this.cartItemRepository.remove(cartItem);
-  // }
+    //   await this.cartItemRepository.remove(cartItem);
+    // }
+  }
 }
