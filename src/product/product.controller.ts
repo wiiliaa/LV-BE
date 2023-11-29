@@ -8,6 +8,8 @@ import {
   Delete,
   Put,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -83,6 +85,49 @@ export class ProductController {
         error.message,
       );
       return null;
+    }
+  }
+
+  @Post('/addProductToCate/:productId/:categoryId')
+  async addProductToCategories(
+    @Param('productId') productId: number,
+    @Param('categoryId') categoryIds: number[],
+  ) {
+    try {
+      await this.productService.addProductToCategories(productId, categoryIds);
+      return {
+        success: true,
+        message: 'Product added to categories successfully.',
+      };
+    } catch (error) {
+      throw new HttpException(
+        { success: false, message: 'Failed to add product to categories.' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('/removeProductToCate/:productId/:categoryId')
+  async removeCategoriesFromProduct(
+    @Param('productId') productId: number,
+    @Body('categoryId') categoryIds: number | number[],
+  ) {
+    try {
+      await this.productService.deleteProductFromCategories(
+        productId,
+        categoryIds,
+      );
+      return {
+        success: true,
+        message: 'Categories removed from product successfully.',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Failed to remove categories from product.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

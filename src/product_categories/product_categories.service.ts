@@ -21,7 +21,6 @@ export class ProductCategoriesService {
     @InjectRepository(ProductCategory)
     private productCategoryRepository: Repository<ProductCategory>,
     private imageService: ImageService,
-    private productService: ProductService,
   ) {}
 
   async findAll(): Promise<ProductCategory[]> {
@@ -151,5 +150,9 @@ export class ProductCategoriesService {
       console.error('Lỗi khi xóa danh mục:', error);
       throw new InternalServerErrorException('Lỗi khi xóa danh mục');
     }
+  }
+
+  async findById(id: number): Promise<ProductCategory | null> {
+    return await this.productCategoryRepository.findOne({ where: { id } });
   }
 }
