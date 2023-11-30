@@ -24,7 +24,7 @@ export class ProductVersion extends BaseEntity {
   @Column()
   color: string;
 
-  @Column()
+  @Column({ nullable: true, type: 'text' })
   image: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })

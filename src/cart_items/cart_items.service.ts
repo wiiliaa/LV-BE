@@ -42,15 +42,28 @@ export class CartItemService {
     return cartItem;
   }
 
-  async update(user: User, updateCartItemDto: UpdateCartItemDto) {
-    const cart_id = user.cart.id;
-    const cart_item = await this.cartItemRepository
-      .createQueryBuilder('cart_item')
-      .update()
-      .set(updateCartItemDto)
-      .where('id = :id', { cart_id })
-      .execute();
-    return cart_item;
+  async update(
+    user: User,
+    updateCartItemDto: UpdateCartItemDto,
+  ): Promise<CartItem> {
+    const { cartItemId, size_quantity } = updateCartItemDto;
+
+    const cartItem = await this.cartItemRepository.findOne({
+      where: { id: cartItemId, cart_id: user.cart_id },
+    });
+
+    if (!cartItem) {
+      throw new NotFoundException(
+        `CartItem with ID ${cartItemId} not found in user's cart`,
+      );
+    }
+
+    // Assuming you want to update the size_quantity property
+    cartItem.size_quantity = size_quantity;
+
+    await this.cartItemRepository.save(cartItem);
+
+    return cartItem;
   }
 
   async delete(id: number) {

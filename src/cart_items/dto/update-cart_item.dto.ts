@@ -1,12 +1,8 @@
 import { IsOptional } from 'class-validator';
 
 export class UpdateCartItemDto {
-  @IsOptional()
-  cart_id?: number;
+  cartItemId: number;
 
   @IsOptional()
-  versionId?: number;
-
-  @IsOptional()
-  quantity?: number;
+  size_quantity?: number;
 }
