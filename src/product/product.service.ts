@@ -95,16 +95,28 @@ export class ProductService {
   async findById(id: number) {
     const res = await this.productRepository.findOne({
       where: { id },
-      relations: ['categories', 'versions', 'versions.sizes'], // Thêm tùy chọn relations để load thông tin của categories
+      relations: ['categories', 'versions', 'versions.sizes'], // Add 'versions.image' to load version images
     });
 
     if (!res) {
       throw new Error(`Product with ID ${id} not found`);
     }
 
-    const image1 = await this.imageService.getImage(res.image);
+    // Load images for the product and its versions
+    const productImage = await this.imageService.getImage(res.image);
+
+    // Load images for each version and nest them within the version object
+    const versionsWithImages = await Promise.all(
+      res.versions.map(async (version) => {
+        const versionImage = await this.imageService.getImage(version.image);
+        return { ...version, image: versionImage };
+      }),
+    );
+
+    // Update discounted price for the product
     await this.updateDiscountedPrice(res.id);
-    return { ...res, image: image1 };
+
+    return { ...res, image: productImage, versions: versionsWithImages };
   }
 
   async findByName(name: string): Promise<Product[]> {

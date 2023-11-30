@@ -1,5 +1,4 @@
 import { IsInt, IsPositive } from 'class-validator';
-import { SizeDto } from './sizeDto';
 
 export class CreateCartItemDto {
   cart_id: number;

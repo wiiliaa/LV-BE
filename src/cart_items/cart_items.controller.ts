@@ -16,7 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 @ApiTags('Cart_items')
-@Controller('cart-items')
+@Controller('cartItems')
 export class CartItemController {
   constructor(private readonly cartItemService: CartItemService) {}
 
