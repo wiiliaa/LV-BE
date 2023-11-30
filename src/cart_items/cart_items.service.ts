@@ -74,4 +74,11 @@ export class CartItemService {
     }
     return { status };
   }
+
+  async getAllCartItemsForShop(shop_id: number): Promise<CartItem[]> {
+    const cartitem = await this.cartItemRepository.find({
+      where: { id: shop_id },
+    });
+    return cartitem;
+  }
 }
