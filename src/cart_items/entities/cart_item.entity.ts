@@ -40,8 +40,13 @@ export class CartItem extends BaseEntity {
   shop_id: number;
 
   @Column()
-  quantity: number;
+  size_id: number;
 
+  @Column()
+  size_quantity: number;
+
+  @Column()
+  size_name: string;
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

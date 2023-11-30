@@ -19,7 +19,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Shops')
 @Controller('shops')
 export class ShopController {
-  constructor(private readonly shopService: ShopService) { }
+  constructor(private readonly shopService: ShopService) {}
 
   @Post('/createShop')
   @UseGuards(AuthGuard('jwt'))
@@ -47,8 +47,13 @@ export class ShopController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Shop> {
-    return this.shopService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    try {
+      const result = await this.shopService.findOne(id);
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   @Put(':id')

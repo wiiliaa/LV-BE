@@ -188,4 +188,35 @@ export class ProductVersionService {
     await this.productService.updateTotal(productVersion.product_id);
     return size.quantity;
   }
+
+  async findShopByVersionId(versionId: number) {
+    const productVersion = await this.productVersionRepository.findOne({
+      where: { id: versionId },
+      relations: ['product', 'product.shop'], // Assuming relationships are defined in the entities
+    });
+
+    if (!productVersion) {
+      throw new NotFoundException(
+        `ProductVersion with ID ${versionId} not found`,
+      );
+    }
+
+    const product = productVersion.product;
+
+    if (!product) {
+      throw new InternalServerErrorException(
+        'Product not found for the given version',
+      );
+    }
+
+    const shop = product.shop;
+
+    if (!shop) {
+      throw new InternalServerErrorException(
+        'Shop not found for the given product',
+      );
+    }
+
+    return shop.id;
+  }
 }

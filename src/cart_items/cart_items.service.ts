@@ -5,12 +5,14 @@ import { CartItem } from './entities/cart_item.entity';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 import { User } from 'src/user/entities/user.entity';
+import { ProductVersionService } from 'src/product-version/product-version.service';
 
 @Injectable()
 export class CartItemService {
   constructor(
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
+    private productVersion: ProductVersionService,
   ) {}
 
   async findAll(): Promise<CartItem[]> {
@@ -21,19 +23,24 @@ export class CartItemService {
     return await this.cartItemRepository.findOne({ where: { id } });
   }
 
-  // async create(user: User, createCartItemDto: CreateCartItemDto) {
-  //   const { cart_id, versionId, quantity, shop_id } = createCartItemDto;
-  //   const cartItem = new CartItem();
-  //   cartItem.cart_id = user.cart_id;
-  //   cartItem.version_id = versionId;
-  //   cartItem.si
-  //   cartItem.quantity = quantity;
-  //   cartItem.shop_id = shop_id;
+  async create(user: User, createCartItemDto: CreateCartItemDto) {
+    const { cart_id, versionId, size_id, size_quatity, size_name } =
+      createCartItemDto;
 
-  //   await cartItem.save();
+    const shopId = await this.productVersion.findShopByVersionId(versionId);
 
-  //   return cartItem;
-  // }
+    const cartItem = new CartItem();
+    cartItem.cart_id = user.cart_id;
+    cartItem.version_id = versionId;
+    cartItem.size_id = size_id;
+    cartItem.size_quantity = size_quatity;
+    cartItem.size_name = size_name;
+    cartItem.shop_id = shopId;
+
+    await cartItem.save();
+
+    return cartItem;
+  }
 
   async update(user: User, updateCartItemDto: UpdateCartItemDto) {
     const cart_id = user.cart.id;
