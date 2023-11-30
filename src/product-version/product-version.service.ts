@@ -96,15 +96,22 @@ export class ProductVersionService {
   async findById(id: number) {
     const res = await this.productVersionRepository.findOne({
       where: { id },
-      relations: ['size'], // Thêm 'size' vào relations để load thông tin size
+      relations: ['sizes'], // Thêm 'size' vào relations để load thông tin size
     });
 
     if (res) {
       const image1 = await this.imageService.getImage(res.image);
-      return { ...res, image: image1 };
+
+      // Kiểm tra xem có thông tin về size không
+      if (res.sizes) {
+        return { ...res, image: image1 };
+      } else {
+        // Nếu không có thông tin về size, trả về một đối tượng không có trường size
+        return { ...res, image: image1, size: null };
+      }
     }
 
-    return null; // Xử lý trường hợp không tìm thấy
+    return null;
   }
 
   async update(

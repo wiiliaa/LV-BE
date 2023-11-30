@@ -32,12 +32,8 @@ export class ProductVersionController {
 
   @Get('/detail/:id')
   async findById(@Param('id') id: number) {
-    try {
-      const result = await this.productVersionService.findById(id);
-      return { success: true, data: result };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+    const result = await this.productVersionService.findById(id);
+    return result;
   }
 
   @Put('updateVersion/:id')
