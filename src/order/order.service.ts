@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { User } from 'src/user/entities/user.entity';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { Cart } from 'src/carts/entities/cart.entity';
 
 @Injectable()
 export class OrderService {
@@ -13,41 +15,40 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
-
-  async createOrder(user: User, cartItems: CartItem[]): Promise<Order> {
-    if (!cartItems.length) {
-      throw new NotFoundException('No items in the cart to create an order.');
-    }
-
-    // Use the shop_id from the first cart item
-    const shopId = cartItems[0].shop_id;
-
-    // Create an order
+  async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
+    const shop = await createOrderDto.cartItems[0].shop_id;
     const order = this.orderRepository.create({
       user_id: user.id,
-      shop_id: shopId,
       status: 'pending',
+      total: createOrderDto.total,
+      shop_id: shop,
     });
+    const createdOrder = await this.orderRepository.save(order);
 
-    // Save order
-    await this.orderRepository.save(order);
-
-    // Create and save order items, and delete cart items
-    for (const cartItem of cartItems) {
+    // Bước 2: Tạo OrderItem từ CartItem và liên kết với Đơn Hàng
+    for (const cartItemDto of createOrderDto.cartItems) {
       const orderItem = this.orderItemRepository.create({
-        quantity: cartItem.size_quantity, // Adjust this based on your data structure
-        version_id: cartItem.version_id,
-        order_id: order.id,
+        quantity: cartItemDto.size_quantity,
+        version_id: cartItemDto.version_id,
+        order_id: createdOrder.id,
       });
-
       await this.orderItemRepository.save(orderItem);
-      // await this.cartItemRepository.remove(cartItem);
     }
 
-    return order;
+    const cart = await this.cartRepository.findOne({
+      where: { user_id: user.id },
+      relations: ['cart_items'],
+    });
+    if (cart) {
+      await this.cartItemRepository.remove(cart.cart_items);
+    }
+
+    return createdOrder;
   }
 
   async updateOrderStatus(orderId: number, status: string): Promise<Order> {

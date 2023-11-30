@@ -94,9 +94,17 @@ export class ProductVersionService {
     ) as ProductVersion[];
   }
   async findById(id: number) {
-    const res = await this.productVersionRepository.findOne({ where: { id } });
-    const image1 = await this.imageService.getImage(res.image);
-    return { ...res, image: image1 };
+    const res = await this.productVersionRepository.findOne({
+      where: { id },
+      relations: ['size'], // Thêm 'size' vào relations để load thông tin size
+    });
+
+    if (res) {
+      const image1 = await this.imageService.getImage(res.image);
+      return { ...res, image: image1 };
+    }
+
+    return null; // Xử lý trường hợp không tìm thấy
   }
 
   async update(

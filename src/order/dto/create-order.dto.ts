@@ -1,10 +1,15 @@
-import { IsInt, IsPositive } from 'class-validator';
-import { CartItemDto } from './create-cart_item.dto';
-
 export class CreateOrderDto {
   total: number;
 
   user_id: number;
 
   cartItems: CartItemDto[];
+}
+
+export class CartItemDto {
+  version_id: number;
+
+  size_quantity: number;
+
+  shop_id: number;
 }

@@ -11,8 +11,8 @@ export class OrderItemsService {
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
-  async createOrderItem(orderItemData: Partial<OrderItem>): Promise<OrderItem> {
-    const orderItem = this.orderItemRepository.create(orderItemData);
+  async create(createOrderItemsDto: CreateOrderItemDto): Promise<OrderItem> {
+    const orderItem = this.orderItemRepository.create(createOrderItemsDto);
     return await this.orderItemRepository.save(orderItem);
   }
 
