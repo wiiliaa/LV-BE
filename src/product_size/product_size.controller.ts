@@ -12,7 +12,7 @@ import { UpdateProductSizeDto } from './dto/update-product_size.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateProductSizeDto } from './dto/create-product_size.dto';
 import { Unique } from 'typeorm';
-@Unique(['version_id', 'sizeName'])
+
 @ApiTags('Product_sizes')
 @Controller('sizes')
 export class ProductSizeController {
