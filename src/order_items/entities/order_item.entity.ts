@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Order } from 'src/order/entities/order.entity';
+import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 import { Product } from 'src/product/entities/product.entity';
 import {
   Entity,
@@ -29,12 +30,12 @@ export class OrderItem extends BaseEntity {
   @Column()
   order_id: number;
 
-  @ManyToOne(() => Product, (product) => product.order_items)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+  @ManyToOne(() => ProductVersion, (version) => version.cart_items)
+  @JoinColumn({ name: 'version_id' })
+  version: ProductVersion;
 
   @Column()
-  product_id: number;
+  version_id: number;
 
   @CreateDateColumn({
     type: 'timestamp',

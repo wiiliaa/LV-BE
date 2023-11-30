@@ -35,51 +35,51 @@ export class CommentsService {
     return comments || [];
   }
 
-  async createComment(
-    user: User,
-    createCommentDto: CreateCommentDto,
-  ): Promise<Comment> {
-    const { text, rate, product_id } = createCommentDto;
+  // async createComment(
+  //   user: User,
+  //   createCommentDto: CreateCommentDto,
+  // ): Promise<Comment> {
+  //   const { text, rate, product_id } = createCommentDto;
 
-    // Check if the user has purchased the product
-    const hasPurchasedProduct = await this.hasPurchasedProduct(
-      user.id,
-      product_id,
-    );
+  //   // Check if the user has purchased the product
+  //   const hasPurchasedProduct = await this.hasPurchasedProduct(
+  //     user.id,
+  //     product_id,
+  //   );
 
-    if (!hasPurchasedProduct) {
-      throw new UnauthorizedException(
-        'You can only comment on products you have purchased.',
-      );
-    }
+  //   if (!hasPurchasedProduct) {
+  //     throw new UnauthorizedException(
+  //       'You can only comment on products you have purchased.',
+  //     );
+  //   }
 
-    const comment = this.commentRepository.create({
-      text,
-      rate,
-      user_id: user.id,
-      product_id,
-    });
+  //   const comment = this.commentRepository.create({
+  //     text,
+  //     rate,
+  //     user_id: user.id,
+  //     product_id,
+  //   });
 
-    return this.commentRepository.save(comment);
-  }
+  //   return this.commentRepository.save(comment);
+  // }
 
-  private async hasPurchasedProduct(
-    userId: number,
-    productId: number,
-  ): Promise<boolean> {
-    const userOrders = await this.orderRepository.find({
-      where: { user_id: userId },
-    });
-    for (const order of userOrders) {
-      const hasProduct = order.order_items.some(
-        (item) => item.product_id === productId,
-      );
-      if (hasProduct) {
-        return true;
-      }
-    }
-    return false;
-  }
+  // private async hasPurchasedProduct(
+  //   userId: number,
+  //   productId: number,
+  // ): Promise<boolean> {
+  //   const userOrders = await this.orderRepository.find({
+  //     where: { user_id: userId },
+  //   });
+  //   for (const order of userOrders) {
+  //     const hasProduct = order.order_items.some(
+  //       (item) => item.product_id === productId,
+  //     );
+  //     if (hasProduct) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   async updateComment(
     id: number,

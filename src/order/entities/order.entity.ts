@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { PaymentDetail } from 'src/payment_details/entities/payment_detail.entity';

@@ -1,15 +1,10 @@
 import { IsInt, IsPositive } from 'class-validator';
+import { CartItemDto } from './create-cart_item.dto';
 
 export class CreateOrderDto {
-  @IsInt()
-  @IsPositive()
   total: number;
 
-  @IsInt()
-  @IsPositive()
-  userId: number;
+  user_id: number;
 
-  @IsInt()
-  @IsPositive()
-  discountId: number;
+  cartItems: CartItemDto[];
 }

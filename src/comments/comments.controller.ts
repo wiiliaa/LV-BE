@@ -40,14 +40,14 @@ export class CommentsController {
     return commentsByProduct;
   }
 
-  @Post()
-  @UseGuards(AuthGuard('jwt'))
-  async createComment(
-    @GetUser() user: User,
-    @Body() createCommentDto: CreateCommentDto,
-  ): Promise<Comment> {
-    return await this.commentsService.createComment(user, createCommentDto);
-  }
+  // @Post()
+  // @UseGuards(AuthGuard('jwt'))
+  // async createComment(
+  //   @GetUser() user: User,
+  //   @Body() createCommentDto: CreateCommentDto,
+  // ): Promise<Comment> {
+  //   return await this.commentsService.createComment(user, createCommentDto);
+  // }
 
   @Put('/updateComment/:id')
   async updateComment(

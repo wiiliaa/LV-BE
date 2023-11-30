@@ -21,18 +21,19 @@ export class CartItemService {
     return await this.cartItemRepository.findOne({ where: { id } });
   }
 
-  async create(user: User, createCartItemDto: CreateCartItemDto) {
-    const { cart_id, versionId, quantity, shop_id } = createCartItemDto;
-    const cartItem = new CartItem();
-    cartItem.cart_id = user.cart_id;
-    cartItem.version_id = versionId;
-    cartItem.quantity = quantity;
-    cartItem.shop_id = shop_id;
+  // async create(user: User, createCartItemDto: CreateCartItemDto) {
+  //   const { cart_id, versionId, quantity, shop_id } = createCartItemDto;
+  //   const cartItem = new CartItem();
+  //   cartItem.cart_id = user.cart_id;
+  //   cartItem.version_id = versionId;
+  //   cartItem.si
+  //   cartItem.quantity = quantity;
+  //   cartItem.shop_id = shop_id;
 
-    await cartItem.save();
+  //   await cartItem.save();
 
-    return cartItem;
-  }
+  //   return cartItem;
+  // }
 
   async update(user: User, updateCartItemDto: UpdateCartItemDto) {
     const cart_id = user.cart.id;

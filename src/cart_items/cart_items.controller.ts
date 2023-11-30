@@ -30,14 +30,14 @@ export class CartItemController {
     return await this.cartItemService.findOne(id);
   }
 
-  @Post('/addCartItem')
-  @UseGuards(AuthGuard('jwt'))
-  async create(
-    @GetUser() user: User,
-    @Body() createCartItemDto: CreateCartItemDto,
-  ) {
-    return await this.cartItemService.create(user, createCartItemDto);
-  }
+  // @Post('/addCartItem')
+  // @UseGuards(AuthGuard('jwt'))
+  // async create(
+  //   @GetUser() user: User,
+  //   @Body() createCartItemDto: CreateCartItemDto,
+  // ) {
+  //   return await this.cartItemService.create(user, createCartItemDto);
+  // }
 
   @Put('/update')
   @UseGuards(AuthGuard('jwt'))
