@@ -495,8 +495,8 @@ export class ProductService {
     }
   }
 
-  async findProductsByShopAndCategory(
-    shopId: number,
+  async findProductsByCategoryAndShop(
+    user: User,
     categoryId: number,
   ): Promise<Product[]> {
     try {
@@ -507,11 +507,11 @@ export class ProductService {
         throw new NotFoundException(`Category with ID ${categoryId} not found`);
       }
 
-      // Find products associated with the shop and category
+      // Find products associated with the user's shop and category
       const products = await this.productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.categories', 'categories')
-        .where('product.shop_id = :shopId', { shopId })
+        .where('product.shop_id = :shopId', { shopId: user.shop_id }) // Use user.shopId
         .andWhere('categories.id = :categoryId', { categoryId })
         .getMany();
 
@@ -531,11 +531,11 @@ export class ProductService {
       return productsWithImages;
     } catch (error) {
       console.error(
-        'Error finding products by shop and category:',
+        'Error finding products by category and shop:',
         error.message,
       );
       throw new InternalServerErrorException(
-        'Error finding products by shop and category',
+        'Error finding products by category and shop',
       );
     }
   }

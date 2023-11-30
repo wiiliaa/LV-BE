@@ -34,13 +34,14 @@ export class ProductController {
   }
 
   @Get('byCategoryOfShop/:categoryId/:shopId')
+  @UseGuards(AuthGuard('jwt'))
   async findProductsByShopAndCategory(
-    @Param('shopId') shopId: number,
+    @GetUser() user: User,
     @Param('categoryId') categoryId: number,
   ) {
     // Call the service method to get products by shop and category
-    const products = await this.productService.findProductsByShopAndCategory(
-      shopId,
+    const products = await this.productService.findProductsByCategoryAndShop(
+      user,
       categoryId,
     );
 
