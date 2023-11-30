@@ -20,8 +20,10 @@ export class OrderItemsController {
   constructor(private readonly orderItemService: OrderItemsService) {}
 
   @Post()
-  async create(@Body() orderItemData: Partial<OrderItem>): Promise<OrderItem> {
-    return this.orderItemService.createOrderItem(orderItemData);
+  async create(
+    @Body() createOrderItemsDto: CreateOrderItemDto,
+  ): Promise<OrderItem> {
+    return this.orderItemService.create(createOrderItemsDto);
   }
 
   @Get(':id')

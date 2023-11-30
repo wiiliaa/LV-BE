@@ -94,9 +94,24 @@ export class ProductVersionService {
     ) as ProductVersion[];
   }
   async findById(id: number) {
-    const res = await this.productVersionRepository.findOne({ where: { id } });
-    const image1 = await this.imageService.getImage(res.image);
-    return { ...res, image: image1 };
+    const res = await this.productVersionRepository.findOne({
+      where: { id },
+      relations: ['sizes'], // Thêm 'size' vào relations để load thông tin size
+    });
+
+    if (res) {
+      const image1 = await this.imageService.getImage(res.image);
+
+      // Kiểm tra xem có thông tin về size không
+      if (res.sizes) {
+        return { ...res, image: image1 };
+      } else {
+        // Nếu không có thông tin về size, trả về một đối tượng không có trường size
+        return { ...res, image: image1, size: null };
+      }
+    }
+
+    return null;
   }
 
   async update(

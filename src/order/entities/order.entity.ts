@@ -27,7 +27,7 @@ export class Order extends BaseEntity {
   @Column()
   total: number;
 
-  @OneToOne(() => User, (user) => user.order)
+  @ManyToOne(() => User, (user) => user.order)
   @JoinColumn({
     name: 'user_id',
   })

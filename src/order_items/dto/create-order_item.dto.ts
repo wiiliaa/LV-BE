@@ -1,5 +1,9 @@
 import { IsInt, IsPositive } from 'class-validator';
 
 export class CreateOrderItemDto {
-  orderId: number;
+  order_id: number;
+
+  version_id: number;
+
+  quantity: number;
 }
