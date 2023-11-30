@@ -23,30 +23,30 @@ import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post('create')
-  @UseGuards(AuthGuard('jwt'))
-  async createOrder(
-    @GetUser() user: User,
-    @Body() createOrderDto: CreateOrderDto,
-  ): Promise<any> {
-    const cartItemsDto: CartItemDto[] = createOrderDto.cartItems;
+  // @Post('create')
+  // @UseGuards(AuthGuard('jwt'))
+  // async createOrder(
+  //   @GetUser() user: User,
+  //   @Body() createOrderDto: CreateOrderDto,
+  // ): Promise<any> {
+  //   const cartItemsDto: CartItemDto[] = createOrderDto.cartItems;
 
-    // Map CartItemDto instances to CartItem instances
-    const cartItems = cartItemsDto.map((dto) => {
-      const cartItem = new CartItem(); // Assuming you have a CartItem entity
-      cartItem.quantity = dto.quantity;
-      cartItem.shop_id = dto.shop_id;
-      // Map other properties as needed
-      return cartItem;
-    });
+  //   // Map CartItemDto instances to CartItem instances
+  //   const cartItems = cartItemsDto.map((dto) => {
+  //     const cartItem = new CartItem(); // Assuming you have a CartItem entity
+  //     cartItem.quantity = dto.quantity;
+  //     cartItem.shop_id = dto.shop_id;
+  //     // Map other properties as needed
+  //     return cartItem;
+  //   });
 
-    try {
-      const order = await this.orderService.createOrder(user, cartItems);
-      return { success: true, order };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
+  //   try {
+  //     const order = await this.orderService.createOrder(user, cartItems);
+  //     return { success: true, order };
+  //   } catch (error) {
+  //     return { success: false, error: error.message };
+  //   }
+  // }
   @Put(':id/status')
   updateOrderStatus(
     @Param('id') orderId: number,

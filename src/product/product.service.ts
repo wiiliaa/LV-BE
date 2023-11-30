@@ -95,7 +95,7 @@ export class ProductService {
   async findById(id: number) {
     const res = await this.productRepository.findOne({
       where: { id },
-      relations: ['categories', 'versions'], // Thêm tùy chọn relations để load thông tin của categories
+      relations: ['categories', 'versions', 'versions.sizes'], // Thêm tùy chọn relations để load thông tin của categories
     });
 
     if (!res) {

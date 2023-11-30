@@ -11,12 +11,14 @@ import { Shop } from './entities/shop.entity';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { User } from 'src/user/entities/user.entity';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class ShopService {
   constructor(
     @InjectRepository(Shop)
     private readonly shopRepository: Repository<Shop>,
+    private imageService: ImageService,
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
@@ -85,12 +87,10 @@ export class ShopService {
     return await this.shopRepository.save(shop);
   }
 
-  async findOne(id: number): Promise<Shop> {
+  async findOne(id: number) {
     const shop = await this.shopRepository.findOne({ where: { id } });
-    if (!shop) {
-      throw new NotFoundException(`Shop with id ${id} not found.`);
-    }
-    return shop;
+    const image1 = await this.imageService.getImage(shop.avatar);
+    return { ...shop, avatar: image1 };
   }
 
   async remove(id: number): Promise<void> {
