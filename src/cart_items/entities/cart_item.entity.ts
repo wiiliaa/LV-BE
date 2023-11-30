@@ -1,4 +1,5 @@
 import { Cart } from 'src/carts/entities/cart.entity';
+import { Order } from 'src/order/entities/order.entity';
 import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { Shop } from 'src/shops/entities/shop.entity';

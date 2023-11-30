@@ -17,30 +17,31 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
 
-  async createOrder(user: User, shopId: number): Promise<Order> {
-    const cartItems = await this.cartItemRepository
-      .createQueryBuilder('cartItem')
-      .where('cartItem.user_id = :userId', { userId: user.id })
-      .andWhere('cartItem.shop_id = :shopId', { shopId })
-      .getMany();
-
+  async createOrder(user: User, cartItems: CartItem[]): Promise<Order> {
     if (!cartItems.length) {
       throw new NotFoundException('No items in the cart to create an order.');
     }
 
-    // Create an order
-    const order = new Order();
-    order.user_id = user.id; // Sử dụng user.id
-    order.shop_id = shopId;
-    order.status = 'pending';
+    // Use the shop_id from the first cart item
+    const shopId = cartItems[0].shop_id;
 
-    // Save order and order items, and delete cart items
+    // Create an order
+    const order = this.orderRepository.create({
+      user_id: user.id,
+      shop_id: shopId,
+      status: 'pending',
+    });
+
+    // Save order
     await this.orderRepository.save(order);
 
+    // Create and save order items, and delete cart items
     for (const cartItem of cartItems) {
-      const orderItem = new OrderItem();
-      orderItem.quantity = cartItem.quantity;
-      orderItem.order_id = order.id;
+      const orderItem = this.orderItemRepository.create({
+        quantity: cartItem.quantity,
+        version_id: cartItem.version_id,
+        order_id: order.id,
+      });
 
       await this.orderItemRepository.save(orderItem);
       await this.cartItemRepository.remove(cartItem);

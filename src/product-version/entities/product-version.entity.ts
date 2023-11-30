@@ -1,4 +1,5 @@
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
+import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { ProductSize } from 'src/product_size/entities/product_size.entity';
 import {
@@ -44,6 +45,9 @@ export class ProductVersion extends BaseEntity {
 
   @OneToMany(() => CartItem, (cart_item) => cart_item.version)
   cart_items: CartItem[];
+
+  @OneToMany(() => OrderItem, (order_item) => order_item.version)
+  order_items: OrderItem[];
 
   @CreateDateColumn({
     type: 'timestamp',
