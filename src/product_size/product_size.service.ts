@@ -41,15 +41,20 @@ export class ProductSizeService {
 
   async update(
     id: number,
-    sizeName: string,
     updateDto: UpdateProductSizeDto,
   ): Promise<ProductSize | null> {
     const productSize = await this.productSizeRepository.findOne({
-      where: { id, sizeName },
+      where: { id },
     });
 
-    const { quantity } = updateDto;
-    productSize.quantity = quantity;
+    const { quantity, sizeName } = updateDto;
+
+    if (productSize.quantity) {
+      productSize.quantity = quantity;
+    }
+    if (productSize.sizeName) {
+      productSize.sizeName = sizeName;
+    }
 
     await productSize.save();
 

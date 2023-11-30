@@ -30,7 +30,7 @@ export class ProductSizeController {
     return productSizes;
   }
 
-  @Put('/:id/:sizeName')
+  @Put('/:id')
   async updateProductSize(
     @Param('id') id: number,
     @Param('sizeName') sizeName: string,
@@ -38,7 +38,6 @@ export class ProductSizeController {
   ) {
     const updatedProductSize = await this.productSizeService.update(
       id,
-      sizeName,
       updateDto,
     );
 
