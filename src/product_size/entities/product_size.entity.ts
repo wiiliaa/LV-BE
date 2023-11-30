@@ -8,11 +8,12 @@ import {
   BeforeUpdate,
   BeforeInsert,
   AfterUpdate,
+  Unique,
 } from 'typeorm';
 
 import { Product } from 'src/product/entities/product.entity';
 import { ProductVersion } from 'src/product-version/entities/product-version.entity';
-
+@Unique(['version_id', 'sizeName'])
 @Entity()
 export class ProductSize extends BaseEntity {
   @PrimaryGeneratedColumn()
