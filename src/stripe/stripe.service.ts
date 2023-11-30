@@ -1,24 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { Cart } from 'src/carts/entities/cart.entity';
-import { Order } from 'src/order/entities/order.entity';
+import { OrderService } from 'src/order/order.service';
 
-import Stripe from 'stripe';
-
+const stripe = require('stripe')(
+  'sk_test_51O8Gv7IHrHSi5RteLXMGDZPC0rX3ZgYlJQXImFOpgDvi0qSDdlR1Vk38phyrZNv3Jcqluhn99nrz91gFUevLP1Mz00iqTwdjII',
+);
 @Injectable()
 export class StripeService {
-  private stripe;
+  constructor(private orderService: OrderService) {}
 
-  constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {});
-  }
-
-  checkout(order: Order) {
-    // Sử dụng trường 'total' để lấy tổng số tiền của đơn hàng
-    return this.stripe.paymentIntents.create({
-      amount: +order.total.toFixed(2) * 100, // cents
-      currency: 'usd',
-      payment_method_types: ['card'],
-      // Thêm thông tin thanh toán khác dựa trên đơn hàng nếu cần
+  async checkout(id: number) {
+    const order = await this.orderService.findId(id);
+    const session = await stripe.checkout.sessions.create({
+      line_items: [order.total],
+      mode: 'payment',
+      payment_intent_data: {
+        setup_future_usage: 'on_session',
+      },
+      customer: order.user_id,
+      success_url:
+        'http://localhost:3000/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
     });
+    console.log('session', session);
   }
+
+  async Successpayment(session_id: any) {
+    const billing_detail = await stripe.checkout.sessions.listLineItems(
+      session_id,
+      { limit: 5 },
+    );
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    console.log(billing_detail, session);
+  }
+
+  async Failedpayment(session_id: any) {}
 }

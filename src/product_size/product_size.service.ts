@@ -16,36 +16,27 @@ export class ProductSizeService {
 
   async create(
     id: number,
-    createProductSizeDtos: CreateProductSizeDto[],
+    createProductSizeDto: CreateProductSizeDto,
   ): Promise<{ success: boolean }> {
-    const productSizes: ProductSize[] = [];
     const found = await this.productVersionService.findById(id);
 
-    try {
-      for (const createProductSizeDto of createProductSizeDtos) {
-        const { sizeName, quantity, product_id, version_id } =
-          createProductSizeDto;
-        const productSize = new ProductSize();
-        productSize.sizeName = sizeName;
-        productSize.quantity = quantity;
+    const { sizeName, quantity, product_id, version_id } = createProductSizeDto;
+    const productSize = new ProductSize();
+    productSize.sizeName = sizeName;
+    productSize.quantity = quantity;
 
-        // Kiểm tra xem found có thuộc tính productVersion hay không
-        if (found.id && found) {
-          productSize.version_id = found.id;
-        } else {
-          productSize.product_id = id;
-        }
-
-        await productSize.save();
-        productSizes.push(productSize);
-        await this.productVersionService.updateTotalVer(id, productSize.id);
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error creating product sizes:', error);
-      return { success: false };
+    // Kiểm tra xem found có thuộc tính productVersion hay không
+    if (found.id && found) {
+      productSize.version_id = found.id;
+    } else {
+      productSize.product_id = id;
     }
+
+    await productSize.save();
+
+    await this.productVersionService.updateTotalVer(id, productSize.id);
+
+    return { success: true };
   }
 
   async update(
@@ -85,5 +76,23 @@ export class ProductSizeService {
       status = false;
     }
     return { status };
+  }
+
+  async findSizeByProductIdAndSizeName(
+    id: number,
+    sizeName: string,
+  ): Promise<ProductSize> {
+    const productSize = await this.productSizeRepository.findOne({
+      where: { version_id: id, sizeName: sizeName },
+    });
+
+    if (!productSize) {
+      // Nếu không tìm thấy dữ liệu, ném một lỗi NotFoundException
+      throw new NotFoundException(
+        `Không tìm thấy kích thước cho sản phẩm với ID ${id} và tên kích thước ${sizeName}.`,
+      );
+    }
+
+    return productSize;
   }
 }
