@@ -24,24 +24,15 @@ export class CartsService {
     return this.cartRepository.save(cart);
   }
 
-  async getUserIdByCartId(cartId: number): Promise<number | null> {
-    const cart = await this.cartRepository
-      .createQueryBuilder('cart')
-      .leftJoinAndSelect('cart.user', 'user')
-      .where('cart.id = :cartId', { cartId })
-      .getOne();
-
-    return cart?.user?.id || null;
-  }
   async getCartItemsByUser(user: User) {
     try {
-      // Sử dụng `createQueryBuilder` để thực hiện truy vấn liên kết
       const userCartItems = await this.cartRepository
         .createQueryBuilder('cart')
         .leftJoinAndSelect('cart.cart_items', 'cart_items')
-        .leftJoinAndSelect('cart_items.version', 'version') // Liên kết với bảng version
-        .leftJoin('cart.user', 'user')
-        .where('user.id = :userId', { userId: user.id })
+        .leftJoinAndSelect('cart_items.version', 'version') // Join with the 'version' table
+        .leftJoinAndSelect('version.product', 'product') // Join with the 'product' table
+        .leftJoinAndSelect('product.shop', 'shop') // Join with the 'shop' table
+        .where('cart.user = :userId', { userId: user.id })
         .getOne();
 
       if (!userCartItems) {
@@ -50,16 +41,30 @@ export class CartsService {
         );
       }
 
-      // Bây giờ bạn chỉ cần truy cập trường 'image' từ version
-      const cartItemsWithImages = userCartItems.cart_items.map((cartItem) => {
-        const { version, ...restCartItem } = cartItem; // Destructure 'version' and get the rest of the 'cartItem'
-        return {
-          ...restCartItem,
-          image: version.image, // Lấy trường 'image' từ version
-        };
-      });
+      // Group cart items by shopId
+      const cartItemsGroupedByShop = userCartItems.cart_items.reduce(
+        (groupedCartItems, ShopItems) => {
+          const { version, ...restCartItem } = ShopItems;
+          const shopId = version.product.shop_id;
 
-      return cartItemsWithImages;
+          if (!groupedCartItems[shopId]) {
+            groupedCartItems[shopId] = {
+              shopId: shopId,
+              ShopItems: [],
+            };
+          }
+
+          groupedCartItems[shopId].ShopItems.push({
+            ...restCartItem,
+            image: version.image,
+          });
+
+          return groupedCartItems;
+        },
+        {},
+      );
+
+      return Object.values(cartItemsGroupedByShop);
     } catch (error) {
       throw new NotFoundException(error.message);
     }

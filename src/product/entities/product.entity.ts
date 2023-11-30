@@ -34,10 +34,10 @@ export class Product extends BaseEntity {
   @Column()
   brand: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ nullable: true })
   price: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({ nullable: true })
   discountedPrice: number;
 
   @Column()

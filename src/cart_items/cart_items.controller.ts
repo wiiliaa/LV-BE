@@ -52,4 +52,9 @@ export class CartItemController {
   async delete(@Param('id') id: number) {
     return await this.cartItemService.delete(id);
   }
+
+  @Get('getItemByShop/:shopId')
+  async getAllCartItemsForShop(@Param('shopId') shopId: number) {
+    return await this.cartItemService.getAllCartItemsForShop(shopId);
+  }
 }

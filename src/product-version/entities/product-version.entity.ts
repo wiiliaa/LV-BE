@@ -27,7 +27,7 @@ export class ProductVersion extends BaseEntity {
   @Column({ nullable: true, type: 'text' })
   image: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({ nullable: true })
   price: number;
 
   @Column({ default: 0, nullable: true })
