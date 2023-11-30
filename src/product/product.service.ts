@@ -454,4 +454,89 @@ export class ProductService {
 
     await this.productRepository.save(product);
   }
+
+  async findProductsByCategory(categoryId: number): Promise<Product[]> {
+    try {
+      // Find the category
+      const category = await this.productCategoryService.findById(categoryId);
+
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+      }
+
+      // Find products associated with the category
+      const products = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categories', 'categories')
+        .where('categories.id = :categoryId', { categoryId })
+        .getMany();
+
+      // Duyệt qua từng sản phẩm và thêm thông tin ảnh
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+
+          // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      // Trả về danh sách sản phẩm với thông tin ảnh
+      return productsWithImages;
+    } catch (error) {
+      console.error('Lỗi khi tìm sản phẩm theo danh mục:', error.message);
+      throw new InternalServerErrorException(
+        'Lỗi khi tìm sản phẩm theo danh mục',
+      );
+    }
+  }
+
+  async findProductsByShopAndCategory(
+    shopId: number,
+    categoryId: number,
+  ): Promise<Product[]> {
+    try {
+      // Check if the category exists
+      const category = await this.productCategoryService.findById(categoryId);
+
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+      }
+
+      // Find products associated with the shop and category
+      const products = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categories', 'categories')
+        .where('product.shop_id = :shopId', { shopId })
+        .andWhere('categories.id = :categoryId', { categoryId })
+        .getMany();
+
+      // Process products and return them
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      return productsWithImages;
+    } catch (error) {
+      console.error(
+        'Error finding products by shop and category:',
+        error.message,
+      );
+      throw new InternalServerErrorException(
+        'Error finding products by shop and category',
+      );
+    }
+  }
 }

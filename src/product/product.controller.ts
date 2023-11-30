@@ -24,6 +24,29 @@ import { GetUser } from 'src/auth/get-user.decorator';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Get('byCategory/:categoryId')
+  async findProductsByCategory(@Param('categoryId') categoryId: number) {
+    const products = await this.productService.findProductsByCategory(
+      categoryId,
+    );
+
+    return products;
+  }
+
+  @Get('byCategoryOfShop/:categoryId/:shopId')
+  async findProductsByShopAndCategory(
+    @Param('shopId') shopId: number,
+    @Param('categoryId') categoryId: number,
+  ) {
+    // Call the service method to get products by shop and category
+    const products = await this.productService.findProductsByShopAndCategory(
+      shopId,
+      categoryId,
+    );
+
+    return products;
+  }
+
   @Get('/getAll')
   async getAll() {
     return this.productService.findAll();
