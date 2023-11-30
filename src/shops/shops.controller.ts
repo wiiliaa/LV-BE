@@ -48,12 +48,8 @@ export class ShopController {
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    try {
-      const result = await this.shopService.findOne(id);
-      return { success: true, data: result };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+    const result = await this.shopService.findOne(id);
+    return result;
   }
 
   @Put(':id')

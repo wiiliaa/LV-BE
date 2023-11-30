@@ -47,9 +47,6 @@ export class Order extends BaseEntity {
   @Column({ default: 'pending' })
   status: string;
 
-  @ManyToOne(() => Discount, (discount) => discount.orders)
-  discount: Discount;
-
   @OneToOne(() => PaymentDetail, (payment_detail) => payment_detail.order)
   payment_detail: PaymentDetail;
 

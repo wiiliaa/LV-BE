@@ -17,38 +17,38 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
 
-  // async createOrder(user: User, cartItems: CartItem[]): Promise<Order> {
-  //   if (!cartItems.length) {
-  //     throw new NotFoundException('No items in the cart to create an order.');
-  //   }
+  async createOrder(user: User, cartItems: CartItem[]): Promise<Order> {
+    if (!cartItems.length) {
+      throw new NotFoundException('No items in the cart to create an order.');
+    }
 
-  //   // Use the shop_id from the first cart item
-  //   const shopId = cartItems[0].shop_id;
+    // Use the shop_id from the first cart item
+    const shopId = cartItems[0].shop_id;
 
-  //   // Create an order
-  //   const order = this.orderRepository.create({
-  //     user_id: user.id,
-  //     shop_id: shopId,
-  //     status: 'pending',
-  //   });
+    // Create an order
+    const order = this.orderRepository.create({
+      user_id: user.id,
+      shop_id: shopId,
+      status: 'pending',
+    });
 
-  //   // Save order
-  //   await this.orderRepository.save(order);
+    // Save order
+    await this.orderRepository.save(order);
 
-  //   // Create and save order items, and delete cart items
-  //   for (const cartItem of cartItems) {
-  //     const orderItem = this.orderItemRepository.create({
-  //       quantity: cartItem.quantity,
-  //       version_id: cartItem.version_id,
-  //       order_id: order.id,
-  //     });
+    // Create and save order items, and delete cart items
+    for (const cartItem of cartItems) {
+      const orderItem = this.orderItemRepository.create({
+        quantity: cartItem.size_quantity, // Adjust this based on your data structure
+        version_id: cartItem.version_id,
+        order_id: order.id,
+      });
 
-  //     await this.orderItemRepository.save(orderItem);
-  //     await this.cartItemRepository.remove(cartItem);
-  //   }
+      await this.orderItemRepository.save(orderItem);
+      // await this.cartItemRepository.remove(cartItem);
+    }
 
-  //   return order;
-  // }
+    return order;
+  }
 
   async updateOrderStatus(orderId: number, status: string): Promise<Order> {
     const order = await this.orderRepository.findOne({

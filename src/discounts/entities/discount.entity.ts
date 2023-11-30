@@ -49,9 +49,6 @@ export class Discount extends BaseEntity {
   @Column()
   shop_id: number;
 
-  @OneToMany(() => Order, (order) => order.discount)
-  orders: Order[];
-
   @OneToMany(() => Product, (product) => product.discount)
   product: Product[];
 

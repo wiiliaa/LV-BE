@@ -125,7 +125,7 @@ export class DiscountsService {
 
     return { status };
   }
-  async activateDiscount(productId: number, discountId: number) {
+  async activateDiscount(discountId: number, productId: number) {
     try {
       // Find the product by ID
       const product = await this.productService.findById(productId);
