@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -87,34 +91,14 @@ export class OrderService {
     return orders;
   }
 
-  async findOrdersByShopAndStatus(
-    shopId: number,
-    status: string,
-  ): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: {
-        shop_id: shopId,
-        status: status,
-      },
-    });
-
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for shop with ID ${shopId} and status '${status}'.`,
-      );
-    }
-
-    return orders;
-  }
-
-  async findOrdersByUser(user: User): Promise<Order[]> {
+  async myOrder(user: User): Promise<Order[]> {
     if (!user) {
       throw new NotFoundException('User not provided.');
     }
 
     const orders = await this.orderRepository.find({
       where: {
-        id: user.id,
+        user_id: user.id,
       },
     });
 
@@ -128,22 +112,100 @@ export class OrderService {
   }
 
   async findOrdersByUserAndStatus(
-    userId: number,
+    user: User,
     status: string,
   ): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: {
-        user_id: userId,
+        user_id: user.id,
         status: status,
       },
+      relations: [
+        'shop',
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
     });
 
     if (!orders.length) {
       throw new NotFoundException(
-        `No orders found for user with ID ${userId} and status '${status}'.`,
+        `No orders found for user with ID ${user.id} and status '${status}'.`,
       );
     }
 
     return orders;
+  }
+
+  async orderDetail(user: User, orderId: number): Promise<Order> {
+    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId, user_id: user.id },
+      relations: ['shop', 'order_items', 'order_items.version'],
+    });
+
+    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+    }
+
+    return order;
+  }
+
+  async orderDetailForShop(user: User, orderId: number): Promise<Order> {
+    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId, shop_id: user.shop_id },
+      relations: [
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
+    });
+
+    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+    }
+
+    // Kiểm tra xem đơn hàng có thuộc về cửa hàng của người dùng không
+    if (order.shop_id !== user.shop_id) {
+      throw new UnauthorizedException(
+        `You don't have permission to view this order.`,
+      );
+    }
+
+    return order;
+  }
+
+  async findOrdersByShopAndStatus(
+    user: User,
+    status: string,
+  ): Promise<Order[]> {
+    const orders = await this.orderRepository.find({
+      where: {
+        shop_id: user.shop_id,
+        status: status,
+      },
+      relations: [
+        'user',
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
+    });
+
+    // Nếu không có đơn hàng nào thỏa mãn, ném một NotFoundException
+    if (!orders.length) {
+      throw new NotFoundException(
+        `No orders found for shop with status '${status}'.`,
+      );
+    }
+
+    return orders;
+  }
+  async findId(id: number) {
+    const result = await this.orderRepository.findOne({ where: { id } });
+    return result;
   }
 }

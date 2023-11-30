@@ -44,25 +44,51 @@ export class OrderController {
     return this.orderService.findOrdersByShop(shopId);
   }
 
-  @Get('shop/:shopId/status/:status')
-  findOrdersByShopAndStatus(
-    @Param('shopId') shopId: number,
-    @Param('status') status: string,
-  ): Promise<Order[]> {
-    return this.orderService.findOrdersByShopAndStatus(shopId, status);
-  }
-
   @Get('myOrder')
   @UseGuards(AuthGuard('jwt'))
   findOrdersByUser(@GetUser() user: User): Promise<Order[]> {
-    return this.orderService.findOrdersByUser(user);
+    return this.orderService.myOrder(user);
   }
 
-  @Get('user/:userId/status/:status')
+  @Get('myOrder/:status')
+  @UseGuards(AuthGuard('jwt'))
   findOrdersByUserAndStatus(
-    @Param('userId') userId: number,
+    @GetUser()
+    user: User,
     @Param('status') status: string,
   ): Promise<Order[]> {
-    return this.orderService.findOrdersByUserAndStatus(userId, status);
+    return this.orderService.findOrdersByUserAndStatus(user, status);
+  }
+
+  @Get('myOrderDetail/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async getOrderDetail(
+    @GetUser() user: User,
+    @Param('orderId') orderId: number,
+  ): Promise<Order> {
+    return this.orderService.orderDetail(user, orderId);
+  }
+
+  @Get('detailOrder/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async getOrderDetailOfShop(
+    @GetUser() user: User,
+    @Param('orderId') orderId: number,
+  ): Promise<Order> {
+    return this.orderService.orderDetailForShop(user, orderId);
+  }
+
+  @Get('orderOfShopByStatus/:status')
+  @UseGuards(AuthGuard('jwt'))
+  async findOrdersByShopAndStatus(
+    @GetUser() user: User, // Sử dụng decorator để lấy thông tin người dùng từ token
+    @Param('status') status: string,
+  ): Promise<Order[]> {
+    return this.orderService.findOrdersByShopAndStatus(user, status);
+  }
+
+  @Get(':id')
+  async test(@Param('id') id: number) {
+    return this.orderService.findId(id);
   }
 }

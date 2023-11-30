@@ -11,7 +11,8 @@ import { ProductSizeService } from './product_size.service';
 import { UpdateProductSizeDto } from './dto/update-product_size.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateProductSizeDto } from './dto/create-product_size.dto';
-
+import { Unique } from 'typeorm';
+@Unique(['version_id', 'sizeName'])
 @ApiTags('Product_sizes')
 @Controller('sizes')
 export class ProductSizeController {
@@ -20,7 +21,7 @@ export class ProductSizeController {
   @Post('/createSize/:id')
   create(
     @Param('id') id: number,
-    @Body() createProductSizeDtos: CreateProductSizeDto[],
+    @Body() createProductSizeDtos: CreateProductSizeDto,
   ) {
     const productSizes = this.productSizeService.create(
       id,
@@ -49,8 +50,15 @@ export class ProductSizeController {
     return this.productSizeService.delete(id);
   }
 
-  @Get('/size/productId/:id')
-  async findSizeByProductId(@Param('id') id: number) {
-    return this.productSizeService.findByProductId(id);
+  @Get('/size/product/:id/:sizeName')
+  async findSizeByProductIdAndSizeName(
+    @Param('id') id: number,
+    @Param('sizeName') sizeName: string,
+  ) {
+    const size = await this.productSizeService.findSizeByProductIdAndSizeName(
+      id,
+      sizeName,
+    );
+    return size;
   }
 }
