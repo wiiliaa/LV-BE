@@ -34,7 +34,7 @@ export class Product extends BaseEntity {
   @Column()
   brand: string;
 
-  @Column()
+  @Column({ nullable: true })
   price: number;
 
   @Column({ nullable: true })

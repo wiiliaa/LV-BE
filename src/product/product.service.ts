@@ -152,30 +152,37 @@ export class ProductService {
   }
 
   async findProductsByShop(user: User, shopId: number): Promise<Product[]> {
-    // Lấy danh sách sản phẩm từ cơ sở dữ liệu dựa trên shopId
+    // Lấy danh sách sản phẩm từ cơ sở dữ liệu dựa trên shopId và bao gồm các relations
     const products = await this.productRepository.find({
       where: {
         shop: {
           id: shopId,
         },
       },
+      relations: ['discount'],
     });
 
-    // Duyệt qua từng sản phẩm và thêm thông tin ảnh
+    // Duyệt qua từng sản phẩm và thêm thông tin ảnh và discount
     const productsWithImages: Product[] = await Promise.all(
       products.map(async (product) => {
         await this.updateDiscountedPrice(product.id);
+
+        // Lấy thông tin ảnh của sản phẩm
         const image = await this.imageService.getImage(product.image);
 
-        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+        // Lấy thông tin discount nếu tồn tại
+        const discount = product.discount;
+
+        // Tạo một đối tượng mới chỉ với thông tin ảnh và discount được thêm vào
         return {
           ...product,
           image,
+          discount,
         } as Product;
       }),
     );
 
-    // Trả về danh sách sản phẩm với thông tin ảnh
+    // Trả về danh sách sản phẩm với thông tin ảnh và discount
     return productsWithImages;
   }
 
@@ -506,7 +513,6 @@ export class ProductService {
       );
     }
   }
-
   async findProductsByCategoryAndShop(
     user: User,
     categoryId: number,
@@ -519,11 +525,12 @@ export class ProductService {
         throw new NotFoundException(`Category with ID ${categoryId} not found`);
       }
 
-      // Find products associated with the user's shop and category
+      // Find products associated with the user's shop and category, including discount
       const products = await this.productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.categories', 'categories')
-        .where('product.shop_id = :shopId', { shopId: user.shop_id }) // Use user.shopId
+        .leftJoinAndSelect('product.discount', 'discount') // Include discount in the query
+        .where('product.shop_id = :shopId', { shopId: user.shop_id })
         .andWhere('categories.id = :categoryId', { categoryId })
         .getMany();
 
@@ -533,9 +540,11 @@ export class ProductService {
           await this.updateDiscountedPrice(product.id);
           const image = await this.imageService.getImage(product.image);
 
+          // Include discount information in the returned product object
           return {
             ...product,
             image,
+            discount: product.discount,
           } as Product;
         }),
       );
