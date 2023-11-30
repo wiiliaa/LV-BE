@@ -257,20 +257,23 @@ export class ProductService {
 
       const categoryIds = updateProductDto.categoryIds;
       delete updateProductDto.categoryIds;
-      Object.assign(product, updateProductDto);
 
-      await this.productRepository.update(id, updateProductDto);
       if (updateProductDto.image) {
+        console.log(updateProductDto.image);
         if (product.image) {
-          const oldImagePath = join('/public/uploads/', product.image);
+          const oldImagePath = join('public/uploads/', product.image);
           if (existsSync(oldImagePath)) {
             await unlinkAsync(oldImagePath);
           }
         }
-        const fileName = `${product.id}_${Date.now()}-image.txt`;
+        const randomSuffix = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0');
+        const fileName = `${randomSuffix}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
         await writeFileAsync(filePath, updateProductDto.image);
         updateProductDto.image = fileName;
+        await this.productRepository.update(id, updateProductDto);
       }
 
       // If there are categoryIds provided, update the categories of the product
@@ -285,6 +288,9 @@ export class ProductService {
         );
         product.categories = [...categories.filter((category) => !!category)];
       }
+      Object.assign(product, updateProductDto);
+
+      await this.productRepository.update(id, updateProductDto);
 
       await this.updateTotal(id);
       await this.updateDiscountedPrice(id);
