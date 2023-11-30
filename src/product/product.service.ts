@@ -255,31 +255,21 @@ export class ProductService {
         throw new NotFoundException('Sản phẩm không tồn tại');
       }
 
-      // Extract categoryIds from updateProductDto and remove it
       const categoryIds = updateProductDto.categoryIds;
       delete updateProductDto.categoryIds;
+      Object.assign(product, updateProductDto);
 
-      // Update the product fields
       await this.productRepository.update(id, updateProductDto);
       if (updateProductDto.image) {
-        // Kiểm tra xem có hình ảnh cũ không
         if (product.image) {
           const oldImagePath = join('/public/uploads/', product.image);
-
-          // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
             await unlinkAsync(oldImagePath);
           }
         }
-
-        // Tạo đường dẫn và tên file cho hình mới
         const fileName = `${product.id}_${Date.now()}-image.txt`;
         const filePath = `public/uploads/${fileName}`;
-
-        // Lưu mã base64 mới vào tệp văn bản
         await writeFileAsync(filePath, updateProductDto.image);
-
-        // Lưu đường dẫn tệp vào trường image của sản phẩm
         updateProductDto.image = fileName;
       }
 
@@ -288,21 +278,17 @@ export class ProductService {
         const categoryIdsArray = Array.isArray(categoryIds)
           ? categoryIds
           : [categoryIds];
-
         const categories = await Promise.all(
           categoryIdsArray.map((categoryId) =>
             this.productCategoryService.findById(categoryId),
           ),
         );
-
         product.categories = [...categories.filter((category) => !!category)];
-
-        await this.productRepository.save(product);
       }
 
       await this.updateTotal(id);
       await this.updateDiscountedPrice(id);
-
+      await this.productRepository.save(product);
       return { success: true };
     } catch (error) {
       console.error('Lỗi khi cập nhật sản phẩm:', error);

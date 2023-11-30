@@ -8,7 +8,6 @@ export class UpdateProductDto {
   brand: string;
 
   @IsOptional()
-  @IsNumber()
   price: number;
 
   @IsOptional()

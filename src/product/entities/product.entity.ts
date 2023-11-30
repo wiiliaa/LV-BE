@@ -37,7 +37,7 @@ export class Product extends BaseEntity {
   @Column({ nullable: true })
   price: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'float' })
   discountedPrice: number;
 
   @Column()
