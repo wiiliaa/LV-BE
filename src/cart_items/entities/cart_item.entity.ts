@@ -43,7 +43,7 @@ export class CartItem extends BaseEntity {
   size_id: number;
 
   @Column()
-  size_quantity: number;
+  quantity: number;
 
   @Column()
   sizeName: string;

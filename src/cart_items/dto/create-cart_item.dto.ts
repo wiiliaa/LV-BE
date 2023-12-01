@@ -7,5 +7,5 @@ export class CreateCartItemDto {
   versionId: number;
   size_id: number;
   sizeName: string;
-  size_quatity: number;
+  quatity: number;
 }
