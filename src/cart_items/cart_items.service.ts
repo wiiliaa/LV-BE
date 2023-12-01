@@ -6,6 +6,7 @@ import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 import { User } from 'src/user/entities/user.entity';
 import { ProductVersionService } from 'src/product-version/product-version.service';
+import { CartsService } from 'src/carts/carts.service';
 
 @Injectable()
 export class CartItemService {
@@ -13,6 +14,7 @@ export class CartItemService {
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
     private productVersion: ProductVersionService,
+    private cartService: CartsService,
   ) {}
 
   async findAll(): Promise<CartItem[]> {
@@ -24,8 +26,13 @@ export class CartItemService {
   }
 
   async create(user: User, createCartItemDto: CreateCartItemDto) {
-    const { cart_id, versionId, size_id, quantity, sizeName } =
-      createCartItemDto;
+    const { versionId, size_id, quantity, sizeName } = createCartItemDto;
+
+    // Kiểm tra nếu user chưa có cart, thì tạo một giỏ hàng mới bằng CartService
+    if (!user.cart_id) {
+      const newCart = await this.cartService.create(user.id); // Giả sử cartService có phương thức create
+      user.cart_id = newCart.id;
+    }
 
     const shopId = await this.productVersion.findShopByVersionId(versionId);
 
@@ -59,7 +66,7 @@ export class CartItemService {
     }
 
     // Assuming you want to update the size_quantity property
-    cartItem.size_quantity = size_quantity;
+    cartItem.quantity = size_quantity;
 
     await this.cartItemRepository.save(cartItem);
 
