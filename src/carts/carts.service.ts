@@ -18,10 +18,21 @@ export class CartsService {
     return this.cartRepository.find();
   }
 
+  // Trong cartService
   async create(userId: number): Promise<Cart> {
-    const cart = new Cart();
-    cart.user_id = userId;
-    return this.cartRepository.save(cart);
+    try {
+      const cart = new Cart();
+      cart.user_id = userId;
+
+      // Lưu đối tượng Cart vào cơ sở dữ liệu
+      const createdCart = await this.cartRepository.save(cart);
+
+      // Trả về đối tượng Cart sau khi đã được lưu
+      return createdCart;
+    } catch (error) {
+      console.error('Lỗi khi tạo giỏ hàng:', error);
+      throw error;
+    }
   }
 
   async getCartItemsByUser(user: User) {

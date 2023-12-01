@@ -17,13 +17,13 @@ export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   @Get(':id')
-  async getPaymentLink(@Param('id') id: number) {
-    return this.stripeService.checkout(id);
+  async checkout(@Param('id') id: number, @Res() res) {
+    return this.stripeService.checkout(id, res);
   }
 
   @Get('/pay/success/checkout/session/:session_id')
-  async successPayment(@Res({ passthrough: true }) res) {
-    await this.stripeService.Successpayment(res);
+  async successPayment(@Param('session_id') session_id: string) {
+    await this.stripeService.Successpayment(session_id);
     // Gửi phản hồi hoặc thực hiện các xử lý khác nếu cần
   }
 

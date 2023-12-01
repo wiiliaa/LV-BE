@@ -26,13 +26,7 @@ export class CartItemService {
   }
 
   async create(user: User, createCartItemDto: CreateCartItemDto) {
-    const { versionId, sizeId, quantity, cart_id } = createCartItemDto;
-
-    // Kiểm tra nếu user chưa có cart, thì tạo một giỏ hàng mới bằng CartService
-    if (!user.cart_id) {
-      const newCart = await this.cartService.create(user.id); // Giả sử cartService có phương thức create
-      user.cart_id = newCart.id;
-    }
+    const { versionId, sizeId, quantity } = createCartItemDto;
 
     const shopId = await this.productVersion.findShopByVersionId(versionId);
 

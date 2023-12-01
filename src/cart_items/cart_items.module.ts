@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductVersionModule } from 'src/product-version/product-version.module';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { CartsModule } from 'src/carts/carts.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   controllers: [CartItemController],

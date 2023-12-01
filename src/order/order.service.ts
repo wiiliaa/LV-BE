@@ -24,35 +24,79 @@ export class OrderService {
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
-  async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
-    const shop = await createOrderDto.cartItems[0].shopId;
-    const order = this.orderRepository.create({
-      user_id: user.id,
-      status: 'pending',
-      total: createOrderDto.total,
-      shopId: shop,
-    });
-    const createdOrder = await this.orderRepository.save(order);
+  // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
+  //   const shop = await createOrderDto.cartItems[0].shopId;
+  //   const order = this.orderRepository.create({
+  //     user_id: user.id,
+  //     status: 'pending',
+  //     total: createOrderDto.total,
+  //     shopId: shop,
+  //   });
+  //   const createdOrder = await this.orderRepository.save(order);
 
-    // Bước 2: Tạo OrderItem từ CartItem và liên kết với Đơn Hàng
-    for (const cartItemDto of createOrderDto.cartItems) {
-      const orderItem = this.orderItemRepository.create({
-        quantity: cartItemDto.quantity,
-        version_id: cartItemDto.versionId,
-        order_id: createdOrder.id,
+  //   // Bước 2: Tạo OrderItem từ CartItem và liên kết với Đơn Hàng
+  //   for (const cartItemDto of createOrderDto.cartItems) {
+  //     const orderItem = this.orderItemRepository.create({
+  //       quantity: cartItemDto.quantity,
+  //       version_id: cartItemDto.versionId,
+  //       order_id: createdOrder.id,
+  //     });
+  //     await this.orderItemRepository.save(orderItem);
+  //   }
+
+  //   const cart = await this.cartRepository.findOne({
+  //     where: { user_id: user.id },
+  //     relations: ['cart_items'],
+  //   });
+  //   if (cart) {
+  //     await this.cartItemRepository.remove(cart.cart_items);
+  //   }
+
+  //   return createdOrder;
+  // }
+  async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order[]> {
+    const uniqueShopIds = Array.from(
+      new Set(createOrderDto.cartItems.map((item) => item.shopId)),
+    );
+
+    const orders: Order[] = [];
+
+    for (const shopId of uniqueShopIds) {
+      const itemsForShop = createOrderDto.cartItems.filter(
+        (item) => item.shopId === shopId,
+      );
+
+      const order = this.orderRepository.create({
+        user_id: user.id,
+        status: 'pending',
+        shopId: shopId,
       });
-      await this.orderItemRepository.save(orderItem);
+
+      const createdOrder = await this.orderRepository.save(order);
+
+      for (const cartItemDto of itemsForShop) {
+        const orderItem = this.orderItemRepository.create({
+          quantity: cartItemDto.quantity,
+          version_id: cartItemDto.versionId,
+          order_id: createdOrder.id,
+        });
+        await this.orderItemRepository.save(orderItem);
+      }
+
+      orders.push(createdOrder);
     }
 
+    // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
     const cart = await this.cartRepository.findOne({
       where: { user_id: user.id },
       relations: ['cart_items'],
     });
+
     if (cart) {
       await this.cartItemRepository.remove(cart.cart_items);
     }
 
-    return createdOrder;
+    return orders;
   }
 
   async updateOrderStatus(orderId: number, status: string): Promise<Order> {

@@ -9,38 +9,35 @@ const stripe = require('stripe')(
 export class StripeService {
   constructor(private orderService: OrderService) {}
 
-  async checkout(orderId: number) {
-    try {
-      // Tìm order dựa trên orderId từ OrderService hoặc từ cơ sở dữ liệu của bạn
-      const order = await this.orderService.findId(orderId);
-      console.log(order.order_items);
-      if (!order || !order.order_items) {
-        throw new NotFoundException('Order not found');
-      }
-
-      const line_items = order.order_items.map((orderItem) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: { name: orderItem.version.color },
-          unit_amount: orderItem.version.product.price * 100,
-        },
-        quantity: orderItem.quantity,
-      }));
-
-      // Gọi Stripe API để tạo checkout session với các line items
-      const session = await stripe.checkout.sessions.create({
-        line_items,
-        mode: 'payment',
-        success_url:
-          ' http://localhost:3456/pay/success/checkout/sesion?sesion_id={CHECKOUT_SESSION_ID}', // Thay thế bằng đường dẫn thực tế
-        cancel_url: 'http://localhost:33456/pay/failed/checkout/session', // Thay thế bằng đường dẫn thực tế
-      });
-
-      return { sessionId: session.id, checkoutUrl: session.url };
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-      throw new NotFoundException('Internal Server Error');
+  async checkout(orderId: number, res: Response) {
+    // Tìm order dựa trên orderId từ OrderService hoặc từ cơ sở dữ liệu của bạn
+    const order = await this.orderService.findId(orderId);
+    if (!order || !order.order_items) {
+      throw new NotFoundException('Order not found');
     }
+
+    const line_items = order.order_items.map((orderItem) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: { name: orderItem.version.color },
+        unit_amount: orderItem.version.product.price * 100,
+      },
+      quantity: orderItem.quantity,
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+      line_items,
+      mode: 'payment',
+      payment_intent_data: {
+        setup_future_usage: 'on_session',
+      },
+      customer: 'cus_P6kG8rMlCGPOSm',
+      success_url:
+        'http://localhost:3456/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
+    });
+
+    return res.status(302).redirect(session.url);
   }
   async Successpayment(session_id: any) {
     const billing_detail = await stripe.checkout.sessions.listLineItems(
@@ -48,7 +45,7 @@ export class StripeService {
     );
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    console.log(session);
+    console.log(billing_detail, session);
   }
 
   async Failedpayment(session_id: any) {}
