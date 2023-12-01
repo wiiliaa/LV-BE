@@ -40,7 +40,7 @@ export class CartItem extends BaseEntity {
   shop_id: number;
 
   @Column()
-  size_id: number;
+  sizeId: number;
 
   @Column()
   quantity: number;
