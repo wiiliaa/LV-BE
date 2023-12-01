@@ -45,8 +45,6 @@ export class CartItem extends BaseEntity {
   @Column()
   quantity: number;
 
-  @Column()
-  sizeName: string;
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
