@@ -11,5 +11,7 @@ export class CartItemDto {
 
   quantity: number;
 
+  sizeId: number;
+
   shopId: number;
 }
