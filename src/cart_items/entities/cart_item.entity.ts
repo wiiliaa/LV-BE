@@ -43,10 +43,10 @@ export class CartItem extends BaseEntity {
   size_id: number;
 
   @Column()
-  size_quantity: number;
+  quantity: number;
 
   @Column()
-  size_name: string;
+  sizeName: string;
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
