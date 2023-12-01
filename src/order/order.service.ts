@@ -216,4 +216,30 @@ export class OrderService {
 
     return result;
   }
+
+  async buyNow(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
+    const shop = createOrderDto.cartItems[0].shopId;
+
+    const order = this.orderRepository.create({
+      user_id: user.id,
+      status: 'pending',
+      total: createOrderDto.total,
+      shopId: shop,
+    });
+
+    const createdOrder = await this.orderRepository.save(order);
+
+    // Tạo OrderItem từ thông tin đặt hàng và liên kết với Đơn Hàng
+    for (const itemDto of createOrderDto.cartItems) {
+      const orderItem = this.orderItemRepository.create({
+        quantity: itemDto.quantity,
+        version_id: itemDto.versionId,
+        order_id: createdOrder.id,
+      });
+
+      await this.orderItemRepository.save(orderItem);
+    }
+
+    return createdOrder;
+  }
 }

@@ -8,7 +8,7 @@ const stripe = require('stripe')(
 @Injectable()
 export class StripeService {
   constructor(private orderService: OrderService) {}
-  YOUR_DOMAIN = ' http://localhost:3456/';
+
   async checkout(orderId: number) {
     try {
       // Tìm order dựa trên orderId từ OrderService hoặc từ cơ sở dữ liệu của bạn
@@ -31,8 +31,9 @@ export class StripeService {
       const session = await stripe.checkout.sessions.create({
         line_items,
         mode: 'payment',
-        success_url: ' http://localhost:3456/products/getAll', // Thay thế bằng đường dẫn thực tế
-        cancel_url: ' http://localhost:3456/stripe/cancel', // Thay thế bằng đường dẫn thực tế
+        success_url:
+          ' http://localhost:3456/pay/success/checkout/sesion?sesion_id={CHECKOUT_SESSION_ID}', // Thay thế bằng đường dẫn thực tế
+        cancel_url: 'http://localhost:33456/pay/failed/checkout/session', // Thay thế bằng đường dẫn thực tế
       });
 
       return { sessionId: session.id, checkoutUrl: session.url };
@@ -42,9 +43,9 @@ export class StripeService {
     }
   }
   async Successpayment(session_id: any) {
-    // const billing_detail = await stripe.checkout.sessions.listLineItems(
-    //   session_id,
-    // );
+    const billing_detail = await stripe.checkout.sessions.listLineItems(
+      session_id,
+    );
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     console.log(session);
