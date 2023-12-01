@@ -6,6 +6,5 @@ export class CreateCartItemDto {
 
   versionId: number;
   sizeId: number;
-  sizeName: string;
   quantity: number;
 }
