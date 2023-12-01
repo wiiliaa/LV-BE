@@ -24,7 +24,7 @@ export class CartItemService {
   }
 
   async create(user: User, createCartItemDto: CreateCartItemDto) {
-    const { cart_id, versionId, size_id, quatity, sizeName } =
+    const { cart_id, versionId, size_id, quantity, sizeName } =
       createCartItemDto;
 
     const shopId = await this.productVersion.findShopByVersionId(versionId);
@@ -33,7 +33,7 @@ export class CartItemService {
     cartItem.cart_id = user.cart_id;
     cartItem.version_id = versionId;
     cartItem.size_id = size_id;
-    cartItem.quantity = quatity;
+    cartItem.quantity = quantity;
     cartItem.sizeName = sizeName;
     cartItem.shop_id = shopId;
 
