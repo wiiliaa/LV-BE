@@ -7,9 +7,9 @@ export class CreateOrderDto {
 }
 
 export class CartItemDto {
-  version_id: number;
+  versionId: number;
 
-  size_quantity: number;
+  quantity: number;
 
-  shop_id: number;
+  shopId: number;
 }

@@ -25,20 +25,20 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
   async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
-    const shop = await createOrderDto.cartItems[0].shop_id;
+    const shop = await createOrderDto.cartItems[0].shopId;
     const order = this.orderRepository.create({
       user_id: user.id,
       status: 'pending',
       total: createOrderDto.total,
-      shop_id: shop,
+      shopId: shop,
     });
     const createdOrder = await this.orderRepository.save(order);
 
     // Bước 2: Tạo OrderItem từ CartItem và liên kết với Đơn Hàng
     for (const cartItemDto of createOrderDto.cartItems) {
       const orderItem = this.orderItemRepository.create({
-        quantity: cartItemDto.size_quantity,
-        version_id: cartItemDto.version_id,
+        quantity: cartItemDto.quantity,
+        version_id: cartItemDto.versionId,
         order_id: createdOrder.id,
       });
       await this.orderItemRepository.save(orderItem);
@@ -78,7 +78,7 @@ export class OrderService {
   async findOrdersByShop(shopId: number): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: {
-        shop_id: shopId,
+        shopId: shopId,
       },
     });
 
@@ -155,7 +155,7 @@ export class OrderService {
   async orderDetailForShop(user: User, orderId: number): Promise<Order> {
     // Tìm đơn hàng theo id và load các mối quan hệ liên quan
     const order = await this.orderRepository.findOne({
-      where: { id: orderId, shop_id: user.shop_id },
+      where: { id: orderId, shopId: user.shop_id },
       relations: [
         'order_items',
         'order_items.version',
@@ -169,7 +169,7 @@ export class OrderService {
     }
 
     // Kiểm tra xem đơn hàng có thuộc về cửa hàng của người dùng không
-    if (order.shop_id !== user.shop_id) {
+    if (order.shopId !== user.shop_id) {
       throw new UnauthorizedException(
         `You don't have permission to view this order.`,
       );
@@ -184,7 +184,7 @@ export class OrderService {
   ): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: {
-        shop_id: user.shop_id,
+        shopId: user.shop_id,
         status: status,
       },
       relations: [
@@ -205,7 +205,15 @@ export class OrderService {
     return orders;
   }
   async findId(id: number) {
-    const result = await this.orderRepository.findOne({ where: { id } });
+    const result = await this.orderRepository.findOne({
+      where: { id },
+      relations: [
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
+    });
+
     return result;
   }
 }
