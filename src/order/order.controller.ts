@@ -91,4 +91,11 @@ export class OrderController {
   async test(@Param('id') id: number) {
     return this.orderService.findId(id);
   }
+
+  @Post('buy-now')
+  @UseGuards(AuthGuard('jwt'))
+  async buyNow(@GetUser() user: User, @Body() createOrderDto: CreateOrderDto) {
+    const order = await this.orderService.buyNow(user, createOrderDto);
+    return order;
+  }
 }
