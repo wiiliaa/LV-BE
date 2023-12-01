@@ -10,30 +10,23 @@ import {
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { Order } from 'src/order/entities/order.entity';
+import { Response } from 'express';
 
 @Controller('stripe')
 export class StripeController {
   constructor(private stripeService: StripeService) {}
 
-  // @Post('checkout')
-  // async checkout(@Body() order: Order) {
-  //   try {
-  //     const paymentIntent = await this.stripeService.checkout(order);
-  //     return { message: 'Thanh toán thành công', paymentIntent };
-  //   } catch (error) {
-  //     throw new HttpException('Lỗi thanh toán', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
-
   @Get(':id')
-  async getPaymentLink(@Param('id') id: number) {
-    return this.stripeService.checkout(id);
+  async getPaymentLink(@Param('id') id: number, @Res() res: Response) {
+    return this.stripeService.checkout(id, res);
   }
 
-  @Get('/success/checkout/session')
-  async Successpayment(@Res({ passthrough: true }) res) {
-    return this.stripeService.Successpayment(res.req.query.session_id);
+  @Get('/pay/success/checkout/session/:session_id')
+  async successPayment(@Res({ passthrough: true }) res) {
+    await this.stripeService.Successpayment(res);
+    // Gửi phản hồi hoặc thực hiện các xử lý khác nếu cần
   }
+
   @Get('/failed/checkout/session')
   async Failedpayment(@Res({ passthrough: true }) res) {
     var details = await this.stripeService.Failedpayment(
