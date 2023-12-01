@@ -28,5 +28,5 @@ export class UpdateProductDto {
   @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
-  categoryIds?: number[];
+  categoryIds?: number | number[];
 }

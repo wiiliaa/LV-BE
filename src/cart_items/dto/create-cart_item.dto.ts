@@ -5,7 +5,7 @@ export class CreateCartItemDto {
   shop_id: number;
 
   versionId: number;
-  size_id: number;
+  sizeId: number;
   sizeName: string;
   quantity: number;
 }

@@ -32,8 +32,17 @@ export class ProductService {
     createProductDto: CreateProductDto,
   ): Promise<Product> {
     if (user.role === 'seller') {
-      const { name, brand, price, description, image, type, gender, origin } =
-        createProductDto;
+      const {
+        name,
+        brand,
+        price,
+        description,
+        image,
+        type,
+        gender,
+        origin,
+        categoryIds,
+      } = createProductDto;
       const writeFileAsync = promisify(fs.writeFile);
       const product = new Product();
       product.name = name;
@@ -45,6 +54,7 @@ export class ProductService {
       product.gender = gender;
       product.origin = origin;
       product.shop_id = user.shop_id;
+
       if (image) {
         try {
           await product.save();
@@ -62,12 +72,21 @@ export class ProductService {
         }
       }
 
+      // Lưu sản phẩm và cập nhật danh sách sản phẩm của người bán
       await product.save();
       await this.updateTotal(product.id);
+      await this.addProductToNewProducts(product.id);
       await this.updateDiscountedPrice(product.id);
+
+      // Kiểm tra xem có categoryIds được cung cấp hay không
+      if (categoryIds) {
+        await this.addProductToCategories(product.id, categoryIds); // Thêm sản phẩm vào danh mục
+      }
+
       return product;
     }
-    throw new InternalServerErrorException(`You don't have permission`);
+
+    throw new InternalServerErrorException(`Bạn không có quyền`);
   }
 
   async findAll(): Promise<Product[]> {
@@ -549,6 +568,38 @@ export class ProductService {
       );
       throw new InternalServerErrorException(
         'Error finding products by category and shop',
+      );
+    }
+  }
+
+  async addProductToNewProducts(productId: number): Promise<void> {
+    try {
+      // Tìm sản phẩm theo ID
+      const product = await this.productRepository.findOne({
+        where: { id: productId },
+        relations: ['categories'],
+      });
+
+      if (!product) {
+        throw new NotFoundException(
+          `Sản phẩm với ID ${productId} không tồn tại`,
+        );
+      }
+
+      // Tìm hoặc tạo danh mục "New Products"
+      let newProductsCategory = await this.productCategoryService.findByName(
+        'New Products',
+      );
+
+      // Thêm sản phẩm vào danh mục "New Products"
+      await this.addProductToCategories(productId, newProductsCategory.id);
+    } catch (error) {
+      console.error(
+        'Lỗi khi thêm sản phẩm vào danh mục "New Products":',
+        error.message,
+      );
+      throw new NotFoundException(
+        'Lỗi khi thêm sản phẩm vào danh mục "New Products"',
       );
     }
   }

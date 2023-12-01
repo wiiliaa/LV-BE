@@ -14,4 +14,6 @@ export class CreateProductDto {
   type: string;
 
   origin: string;
+
+  categoryIds?: number | number[];
 }

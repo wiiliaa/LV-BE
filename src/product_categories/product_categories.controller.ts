@@ -18,7 +18,7 @@ import { ProductCategoriesService } from './product_categories.service';
 export class ProductCategoryController {
   constructor(
     private readonly productCategoriesService: ProductCategoriesService,
-  ) { }
+  ) {}
 
   @Get('getAll')
   findAll(): Promise<ProductCategory[]> {
@@ -46,5 +46,10 @@ export class ProductCategoryController {
   @Delete('delete/:id')
   deleteCategory(@Param('id') id: number): Promise<{ success: boolean }> {
     return this.productCategoriesService.deleteCategory(id);
+  }
+
+  @Post('/abc/:name')
+  name(@Param('name') name: string) {
+    return this.productCategoriesService.findByName(name);
   }
 }

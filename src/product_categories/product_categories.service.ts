@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { ProductCategory } from './entities/product_category.entity';
 import { CreateProductCategoryDto } from './dto/create-product_category.dto';
 import { promisify } from 'util';
@@ -158,5 +158,12 @@ export class ProductCategoriesService {
 
   async findById(id: number): Promise<ProductCategory | null> {
     return await this.productCategoryRepository.findOne({ where: { id } });
+  }
+
+  async findByName(name: string) {
+    return await this.productCategoryRepository.findOne({
+      where: { name: Like(`%${name}%`) },
+      select: ['id', 'image'],
+    });
   }
 }
