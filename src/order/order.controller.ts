@@ -31,7 +31,7 @@ export class OrderController {
 
     return order;
   }
-  @Put(':id/status')
+  @Put('status/:id')
   updateOrderStatus(
     @Param('id') orderId: number,
     @Body() statusData: { status: string },

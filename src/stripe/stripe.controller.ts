@@ -17,8 +17,8 @@ export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   @Get(':id')
-  async getPaymentLink(@Param('id') id: number, @Res() res: Response) {
-    return this.stripeService.checkout(id, res);
+  async getPaymentLink(@Param('id') id: number) {
+    return this.stripeService.checkout(id);
   }
 
   @Get('/pay/success/checkout/session/:session_id')

@@ -41,8 +41,8 @@ export class Order extends BaseEntity {
     name: 'shop_id',
   })
   shop: Shop;
-  @Column()
-  shop_id: number;
+  @Column({ nullable: true })
+  shopId: number;
 
   @Column({ default: 'pending' })
   status: string;
