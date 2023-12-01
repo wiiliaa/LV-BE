@@ -12,10 +12,14 @@ export class CartsService {
   constructor(
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
-  ) {}
+  ) { }
 
   async findALl() {
     return this.cartRepository.find();
+  }
+
+  async findByIdUser(userId: number) {
+    return this.cartRepository.findOne({ where: { user_id: userId } });
   }
 
   async create(userId: number): Promise<Cart> {

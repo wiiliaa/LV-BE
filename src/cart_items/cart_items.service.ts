@@ -15,7 +15,7 @@ export class CartItemService {
     private readonly cartItemRepository: Repository<CartItem>,
     private productVersion: ProductVersionService,
     private cartService: CartsService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<CartItem[]> {
     return await this.cartItemRepository.find();
@@ -29,15 +29,16 @@ export class CartItemService {
     const { versionId, sizeId, quantity, cart_id } = createCartItemDto;
 
     // Kiểm tra nếu user chưa có cart, thì tạo một giỏ hàng mới bằng CartService
-    if (!user.cart_id) {
-      const newCart = await this.cartService.create(user.id); // Giả sử cartService có phương thức create
-      user.cart_id = newCart.id;
+    let cart = await this.cartService.findByIdUser(user.id)
+
+    if (!cart) {
+      const cart = await this.cartService.create(user.id); // Giả sử cartService có phương thức create
     }
 
     const shopId = await this.productVersion.findShopByVersionId(versionId);
 
     const cartItem = new CartItem();
-    cartItem.cart_id = user.cart_id;
+    cartItem.cart_id = cart.id;
     cartItem.version_id = versionId;
     cartItem.sizeId = sizeId;
     cartItem.quantity = quantity;
