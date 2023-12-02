@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -79,7 +79,10 @@ export class OrderService {
           quantity: cartItemDto.quantity,
           version_id: cartItemDto.versionId,
           order_id: createdOrder.id,
-        });
+          price: cartItemDto.price,
+          discountPrice: cartItemDto.discountPrice,
+        } as DeepPartial<OrderItem>);
+
         await this.orderItemRepository.save(orderItem);
       }
 
@@ -87,14 +90,14 @@ export class OrderService {
     }
 
     // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
-    const cart = await this.cartRepository.findOne({
-      where: { user_id: user.id },
-      relations: ['cart_items'],
-    });
+    // const cart = await this.cartRepository.findOne({
+    //   where: { user_id: user.id },
+    //   relations: ['cart_items'],
+    // });
 
-    if (cart) {
-      await this.cartItemRepository.remove(cart.cart_items);
-    }
+    // if (cart) {
+    //   await this.cartItemRepository.remove(cart.cart_items);
+    // }
 
     return orders;
   }
@@ -267,7 +270,6 @@ export class OrderService {
     const order = this.orderRepository.create({
       user_id: user.id,
       status: 'pending',
-      total: createOrderDto.total,
       shopId: shop,
     });
 

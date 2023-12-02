@@ -1,12 +1,14 @@
 export class CreateOrderDto {
-  total: number;
-
   user_id: number;
 
   cartItems: CartItemDto[];
 }
 
 export class CartItemDto {
+  price: number;
+
+  discountPrice: number;
+
   versionId: number;
 
   quantity: number;

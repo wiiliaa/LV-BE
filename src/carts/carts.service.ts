@@ -18,7 +18,10 @@ export class CartsService {
     return this.cartRepository.find();
   }
 
-  // Trong cartService
+  async findByIdUser(userId: number) {
+    return this.cartRepository.findOne({ where: { user_id: userId } });
+  }
+
   async create(userId: number): Promise<Cart> {
     try {
       const cart = new Cart();

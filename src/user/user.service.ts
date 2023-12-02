@@ -18,7 +18,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
@@ -132,7 +132,7 @@ export class UserService {
       if (updateUserDto.avatar) {
         // Kiểm tra xem có ảnh cũ không
         if (userToUpdate.avatar) {
-          const oldImagePath = join('/public/uploads/', userToUpdate.avatar);
+          const oldImagePath = join('public/uploads/', userToUpdate.avatar);
 
           // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {
@@ -140,7 +140,7 @@ export class UserService {
           }
         }
         const fileName = `${userToUpdate.username}-avatar.txt`;
-        const filePath = join('/public/uploads/', fileName);
+        const filePath = join('public/uploads/', fileName);
 
         // Lưu ảnh mới vào tệp văn bản
         await writeFileAsync(filePath, updateUserDto.avatar);

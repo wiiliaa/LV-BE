@@ -24,9 +24,6 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  total: number;
-
   @ManyToOne(() => User, (user) => user.order)
   @JoinColumn({
     name: 'user_id',
