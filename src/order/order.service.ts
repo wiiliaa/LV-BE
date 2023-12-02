@@ -23,7 +23,7 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-  ) {}
+  ) { }
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
   //   const order = this.orderRepository.create({
@@ -279,7 +279,6 @@ export class OrderService {
 
   async buyNow(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
     const shop = createOrderDto.cartItems[0].shopId;
-
     const order = this.orderRepository.create({
       user_id: user.id,
       status: 'pending',
