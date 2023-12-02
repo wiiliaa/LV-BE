@@ -54,48 +54,49 @@ export class OrderService {
 
   //   return createdOrder;
   // }
-  async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order[]> {
-    const uniqueShopIds = Array.from(
-      new Set(createOrderDto.cartItems.map((item) => item.shopId)),
-    );
-
+  async Order(user: User, createOrderDtos: CreateOrderDto[]): Promise<Order[]> {
     const orders: Order[] = [];
 
-    for (const shopId of uniqueShopIds) {
-      const itemsForShop = createOrderDto.cartItems.filter(
-        (item) => item.shopId === shopId,
+    for (const createOrderDto of createOrderDtos) {
+      const uniqueShopIds = Array.from(
+        new Set(createOrderDto.cartItems.map((item) => item.shopId)),
       );
-      const orderTotal = itemsForShop.reduce((total, item) => {
-        return total + item.discountedPrice * item.quantity;
-      }, 0);
 
-      const order = this.orderRepository.create({
-        user_id: user.id,
-        total: orderTotal,
-        shopId: createOrderDto.shopId,
-        status: 'pending',
-      });
+      for (const shopId of uniqueShopIds) {
+        const itemsForShop = createOrderDto.cartItems.filter(
+          (item) => item.shopId === shopId,
+        );
+        const orderTotal = itemsForShop.reduce((total, item) => {
+          return total + item.discountedPrice * item.quantity;
+        }, 0);
 
-      const createdOrder = await this.orderRepository.save(order);
+        const order = this.orderRepository.create({
+          user_id: user.id,
+          total: orderTotal,
+          shopId: shopId, // Use the current shopId from the iteration
+          status: 'pending',
+        });
 
-      for (const cartItemDto of itemsForShop) {
-        const sizesString = cartItemDto.sizes
-          .map((size) => `${size.sizeId}:${size.quantity}`)
-          .join(',');
+        const createdOrder = await this.orderRepository.save(order);
 
-        const orderItem = this.orderItemRepository.create({
-          quantity: cartItemDto.quantity,
-          version_id: cartItemDto.versionId,
-          discountedPrice: cartItemDto.discountedPrice,
-          order_id: createdOrder.id,
-          shopId: cartItemDto.shopId,
-          sizes: sizesString,
-        } as DeepPartial<OrderItem>);
+        for (const cartItemDto of itemsForShop) {
+          const sizesString = cartItemDto.sizes
+            .map((size) => `${size.sizeId}:${size.quantity}`)
+            .join(',');
 
-        await this.orderItemRepository.save(orderItem);
+          const orderItem = this.orderItemRepository.create({
+            quantity: cartItemDto.quantity,
+            version_id: cartItemDto.versionId,
+            discountedPrice: cartItemDto.discountedPrice,
+            order_id: createdOrder.id,
+            sizes: sizesString,
+          } as DeepPartial<OrderItem>);
+
+          await this.orderItemRepository.save(orderItem);
+        }
+
+        orders.push(createdOrder);
       }
-
-      orders.push(createdOrder);
     }
 
     // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
