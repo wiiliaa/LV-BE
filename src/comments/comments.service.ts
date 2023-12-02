@@ -86,14 +86,13 @@ export class CommentsService {
     updateCommentDto: UpdateCommentDto,
   ): Promise<Comment> {
     try {
-      const { text, rate } = updateCommentDto;
+      const { rate } = updateCommentDto;
 
       const comment = await this.commentRepository.findOne({ where: { id } });
       if (!comment) {
         throw new NotFoundException('Comment not found');
       }
 
-      comment.text = text;
       comment.rate = rate;
 
       return this.commentRepository.save(comment);

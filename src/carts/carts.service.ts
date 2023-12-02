@@ -58,30 +58,42 @@ export class CartsService {
       }
 
       // Group cart items by shopId
-      const cartItemsGroupedByShop = userCartItems.cart_items.reduce(
-        async (groupedCartItemsPromise, shopCartItem) => {
-          const groupedCartItems = await groupedCartItemsPromise;
+      const cartItemsGroupedByShop = await Promise.all(
+        userCartItems.cart_items.map(async (shopCartItem) => {
           const { version, ...restCartItem } = shopCartItem;
           const shopId = version.product.shop_id;
 
-          if (!groupedCartItems[shopId]) {
-            groupedCartItems[shopId] = {
-              shopId: shopId,
-              ShopItems: [],
-            };
-          }
-
-          groupedCartItems[shopId].ShopItems.push({
-            ...restCartItem,
-            image: await this.imageService.getImage(version.product.image),
-          });
-
-          return groupedCartItems;
-        },
-        Promise.resolve({}),
+          return {
+            shopId: shopId,
+            ShopItems: [
+              {
+                ...restCartItem,
+                image: await this.imageService.getImage(version.product.image),
+              },
+            ],
+          };
+        }),
       );
 
-      return Object.values(cartItemsGroupedByShop);
+      // Merge items with the same shopId
+      const groupedCartItems = cartItemsGroupedByShop.reduce(
+        (accumulator, currentItem) => {
+          const existingShop = accumulator.find(
+            (item) => item.shopId === currentItem.shopId,
+          );
+
+          if (existingShop) {
+            existingShop.ShopItems.push(...currentItem.ShopItems);
+          } else {
+            accumulator.push(currentItem);
+          }
+
+          return accumulator;
+        },
+        [],
+      );
+
+      return groupedCartItems;
     } catch (error) {
       throw new NotFoundException(error.message);
     }
