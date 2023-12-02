@@ -1,4 +1,4 @@
-export class CreateOrderDto[] {
+export class CreateOrderDto {
   user_id: number;
   shopId: number;
   total: number;

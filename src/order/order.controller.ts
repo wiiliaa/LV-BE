@@ -25,9 +25,9 @@ export class OrderController {
   @UseGuards(AuthGuard('jwt')) // Sử dụng Guard nếu cần xác thực người dùng
   async createOrder(
     @GetUser() user: User,
-    @Body() createOrderDto: CreateOrderDto,
+    @Body() createOrderDto: CreateOrderDto[],
   ) {
-    const order = await this.orderService.Order(user, createOrderDto);
+    const order = await this.orderService.order(user, createOrderDto);
 
     return order;
   }
@@ -92,17 +92,6 @@ export class OrderController {
     return this.orderService.findId(id);
   }
 
-  @Post('buy-now')
-  @UseGuards(AuthGuard('jwt'))
-  async buyNow(@GetUser() user: User, @Body() createOrderDto: CreateOrderDto) {
-    console.log('---------- CreateOrderDto', createOrderDto);
-    console.log(
-      '---------- CreateOrderDto',
-      JSON.stringify(createOrderDto, null, 2),
-    );
-    const order = await this.orderService.buyNow(user, createOrderDto);
-    return order;
-  }
   // @Post('buy-now')
   // @UseGuards(AuthGuard('jwt'))
   // async buyNow(@GetUser() user: User, @Body() createOrderDto: CreateOrderDto) {

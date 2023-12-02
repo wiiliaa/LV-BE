@@ -33,7 +33,7 @@ export class Order extends BaseEntity {
   @Column({ nullable: true, type: 'float' })
   total: number;
 
-  @Column()
+  @Column({ nullable: true })
   user_id: number;
 
   @ManyToOne(() => Shop, (shop) => shop.orders)

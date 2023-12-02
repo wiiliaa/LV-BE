@@ -54,49 +54,54 @@ export class OrderService {
 
   //   return createdOrder;
   // }
-  async Order(user: User, createOrderDtos: CreateOrderDto[]): Promise<Order[]> {
+  async order(user: User, createOrderDtos: CreateOrderDto[]): Promise<Order[]> {
     const orders: Order[] = [];
 
-    for (const createOrderDto of createOrderDtos) {
-      const uniqueShopIds = Array.from(
-        new Set(createOrderDto.cartItems.map((item) => item.shopId)),
+    const uniqueShopIds = Array.from(
+      new Set(createOrderDtos.map((orderDto) => orderDto.shopId)),
+    );
+
+    for (const currentShopId of uniqueShopIds) {
+      const ordersForShop = createOrderDtos.filter(
+        (order) => order.shopId === currentShopId,
       );
 
-      for (const shopId of uniqueShopIds) {
-        const itemsForShop = createOrderDto.cartItems.filter(
-          (item) => item.shopId === shopId,
+      const orderTotal = ordersForShop.reduce((total, order) => {
+        return (
+          total +
+          order.cartItems.reduce((subtotal, item) => {
+            return subtotal + item.discountedPrice * item.quantity;
+          }, 0)
         );
-        const orderTotal = itemsForShop.reduce((total, item) => {
-          return total + item.discountedPrice * item.quantity;
-        }, 0);
+      }, 0);
 
-        const order = this.orderRepository.create({
-          user_id: user.id,
-          total: orderTotal,
-          shopId: shopId, // Use the current shopId from the iteration
-          status: 'pending',
-        });
+      const orderEntity = this.orderRepository.create({
+        user: { id: user.id },
+        total: orderTotal,
+        shopId: currentShopId,
+      });
 
-        const createdOrder = await this.orderRepository.save(order);
+      const createdOrder = await this.orderRepository.save(orderEntity);
 
-        for (const cartItemDto of itemsForShop) {
+      for (const orderForShop of ordersForShop) {
+        for (const cartItemDto of orderForShop.cartItems) {
           const sizesString = cartItemDto.sizes
             .map((size) => `${size.sizeId}:${size.quantity}`)
             .join(',');
 
-          const orderItem = this.orderItemRepository.create({
+          const orderItemEntity = this.orderItemRepository.create({
             quantity: cartItemDto.quantity,
             version_id: cartItemDto.versionId,
             discountedPrice: cartItemDto.discountedPrice,
-            order_id: createdOrder.id,
             sizes: sizesString,
-          } as DeepPartial<OrderItem>);
+          });
 
-          await this.orderItemRepository.save(orderItem);
+          await this.orderItemRepository.save(orderItemEntity);
         }
-
-        orders.push(createdOrder);
       }
+
+      // order.service.ts
+      orders.push(createdOrder);
     }
 
     // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
@@ -104,7 +109,6 @@ export class OrderService {
     //   where: { user_id: user.id },
     //   relations: ['cart_items'],
     // });
-
     // if (cart) {
     //   await this.cartItemRepository.remove(cart.cart_items);
     // }
@@ -285,29 +289,5 @@ export class OrderService {
     });
 
     return orders;
-  }
-
-  async buyNow(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
-    const shop = createOrderDto.cartItems[0].shopId;
-    const order = this.orderRepository.create({
-      user_id: user.id,
-      status: 'pending',
-      shopId: shop,
-    });
-
-    const createdOrder = await this.orderRepository.save(order);
-
-    // Tạo OrderItem từ thông tin đặt hàng và liên kết với Đơn Hàng
-    for (const itemDto of createOrderDto.cartItems) {
-      const orderItem = this.orderItemRepository.create({
-        quantity: itemDto.quantity,
-        version_id: itemDto.versionId,
-        order_id: createdOrder.id,
-      });
-
-      await this.orderItemRepository.save(orderItem);
-    }
-
-    return createdOrder;
   }
 }
