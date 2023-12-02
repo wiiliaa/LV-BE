@@ -9,4 +9,6 @@ export class CreateShopDto {
 
   @IsNotEmpty()
   user_id: number;
+
+  avatar: string;
 }

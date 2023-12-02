@@ -100,4 +100,8 @@ export class ProductSizeService {
 
     return productSize;
   }
+
+  async find1(id: number) {
+    return this.productSizeRepository.findOne({ where: { id } });
+  }
 }

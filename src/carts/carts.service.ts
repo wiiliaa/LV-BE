@@ -47,7 +47,8 @@ export class CartsService {
         .leftJoinAndSelect('cart.cart_items', 'cart_items')
         .leftJoinAndSelect('cart_items.version', 'version')
         .leftJoinAndSelect('version.product', 'product')
-        .leftJoinAndSelect('product.shop', 'shop') // Thêm left join với bảng shop
+        .leftJoinAndSelect('product.shop', 'shop')
+        .leftJoinAndSelect('version.sizes', 'sizes')
         .where('cart.user = :userId', { userId: user.id })
         .getOne();
 
@@ -63,16 +64,30 @@ export class CartsService {
           const { version, ...restCartItem } = shopCartItem;
           const shopId = version.product.shop_id;
 
+          // Lấy tên kích thước từ size_id
+          const sizeNames = version.sizes
+            .map((size) => {
+              // Chỉ lấy sizeName nếu size.id giống với sizeId
+              if (size.id === shopCartItem.sizeId) {
+                return size.sizeName;
+              }
+              return null;
+            })
+            .filter(Boolean);
+
           return {
             shopId: shopId,
-            shopName: version.product.shop.name, // Lấy tên shop
+            shopName: version.product.shop.name,
             shopImage: await this.imageService.getImage(
               version.product.shop.avatar,
-            ), // Lấy ảnh shop
+            ),
             ShopItems: [
               {
                 ...restCartItem,
                 image: await this.imageService.getImage(version.product.image),
+                color: version.color,
+                productName: version.product.name,
+                sizeName: sizeNames,
               },
             ],
           };

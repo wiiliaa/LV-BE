@@ -9,7 +9,6 @@ import { DiscountsModule } from './discounts/discounts.module';
 import { ProductSizeModule } from './product_size/product_size.module';
 import { UserPaymentsModule } from './user_payments/user_payments.module';
 import { PaymentDetailsModule } from './payment_details/payment_details.module';
-import { UserAddressModule } from './user_address/user_address.module';
 import { ShopsModule } from './shops/shops.module';
 import { CartsModule } from './carts/carts.module';
 import { CartItemsModule } from './cart_items/cart_items.module';
@@ -34,7 +33,6 @@ import config from './config/TypeOrm.config';
     ProductSizeModule,
     UserPaymentsModule,
     PaymentDetailsModule,
-    UserAddressModule,
     ShopsModule,
     CartsModule,
     CartItemsModule,
