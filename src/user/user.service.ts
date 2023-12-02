@@ -99,13 +99,41 @@ export class UserService {
     return { ...res, avatar: image };
   }
 
-  async delete(id: number) {
-    let status = true;
-    const target = await this.userRepository.delete(id);
-    if (!target) {
-      status = false;
+  async delete(id: number): Promise<{ success: boolean }> {
+    const unlinkAsync = promisify(fs.unlink);
+
+    try {
+      const userToDelete = await this.userRepository.findOne({
+        where: { id },
+      });
+
+      if (!userToDelete) {
+        throw new NotFoundException('Người dùng không tồn tại');
+      }
+
+      // Kiểm tra xem người dùng có hình ảnh không
+      if (userToDelete.avatar) {
+        // Xác định đường dẫn tuyệt đối của hình ảnh
+        const imagePath = join('public/uploads/', userToDelete.avatar);
+
+        // Nếu file tồn tại, xóa nó
+        if (fs.existsSync(imagePath)) {
+          await unlinkAsync(imagePath);
+        }
+      }
+
+      // Xóa người dùng từ cơ sở dữ liệu
+      const deleteResult = await this.userRepository.delete(id);
+
+      if (deleteResult.affected && deleteResult.affected > 0) {
+        return { success: true };
+      } else {
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa người dùng:', error);
+      throw new InternalServerErrorException('Lỗi khi xóa người dùng');
     }
-    return { status };
   }
 
   async update(
@@ -132,7 +160,7 @@ export class UserService {
       if (updateUserDto.avatar) {
         // Kiểm tra xem có ảnh cũ không
         if (userToUpdate.avatar) {
-          const oldImagePath = join('public/uploads/', userToUpdate.avatar);
+          const oldImagePath = join('/public/uploads/', userToUpdate.avatar);
 
           // Nếu file cũ tồn tại, xóa nó đi
           if (existsSync(oldImagePath)) {

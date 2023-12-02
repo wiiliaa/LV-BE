@@ -74,7 +74,7 @@ export class CartsService {
               return null;
             })
             .filter(Boolean);
-
+          const sizeName = sizeNames.length > 0 ? sizeNames[0] : null;
           return {
             shopId: shopId,
             shopName: version.product.shop.name,
@@ -87,7 +87,9 @@ export class CartsService {
                 image: await this.imageService.getImage(version.product.image),
                 color: version.color,
                 productName: version.product.name,
-                sizeName: sizeNames,
+                sizeName: sizeName,
+                price: version.product.price, // Thêm price vào đây
+                discountPrice: version.product.discountedPrice,
               },
             ],
           };
