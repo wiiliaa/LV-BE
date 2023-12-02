@@ -79,8 +79,6 @@ export class OrderService {
           quantity: cartItemDto.quantity,
           version_id: cartItemDto.versionId,
           order_id: createdOrder.id,
-          price: cartItemDto.price,
-          discountPrice: cartItemDto.discountPrice,
         } as DeepPartial<OrderItem>);
 
         await this.orderItemRepository.save(orderItem);

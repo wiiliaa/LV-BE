@@ -5,10 +5,6 @@ export class CreateOrderDto {
 }
 
 export class CartItemDto {
-  price: number;
-
-  discountPrice: number;
-
   versionId: number;
 
   quantity: number;
