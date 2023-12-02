@@ -524,6 +524,51 @@ export class ProductService {
       );
     }
   }
+
+  async findProductsByCategoryName(categoryName: string): Promise<Product[]> {
+    try {
+      // Find the category by name
+      const category = await this.productCategoryService.findByName(
+        categoryName,
+      );
+
+      if (!category) {
+        throw new NotFoundException(
+          `Category with name ${categoryName} not found`,
+        );
+      }
+
+      // Find products associated with the category
+      const products = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categories', 'categories')
+        .where('categories.id = :categoryId', { categoryId: category.id })
+        .getMany();
+
+      // Duyệt qua từng sản phẩm và thêm thông tin ảnh
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+
+          // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      // Trả về danh sách sản phẩm với thông tin ảnh
+      return productsWithImages;
+    } catch (error) {
+      console.error('Lỗi khi tìm sản phẩm theo tên danh mục:', error.message);
+      throw new InternalServerErrorException(
+        'Lỗi khi tìm sản phẩm theo tên danh mục',
+      );
+    }
+  }
+
   async findProductsByCategoryAndShop(
     user: User,
     categoryId: number,

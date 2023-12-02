@@ -33,6 +33,13 @@ export class ProductController {
     return products;
   }
 
+  @Get('byCategory/:name')
+  async findProductsByCategoryName(@Param('name') name: string) {
+    const products = await this.productService.findProductsByCategoryName(name);
+
+    return products;
+  }
+
   @Get('byCategoryOfShop/:categoryId/:shopId')
   @UseGuards(AuthGuard('jwt'))
   async findProductsByShopAndCategory(
