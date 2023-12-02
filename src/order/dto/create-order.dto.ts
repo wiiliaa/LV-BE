@@ -9,7 +9,12 @@ export class CartItemDto {
 
   quantity: number;
 
-  sizeId: number;
+  sizes: SizeItemDto[];
 
   shopId: number;
+}
+
+export class SizeItemDto {
+  sizeName: string;
+  quantity: number;
 }

@@ -22,7 +22,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @ApiTags('Product')
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
   @Get('byCategory/:categoryId')
   async findProductsByCategory(@Param('categoryId') categoryId: number) {
