@@ -7,7 +7,6 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './JWT/jwt-payload.interface';
 import { CartsService } from 'src/carts/carts.service';
-import { UserAddressService } from 'src/user_address/user_address.service';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +15,7 @@ export class AuthService {
     private userRepository: Repository<User>,
     private jwtService: JwtService,
     private readonly cartService: CartsService,
-    private readonly userAddressService: UserAddressService,
-  ) { }
+  ) {}
   async signUp(createUserDto: CreateUserDto) {
     const { username, password, name, email } = createUserDto;
     const user = new User();
@@ -27,14 +25,6 @@ export class AuthService {
     user.name = name || username;
 
     await user.save();
-
-    const emptyUserAddress = {
-      country: '',
-      city: '',
-      detail_address: '',
-      user_id: user.id,
-    };
-    await this.userAddressService.create(emptyUserAddress);
 
     await this.cartService.create(user.id);
 

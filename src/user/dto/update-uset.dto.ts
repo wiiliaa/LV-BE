@@ -14,8 +14,8 @@ export class UpdateUserDto {
   phone: string;
 
   @IsOptional()
-  seller: boolean;
+  avatar: string;
 
   @IsOptional()
-  avatar: string;
+  detailAdress: string;
 }

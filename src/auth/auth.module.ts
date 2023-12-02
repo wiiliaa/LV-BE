@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { CartsModule } from 'src/carts/carts.module';
-import { UserAddressModule } from 'src/user_address/user_address.module';
 import { GoogleStrategy } from './GG_AUTH/google.strategy';
 import { ImageModule } from 'src/image/image.module';
 @Module({
@@ -23,7 +22,7 @@ import { ImageModule } from 'src/image/image.module';
     }),
     TypeOrmModule.forFeature([User]),
     CartsModule,
-    UserAddressModule,
+
     ImageModule,
   ],
   controllers: [AuthController],

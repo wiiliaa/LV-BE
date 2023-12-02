@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,7 +13,8 @@ import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { User } from 'src/user/entities/user.entity';
 import { ImageService } from 'src/image/image.service';
-
+import { promisify } from 'util';
+import * as fs from 'fs';
 @Injectable()
 export class ShopService {
   constructor(
@@ -26,8 +28,26 @@ export class ShopService {
       throw new ConflictException('User already has a shop.');
     }
 
+    // Your existing code to handle the image
+    const writeFileAsync = promisify(fs.writeFile);
     createShopDto.user_id = user.id;
     const shop = this.shopRepository.create(createShopDto);
+
+    // Handle avatar image
+    if (createShopDto.avatar) {
+      try {
+        const randomSuffix = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, '0');
+        const fileName = `${randomSuffix}-avatar.txt`;
+        const filePath = `public/uploads/${fileName}`;
+        await writeFileAsync(filePath, createShopDto.avatar);
+        shop.avatar = fileName;
+      } catch (error) {
+        throw new InternalServerErrorException('Error saving base64 to file');
+      }
+    }
+
     await this.shopRepository.save(shop);
 
     // Update user role to 'pending'
@@ -36,6 +56,7 @@ export class ShopService {
 
     user.shop = shop;
     await user.save();
+
     return shop;
   }
 

@@ -15,12 +15,10 @@ import * as bcrypt from 'bcrypt';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
-import { UserAddress } from 'src/user_address/entities/user_address.entity';
 import { UserPayment } from 'src/user_payments/entities/user_payment.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Exclude } from 'class-transformer';
 import { SearchKeyword } from 'src/search_keyword/entities/search_keyword.entity';
-import { text } from 'stream/consumers';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -47,6 +45,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true, type: 'text' })
   avatar: string;
 
+  @Column({ nullable: true })
+  detailAdress: string;
+
   @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)
   searchKeywords: SearchKeyword[];
 
@@ -69,9 +70,6 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   shop_id: number;
-
-  @OneToOne(() => UserAddress, (user_address) => user_address.user)
-  user_address: UserAddress;
 
   @OneToMany(() => UserPayment, (user_payment) => user_payment.user)
   user_payments: UserPayment[];
