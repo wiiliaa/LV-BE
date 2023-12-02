@@ -72,6 +72,7 @@ export class OrderService {
       const order = this.orderRepository.create({
         user_id: user.id,
         total: orderTotal,
+        shopId: createOrderDto.shopId,
         status: 'pending',
       });
 

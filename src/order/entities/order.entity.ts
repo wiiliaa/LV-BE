@@ -38,7 +38,7 @@ export class Order extends BaseEntity {
 
   @ManyToOne(() => Shop, (shop) => shop.orders)
   @JoinColumn({
-    name: 'shop_id',
+    name: 'shopId',
   })
   shop: Shop;
   @Column({ nullable: true })
