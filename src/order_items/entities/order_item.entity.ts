@@ -21,6 +21,9 @@ export class OrderItem extends BaseEntity {
   @Column()
   quantity: number;
 
+  @Column({ nullable: true })
+  discountedPrice: number;
+
   @ManyToOne(() => Order, (order) => order.order_items)
   @JoinColumn({
     name: 'order_id',
@@ -36,6 +39,9 @@ export class OrderItem extends BaseEntity {
 
   @Column()
   version_id: number;
+
+  @Column({ nullable: true })
+  shopId: number;
 
   @Column({ nullable: true })
   sizes: string;

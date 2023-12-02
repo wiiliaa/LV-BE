@@ -81,6 +81,7 @@ export class OrderService {
         const orderItem = this.orderItemRepository.create({
           quantity: cartItemDto.quantity,
           version_id: cartItemDto.versionId,
+          discountedPrice: cartItemDto.discountedPrice,
           order_id: createdOrder.id,
           shopId: cartItemDto.shopId,
           sizes: sizesString,
