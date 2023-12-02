@@ -7,6 +7,8 @@ export class CreateOrderDto {
 export class CartItemDto {
   versionId: number;
 
+  discountedPrice: number;
+
   quantity: number;
 
   sizes: SizeItemDto[];
@@ -15,6 +17,6 @@ export class CartItemDto {
 }
 
 export class SizeItemDto {
-  sizeName: string;
   quantity: number;
+  sizeId: number;
 }

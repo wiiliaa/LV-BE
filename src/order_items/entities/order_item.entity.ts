@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Order } from 'src/order/entities/order.entity';
 import { ProductVersion } from 'src/product-version/entities/product-version.entity';
-import { Product } from 'src/product/entities/product.entity';
+
 import {
   Entity,
   Column,
@@ -36,6 +36,9 @@ export class OrderItem extends BaseEntity {
 
   @Column()
   version_id: number;
+
+  @Column({ nullable: true })
+  sizes: string;
 
   @CreateDateColumn({
     type: 'timestamp',

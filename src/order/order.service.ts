@@ -23,7 +23,7 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-  ) { }
+  ) {}
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
   //   const order = this.orderRepository.create({
@@ -69,16 +69,21 @@ export class OrderService {
       const order = this.orderRepository.create({
         user_id: user.id,
         status: 'pending',
-        shopId: shopId,
       });
 
       const createdOrder = await this.orderRepository.save(order);
 
       for (const cartItemDto of itemsForShop) {
+        const sizesString = cartItemDto.sizes
+          .map((size) => `${size.sizeId}:${size.quantity}`)
+          .join(',');
+
         const orderItem = this.orderItemRepository.create({
           quantity: cartItemDto.quantity,
           version_id: cartItemDto.versionId,
           order_id: createdOrder.id,
+          shopId: cartItemDto.shopId,
+          sizes: sizesString,
         } as DeepPartial<OrderItem>);
 
         await this.orderItemRepository.save(orderItem);
