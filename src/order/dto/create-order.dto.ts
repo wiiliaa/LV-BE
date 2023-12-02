@@ -19,4 +19,5 @@ export class CartItemDto {
 export class SizeItemDto {
   quantity: number;
   sizeId: number;
+  sizeName: string;
 }
