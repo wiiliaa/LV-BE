@@ -6,12 +6,14 @@ import { Repository } from 'typeorm';
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class CartsService {
   constructor(
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
+    private imageService: ImageService,
   ) {}
 
   async findALl() {
@@ -43,9 +45,9 @@ export class CartsService {
       const userCartItems = await this.cartRepository
         .createQueryBuilder('cart')
         .leftJoinAndSelect('cart.cart_items', 'cart_items')
-        .leftJoinAndSelect('cart_items.version', 'version') // Join with the 'version' table
-        .leftJoinAndSelect('version.product', 'product') // Join with the 'product' table
-        .leftJoinAndSelect('product.shop', 'shop') // Join with the 'shop' table
+        .leftJoinAndSelect('cart_items.version', 'version')
+        .leftJoinAndSelect('version.product', 'product')
+        .leftJoinAndSelect('product.shop', 'shop')
         .where('cart.user = :userId', { userId: user.id })
         .getOne();
 
@@ -57,8 +59,9 @@ export class CartsService {
 
       // Group cart items by shopId
       const cartItemsGroupedByShop = userCartItems.cart_items.reduce(
-        (groupedCartItems, ShopItems) => {
-          const { version, ...restCartItem } = ShopItems;
+        async (groupedCartItemsPromise, shopCartItem) => {
+          const groupedCartItems = await groupedCartItemsPromise;
+          const { version, ...restCartItem } = shopCartItem;
           const shopId = version.product.shop_id;
 
           if (!groupedCartItems[shopId]) {
@@ -70,12 +73,12 @@ export class CartsService {
 
           groupedCartItems[shopId].ShopItems.push({
             ...restCartItem,
-            image: version.image,
+            image: await this.imageService.getImage(version.product.image),
           });
 
           return groupedCartItems;
         },
-        {},
+        Promise.resolve({}),
       );
 
       return Object.values(cartItemsGroupedByShop);
