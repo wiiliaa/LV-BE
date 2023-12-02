@@ -264,6 +264,19 @@ export class OrderService {
     return result;
   }
 
+  async findAllOrdersForUser(userId: number): Promise<Order[]> {
+    const orders = await this.orderRepository.find({
+      where: { user_id: userId },
+      relations: [
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
+    });
+
+    return orders;
+  }
+
   async buyNow(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
     const shop = createOrderDto.cartItems[0].shopId;
 
