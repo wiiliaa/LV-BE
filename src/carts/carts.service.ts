@@ -47,7 +47,7 @@ export class CartsService {
         .leftJoinAndSelect('cart.cart_items', 'cart_items')
         .leftJoinAndSelect('cart_items.version', 'version')
         .leftJoinAndSelect('version.product', 'product')
-        .leftJoinAndSelect('product.shop', 'shop')
+        .leftJoinAndSelect('product.shop', 'shop') // Thêm left join với bảng shop
         .where('cart.user = :userId', { userId: user.id })
         .getOne();
 
@@ -65,6 +65,10 @@ export class CartsService {
 
           return {
             shopId: shopId,
+            shopName: version.product.shop.name, // Lấy tên shop
+            shopImage: await this.imageService.getImage(
+              version.product.shop.avatar,
+            ), // Lấy ảnh shop
             ShopItems: [
               {
                 ...restCartItem,
