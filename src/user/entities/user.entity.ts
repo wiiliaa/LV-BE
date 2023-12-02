@@ -46,7 +46,7 @@ export class User extends BaseEntity {
   avatar: string;
 
   @Column({ nullable: true })
-  detailAdress: string;
+  address: string;
 
   @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)
   searchKeywords: SearchKeyword[];

@@ -18,7 +18,7 @@ export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private imageService: ImageService,
-  ) { }
+  ) {}
 
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');

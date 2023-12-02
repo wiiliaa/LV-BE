@@ -17,5 +17,5 @@ export class UpdateUserDto {
   avatar: string;
 
   @IsOptional()
-  detailAdress: string;
+  address: string;
 }
