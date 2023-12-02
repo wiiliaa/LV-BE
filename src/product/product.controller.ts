@@ -33,8 +33,8 @@ export class ProductController {
     return products;
   }
 
-  @Get('byCategory/:name')
-  async findProductsByCategoryName(@Param('name') name: string) {
+  @Get('byCategoryName')
+  async findProductsByCategoryName(@Body('name') name: string) {
     const products = await this.productService.findProductsByCategoryName(name);
 
     return products;
