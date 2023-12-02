@@ -30,6 +30,9 @@ export class Order extends BaseEntity {
   })
   user: User;
 
+  @Column({ nullable: true, type: 'float' })
+  total: number;
+
   @Column()
   user_id: number;
 

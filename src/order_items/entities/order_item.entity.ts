@@ -21,7 +21,7 @@ export class OrderItem extends BaseEntity {
   @Column()
   quantity: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'float' })
   discountedPrice: number;
 
   @ManyToOne(() => Order, (order) => order.order_items)

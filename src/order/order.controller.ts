@@ -19,7 +19,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 @ApiTags('Order')
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService) {}
 
   @Post('createOrder')
   @UseGuards(AuthGuard('jwt')) // Sử dụng Guard nếu cần xác thực người dùng
@@ -95,8 +95,11 @@ export class OrderController {
   @Post('buy-now')
   @UseGuards(AuthGuard('jwt'))
   async buyNow(@GetUser() user: User, @Body() createOrderDto: CreateOrderDto) {
-    console.log("---------- CreateOrderDto", createOrderDto);
-    console.log("---------- CreateOrderDto", JSON.stringify(createOrderDto, null, 2));
+    console.log('---------- CreateOrderDto', createOrderDto);
+    console.log(
+      '---------- CreateOrderDto',
+      JSON.stringify(createOrderDto, null, 2),
+    );
     const order = await this.orderService.buyNow(user, createOrderDto);
     return order;
   }

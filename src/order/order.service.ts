@@ -65,9 +65,13 @@ export class OrderService {
       const itemsForShop = createOrderDto.cartItems.filter(
         (item) => item.shopId === shopId,
       );
+      const orderTotal = itemsForShop.reduce((total, item) => {
+        return total + item.discountedPrice * item.quantity;
+      }, 0);
 
       const order = this.orderRepository.create({
         user_id: user.id,
+        total: orderTotal,
         status: 'pending',
       });
 
