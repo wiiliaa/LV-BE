@@ -9,6 +9,8 @@ export class StripeService {
   async checkout(orderId: number, res: Response) {
     const findShopid = await this.orderService.findShopByOrderId(orderId);
     const a = await findShopid.shop_payment;
+    const findUser = await this.orderService.findId(orderId);
+    const b = await findUser.id;
     const stripe = require('stripe')(a);
 
     const order = await this.orderService.findId(orderId);
@@ -31,7 +33,7 @@ export class StripeService {
       payment_intent_data: {
         setup_future_usage: 'on_session',
       },
-      customer: 'cus_P7MRva6pDlIcHf',
+      customer: b,
       success_url: 'http://localhost:3000',
       cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
     });
