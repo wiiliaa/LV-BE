@@ -4,10 +4,11 @@ import { Response } from 'express';
 
 @Injectable()
 export class StripeService {
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService) { }
 
   async checkout(orderId: number, res: Response) {
     const findShopid = await this.orderService.findShopByOrderId(orderId);
+    console.log("-------------findShopid.shop_payment", findShopid.shop_payment)
     const a = await findShopid.shop_payment;
     const stripe = require('stripe')(a);
 
