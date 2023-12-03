@@ -21,16 +21,16 @@ export class StripeController {
     return this.stripeService.checkout(id, res);
   }
 
-  @Get('/pay/success/checkout/session/:session_id')
-  async successPayment(@Param('session_id') session_id: string) {
-    await this.stripeService.Successpayment(session_id);
-    // Gửi phản hồi hoặc thực hiện các xử lý khác nếu cần
-  }
+  // @Get('/pay/success/checkout/session/:session_id')
+  // async successPayment(@Param('session_id') session_id: string) {
+  //   await this.stripeService.Successpayment(session_id);
+  //   // Gửi phản hồi hoặc thực hiện các xử lý khác nếu cần
+  // }
 
-  @Get('/failed/checkout/session')
-  async Failedpayment(@Res({ passthrough: true }) res) {
-    var details = await this.stripeService.Failedpayment(
-      res.req.query.session_id,
-    );
-  }
+  // @Get('/failed/checkout/session')
+  // async Failedpayment(@Res({ passthrough: true }) res) {
+  //   var details = await this.stripeService.Failedpayment(
+  //     res.req.query.session_id,
+  //   );
+  // }
 }

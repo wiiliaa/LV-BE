@@ -23,7 +23,7 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-  ) { }
+  ) {}
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
   //   const order = this.orderRepository.create({
@@ -56,7 +56,6 @@ export class OrderService {
   // }
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
-
       const orderEntity = this.orderRepository.create({
         user: { id: user.id },
         total: currentShopItem.totalPrice,
@@ -262,5 +261,26 @@ export class OrderService {
     });
 
     return orders;
+  }
+
+  async findShopByOrderId(orderId: number) {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['shop'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+    }
+
+    const shop = order.shop;
+
+    if (!shop) {
+      throw new NotFoundException(
+        `Shop not found for order with ID ${orderId}.`,
+      );
+    }
+
+    return shop;
   }
 }
