@@ -59,10 +59,10 @@ export class ProductController {
     return products;
   }
 
-  @Get('/getAll')
-  async getAll() {
-    return this.productService.findAll();
-  }
+  // @Get('/getAll')
+  // async getAll() {
+  //   return this.productService.findAll();
+  // }
 
   @Get('/search/:name')
   async findByName(@Param('name') name: string) {
@@ -174,7 +174,7 @@ export class ProductController {
     }
   }
 
-  @Get()
+  @Get('/getAll')
   async findAll(
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
