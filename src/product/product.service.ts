@@ -718,7 +718,7 @@ export class ProductService {
     categoryId: number,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<Product[]> {
+  ): Promise<{ products: Product[]; total: number }> {
     try {
       const skip = (page - 1) * pageSize;
       const take = pageSize;
@@ -757,7 +757,7 @@ export class ProductService {
         }),
       );
 
-      return productsWithImages;
+      return { products: productsWithImages, total };
     } catch (error) {
       console.error('Error finding products by category:', error.message);
       throw new NotFoundException('Error finding products by category');
