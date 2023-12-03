@@ -123,13 +123,14 @@ export class ProductService {
         }),
       );
 
-      return { products: productsWithImages, total };
+      const totalPages = Math.ceil(total / pageSize);
+
+      return { products: productsWithImages, total: totalPages };
     } catch (error) {
       console.error('Error retrieving products:', error);
       throw new NotFoundException('Error retrieving products');
     }
   }
-
   async findById(id: number) {
     const res = await this.productRepository.findOne({
       where: { id },
