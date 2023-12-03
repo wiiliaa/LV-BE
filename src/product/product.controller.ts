@@ -175,7 +175,7 @@ export class ProductController {
     }
   }
 
-  @Get()
+  @Get('/getAll')
   async findAll(
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 10,

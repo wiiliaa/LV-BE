@@ -149,27 +149,41 @@ export class OrderService {
 
     return orders;
   }
-
-  async myOrder(user: User): Promise<Order[]> {
+  async myOrder(user: User): Promise<{
+    orderId: number;
+    total: number;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    shop: string;
+  }> {
     if (!user) {
       throw new NotFoundException('User not provided.');
     }
 
-    const orders = await this.orderRepository.find({
-      where: {
-        user_id: user.id,
-      },
-    });
+    const order = await this.orderRepository
+      .createQueryBuilder('order')
+      .innerJoinAndSelect('order.shop', 'shop') // Thiết lập mối quan hệ với mô hình Shop
+      .where('order.user_id = :userId', { userId: user.id })
+      .getOne();
 
-    if (!orders.length) {
+    if (!order) {
       throw new NotFoundException(
         `No orders found for user with ID ${user.id}.`,
       );
     }
 
-    return orders;
-  }
+    const result = {
+      orderId: order.id,
+      total: order.total,
+      status: order.status,
+      createdAt: order.created_at.toISOString(),
+      updatedAt: order.updated_at.toISOString(),
+      shop: order.shop.name,
+    };
 
+    return result;
+  }
   async findOrdersByUserAndStatus(
     user: User,
     status: string,
@@ -237,10 +251,7 @@ export class OrderService {
     return order;
   }
 
-  async findOrdersByShopAndStatus(
-    user: User,
-    status: string,
-  ): Promise<Order[]> {
+  async findOrdersByShopAndStatus(user: User, status: string) {
     const orders = await this.orderRepository.find({
       where: {
         shopId: user.shop_id,
@@ -261,8 +272,14 @@ export class OrderService {
       );
     }
 
-    return orders;
+    const ordersWithUserName = orders.map((order) => ({
+      order,
+      Name: order.user.name,
+    }));
+
+    return ordersWithUserName;
   }
+
   async findId(id: number) {
     const result = await this.orderRepository.findOne({
       where: { id },
