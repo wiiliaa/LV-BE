@@ -654,4 +654,93 @@ export class ProductService {
       );
     }
   }
+
+  async findAllPage(
+    page: number = 1, // Default to page 1 if not provided
+    pageSize: number = 10, // Default to a page size of 10 if not provided
+  ): Promise<Product[]> {
+    try {
+      const skip = (page - 1) * pageSize;
+      const take = pageSize;
+
+      const [products, total] = await this.productRepository.findAndCount({
+        skip,
+        take,
+      });
+
+      if (total === 0) {
+        throw new NotFoundException('No products found.');
+      }
+
+      // Duyệt qua từng sản phẩm và thêm thông tin ảnh và giảm giá
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+
+          // Tạo một đối tượng mới chỉ với thông tin ảnh và giảm giá được thêm vào
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      // Trả về danh sách sản phẩm với thông tin ảnh và giảm giá
+      return productsWithImages;
+    } catch (error) {
+      console.error('Error retrieving products:', error);
+      throw new NotFoundException('Error retrieving products');
+    }
+  }
+
+  async findProductsByCategoryPage(
+    categoryId: number,
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<Product[]> {
+    try {
+      const skip = (page - 1) * pageSize;
+      const take = pageSize;
+
+      const [products, total] = await this.productRepository.findAndCount({
+        join: {
+          alias: 'product',
+          innerJoinAndSelect: {
+            categories: 'product.categories',
+          },
+        },
+        where: {
+          categories: {
+            id: categoryId,
+          },
+        },
+        skip,
+        take,
+      });
+
+      if (total === 0) {
+        throw new NotFoundException('No products found for the category.');
+      }
+
+      // Process products and return them
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+
+          // Create a new object with added image and discount information
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      return productsWithImages;
+    } catch (error) {
+      console.error('Error finding products by category:', error.message);
+      throw new NotFoundException('Error finding products by category');
+    }
+  }
 }

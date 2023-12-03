@@ -11,6 +11,7 @@ import { OrderItem } from 'src/order_items/entities/order_item.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Cart } from 'src/carts/entities/cart.entity';
+import { ProductSize } from 'src/product_size/entities/product_size.entity';
 
 @Injectable()
 export class OrderService {
@@ -23,6 +24,8 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    @InjectRepository(ProductSize)
+    private readonly sizeRepository: Repository<ProductSize>,
   ) {}
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
@@ -73,19 +76,42 @@ export class OrderService {
           sizeId: versionItem.sizeId,
         });
         await this.orderItemRepository.save(orderItemEntity);
+
+        // Giảm số lượng của kích thước sản phẩm sau khi tạo đơn hàng
+        await this.decreaseProductSizeQuantity(
+          versionItem.sizeId,
+          versionItem.quantity,
+        );
       }
     }
 
-    // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
-    // const cart = await this.cartRepository.findOne({
-    //   where: { user_id: user.id },
-    //   relations: ['cart_items'],
-    // });
-    // if (cart) {
-    //   await this.cartItemRepository.remove(cart.cart_items);
-    // }
-
     return { message: 'success' };
+  }
+
+  async decreaseProductSizeQuantity(
+    sizeId: number,
+    quantity: number,
+  ): Promise<void> {
+    const productSize = await this.sizeRepository.findOne({
+      where: { id: sizeId },
+    });
+
+    if (!productSize) {
+      throw new NotFoundException(`Product size with ID ${sizeId} not found.`);
+    }
+
+    // Kiểm tra xem có đủ số lượng để giảm không
+    if (productSize.quantity < quantity) {
+      throw new NotFoundException(
+        `Not enough quantity available for size with ID ${sizeId}.`,
+      );
+    }
+
+    // Giảm số lượng
+    productSize.quantity -= quantity;
+
+    // Lưu lại vào cơ sở dữ liệu
+    await this.sizeRepository.save(productSize);
   }
 
   async updateOrderStatus(orderId: number, status: string): Promise<Order> {

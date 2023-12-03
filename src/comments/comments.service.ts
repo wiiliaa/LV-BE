@@ -58,4 +58,18 @@ export class CommentService {
 
     return false; // Người dùng chưa mua sản phẩm
   }
+
+  async getAllCommentsForProduct(productId: number): Promise<Comment[]> {
+    try {
+      const comments = await this.commentRepository.find({
+        where: { product_id: productId },
+        relations: ['user'], // If you want to include user details in comments
+      });
+
+      return comments;
+    } catch (error) {
+      console.error('Error retrieving comments:', error);
+      throw new NotFoundException('Error retrieving comments');
+    }
+  }
 }

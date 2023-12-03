@@ -21,4 +21,26 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentService) {}
+
+  @Get('product/:productId')
+  async getAllCommentsForProduct(@Param('productId') productId: number) {
+    const comments = await this.commentsService.getAllCommentsForProduct(
+      productId,
+    );
+    return comments;
+  }
+
+  @Post(':productId')
+  async createComment(
+    @GetUser() user: User,
+    @Param('productId') productId: number,
+    @Body('rate') rate: number,
+  ) {
+    const comment = await this.commentsService.createComment(
+      user,
+      productId,
+      rate,
+    );
+    return comment;
+  }
 }

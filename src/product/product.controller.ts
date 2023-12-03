@@ -11,6 +11,7 @@ import {
   HttpException,
   HttpStatus,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -171,5 +172,28 @@ export class ProductController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get()
+  async findAll(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    const products = await this.productService.findAllPage(page, pageSize);
+    return products;
+  }
+
+  @Get('/byCategory')
+  async findProductsByCategoryPage(
+    @Query('categoryId') categoryId: number,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    const products = await this.productService.findProductsByCategoryPage(
+      categoryId,
+      page,
+      pageSize,
+    );
+    return products;
   }
 }
