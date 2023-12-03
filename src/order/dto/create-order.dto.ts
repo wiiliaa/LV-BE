@@ -1,21 +1,18 @@
 export class CreateOrderDto {
   user_id: number;
-  shopId: number;
   total: number;
   cartItems: CartItemDto[];
 }
 
 export class CartItemDto {
-  versionId: number;
-  discountedPrice: number;
-
-  quantity: number;
-
-  sizes: SizeItemDto[];
+  shopId: number;
+  totalPrice: number;
+  Versions: VersionsDto[];
 }
 
-export class SizeItemDto {
+export class VersionsDto {
   quantity: number;
   sizeId: number;
-  sizeName: string;
+  sellingPrice: number;
+  versionId: number;
 }

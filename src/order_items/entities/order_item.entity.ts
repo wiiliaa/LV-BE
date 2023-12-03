@@ -44,7 +44,7 @@ export class OrderItem extends BaseEntity {
   shopId: number;
 
   @Column({ nullable: true })
-  sizes: string;
+  sizeId: number;
 
   @CreateDateColumn({
     type: 'timestamp',

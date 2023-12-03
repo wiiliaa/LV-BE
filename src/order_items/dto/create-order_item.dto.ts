@@ -6,4 +6,6 @@ export class CreateOrderItemDto {
   version_id: number;
 
   quantity: number;
+
+  discountedPrice: number;
 }

@@ -54,55 +54,70 @@ export class OrderService {
 
   //   return createdOrder;
   // }
-  async order(user: User, createOrderDtos: CreateOrderDto[]): Promise<Order[]> {
+  async order(user: User, createOrderDtos: CreateOrderDto) {
     const orders: Order[] = [];
 
-    const uniqueShopIds = Array.from(
-      new Set(createOrderDtos.map((orderDto) => orderDto.shopId)),
-    );
+    // const uniqueShopIds = Array.from(
+    //   new Set(createOrderDtos.cartItems.map((orderDto) => orderDto.shopId)),
+    // );
 
-    for (const currentShopId of uniqueShopIds) {
-      const ordersForShop = createOrderDtos.filter(
-        (order) => order.shopId === currentShopId,
-      );
+    for (const currentShopItem of createOrderDtos.cartItems) {
+      // const ordersForShop = createOrderDtos.cartItems.filter(
+      //   (order) => order.shopId === currentShopId,
+      // );
 
-      const orderTotal = ordersForShop.reduce((total, order) => {
-        return (
-          total +
-          order.cartItems.reduce((subtotal, item) => {
-            return subtotal + item.discountedPrice * item.quantity;
-          }, 0)
-        );
-      }, 0);
+      // const orderTotal = ordersForShop.reduce((total, order) => {
+      //   return (
+      //     total +
+      //     order.cartItems.reduce((subtotal, item) => {
+      //       return subtotal + item.discountedPrice * item.quantity;
+      //     }, 0)
+      //   );
+      // }, 0);
 
       const orderEntity = this.orderRepository.create({
         user: { id: user.id },
-        total: orderTotal,
-        shopId: currentShopId,
+        total: currentShopItem.totalPrice,
+        shopId: currentShopItem.shopId,
       });
 
       const createdOrder = await this.orderRepository.save(orderEntity);
 
-      for (const orderForShop of ordersForShop) {
-        for (const cartItemDto of orderForShop.cartItems) {
-          const sizesString = cartItemDto.sizes
-            .map((size) => `${size.sizeId}:${size.quantity}`)
-            .join(',');
+      for (const versionItem of currentShopItem.Versions) {
+        const orderItemEntity = this.orderItemRepository.create({
+          quantity: versionItem.quantity,
+          version_id: versionItem.versionId,
+          discountedPrice: versionItem.sellingPrice,
+          sizeIds: versionItem.sizeId,
+        });
 
-          const orderItemEntity = this.orderItemRepository.create({
-            quantity: cartItemDto.quantity,
-            version_id: cartItemDto.versionId,
-            discountedPrice: cartItemDto.discountedPrice,
-            sizes: sizesString,
-          });
+        // for (const cartItemDto of orderForShop.cartItems) {
+        //   const sizesString = cartItemDto.sizes
+        //     .map((size) => `${size.sizeId}:${size.quantity}`)
+        //     .join(',');
 
-          await this.orderItemRepository.save(orderItemEntity);
-        }
+        //   const orderItemEntity = this.orderItemRepository.create({
+        //     quantity: cartItemDto.quantity,
+        //     version_id: cartItemDto.versionId,
+        //     discountedPrice: cartItemDto.discountedPrice,
+        //     sizes: sizesString,
+        //   });
+
+        await this.orderItemRepository.save(orderItemEntity);
       }
 
       // order.service.ts
       orders.push(createdOrder);
     }
+
+    // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
+    // const cart = await this.cartRepository.findOne({
+    //   where: { user_id: user.id },
+    //   relations: ['cart_items'],
+    // });
+    // if (cart) {
+    //   await this.cartItemRepository.remove(cart.cart_items);
+    // }
 
     return orders;
   }
