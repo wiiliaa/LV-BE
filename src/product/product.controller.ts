@@ -26,14 +26,14 @@ import { Product } from './entities/product.entity';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get('byCategory/:categoryId')
-  async findProductsByCategory(@Param('categoryId') categoryId: number) {
-    const products = await this.productService.findProductsByCategory(
-      categoryId,
-    );
+  // @Get('byCategory/:categoryId')
+  // async findProductsByCategory(@Param('categoryId') categoryId: number) {
+  //   const products = await this.productService.findProductsByCategory(
+  //     categoryId,
+  //   );
 
-    return products;
-  }
+  //   return products;
+  // }
 
   @Get('byCategoryName/:name')
   async findProductsByCategoryName(@Param('name') name: string) {
