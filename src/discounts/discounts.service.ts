@@ -14,6 +14,7 @@ import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
 import { Product } from 'src/product/entities/product.entity';
+import { UserAuthResponse } from 'pusher';
 
 @Injectable()
 export class DiscountsService {
@@ -24,14 +25,8 @@ export class DiscountsService {
     private imageService: ImageService,
   ) {}
 
-  async findAllByShop(user: User, shopId: number): Promise<Discount[]> {
-    const discounts = await this.discountRepository.find({
-      where: {
-        shop: {
-          id: shopId,
-        },
-      },
-    });
+  async findAll(): Promise<Discount[]> {
+    const discounts = await this.discountRepository.find();
 
     const discountsWithImages: Discount[] = await Promise.all(
       discounts.map(async (discount) => {

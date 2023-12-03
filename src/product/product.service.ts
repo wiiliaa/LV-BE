@@ -6,7 +6,7 @@ import {
 import * as fs from 'fs';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { User } from 'src/user/entities/user.entity';
@@ -88,27 +88,46 @@ export class ProductService {
 
     throw new InternalServerErrorException(`Bạn không có quyền`);
   }
+  async findAll(
+    page: number = 1,
+    pageSize: number = 8,
+    searchTerm?: string,
+  ): Promise<{ products: Product[]; total: number }> {
+    try {
+      const skip = (page - 1) * pageSize;
+      const take = pageSize;
 
-  async findAll(): Promise<Product[]> {
-    // Lấy danh sách sản phẩm từ cơ sở dữ liệu
-    const products = await this.productRepository.find();
+      const [products, total] = await this.productRepository.findAndCount({
+        skip,
+        take,
+        where: searchTerm
+          ? [
+              { name: Like(`%${searchTerm}%`) },
+              { description: Like(`%${searchTerm}%`) },
+            ]
+          : {},
+      });
 
-    // Duyệt qua từng sản phẩm và thêm thông tin ảnh
-    const productsWithImages: Product[] = await Promise.all(
-      products.map(async (product) => {
-        // Lấy thông tin ảnh từ imageService
-        const image = await this.imageService.getImage(product.image);
-        await this.updateDiscountedPrice(product.id);
-        // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
-        return {
-          ...product,
-          image,
-        } as Product;
-      }),
-    );
+      if (total === 0) {
+        throw new NotFoundException('No products found.');
+      }
 
-    // Trả về danh sách sản phẩm với thông tin ảnh
-    return productsWithImages;
+      const productsWithImages: Product[] = await Promise.all(
+        products.map(async (product) => {
+          await this.updateDiscountedPrice(product.id);
+          const image = await this.imageService.getImage(product.image);
+          return {
+            ...product,
+            image,
+          } as Product;
+        }),
+      );
+
+      return { products: productsWithImages, total };
+    } catch (error) {
+      console.error('Error retrieving products:', error);
+      throw new NotFoundException('Error retrieving products');
+    }
   }
 
   async findById(id: number) {
