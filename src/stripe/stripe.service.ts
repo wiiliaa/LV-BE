@@ -8,7 +8,8 @@ export class StripeService {
 
   async checkout(orderId: number, res: Response) {
     const findShopid = await this.orderService.findShopByOrderId(orderId);
-    const stripe = require('stripe')(await findShopid.shop_payment);
+    const a = await findShopid.shop_payment;
+    const stripe = require('stripe')(a);
 
     const order = await this.orderService.findId(orderId);
     if (!order || !order.order_items) {
