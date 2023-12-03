@@ -189,9 +189,9 @@ export class ProductController {
     return { products, total };
   }
 
-  @Get('/byCategory')
+  @Get('/byCategory/:categoryId')
   async findProductsByCategoryPage(
-    @Query('categoryId') categoryId: number,
+    @Param('categoryId') categoryId: number,
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
   ) {
