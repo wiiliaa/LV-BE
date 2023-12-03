@@ -19,14 +19,15 @@ import { CreateOrderDto } from './dto/create-order.dto';
 @ApiTags('Order')
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) { }
 
   @Post('createOrder')
   @UseGuards(AuthGuard('jwt')) // Sử dụng Guard nếu cần xác thực người dùng
   async createOrder(
     @GetUser() user: User,
-    @Body() createOrderDto: CreateOrderDto[],
+    @Body() createOrderDto: CreateOrderDto,
   ) {
+    console.log("-----------createOrderDto", createOrderDto);
     const order = await this.orderService.order(user, createOrderDto);
 
     return order;

@@ -23,7 +23,7 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-  ) {}
+  ) { }
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
   //   const order = this.orderRepository.create({
@@ -54,55 +54,62 @@ export class OrderService {
 
   //   return createdOrder;
   // }
-  async order(user: User, createOrderDtos: CreateOrderDto[]): Promise<Order[]> {
+  async order(user: User, createOrderDtos: CreateOrderDto): Promise<Order[]> {
     const orders: Order[] = [];
 
-    const uniqueShopIds = Array.from(
-      new Set(createOrderDtos.map((orderDto) => orderDto.shopId)),
-    );
+    // const uniqueShopIds = Array.from(
+    //   new Set(createOrderDtos.cartItems.map((orderDto) => orderDto.shopId)),
+    // );
 
-    for (const currentShopId of uniqueShopIds) {
-      const ordersForShop = createOrderDtos.filter(
-        (order) => order.shopId === currentShopId,
-      );
+    for (const currentShopItem of createOrderDtos.cartItems) {
+      // const ordersForShop = createOrderDtos.cartItems.filter(
+      //   (order) => order.shopId === currentShopId,
+      // );
 
-      const orderTotal = ordersForShop.reduce((total, order) => {
-        return (
-          total +
-          order.cartItems.reduce((subtotal, item) => {
-            return subtotal + item.discountedPrice * item.quantity;
-          }, 0)
-        );
-      }, 0);
+      // const orderTotal = ordersForShop.reduce((total, order) => {
+      //   return (
+      //     total +
+      //     order.cartItems.reduce((subtotal, item) => {
+      //       return subtotal + item.discountedPrice * item.quantity;
+      //     }, 0)
+      //   );
+      // }, 0);
 
       const orderEntity = this.orderRepository.create({
         user: { id: user.id },
-        total: orderTotal,
-        shopId: currentShopId,
+        total: currentShopItem.totalPrice,
+        shopId: currentShopItem.shopId,
       });
 
       const createdOrder = await this.orderRepository.save(orderEntity);
 
-      for (const orderForShop of ordersForShop) {
-        for (const cartItemDto of orderForShop.cartItems) {
-          const sizesString = cartItemDto.sizes
-            .map((size) => `${size.sizeId}:${size.quantity}`)
-            .join(',');
+      for (const versionItem of currentShopItem.Versions) {
+        const orderItemEntity = this.orderItemRepository.create({
+          quantity: versionItem.quantity,
+          version_id: versionItem.versionId,
+          discountedPrice: versionItem.sellingPrice,
+          sizeId: versionItem.sizeId,
+        });
 
-          const orderItemEntity = this.orderItemRepository.create({
-            quantity: cartItemDto.quantity,
-            version_id: cartItemDto.versionId,
-            discountedPrice: cartItemDto.discountedPrice,
-            sizes: sizesString,
-          });
+        // for (const cartItemDto of orderForShop.cartItems) {
+        //   const sizesString = cartItemDto.sizes
+        //     .map((size) => `${size.sizeId}:${size.quantity}`)
+        //     .join(',');
 
-          await this.orderItemRepository.save(orderItemEntity);
-        }
+        //   const orderItemEntity = this.orderItemRepository.create({
+        //     quantity: cartItemDto.quantity,
+        //     version_id: cartItemDto.versionId,
+        //     discountedPrice: cartItemDto.discountedPrice,
+        //     sizes: sizesString,
+        //   });
+
+        await this.orderItemRepository.save(orderItemEntity);
       }
-
-      // order.service.ts
-      orders.push(createdOrder);
     }
+
+    // order.service.ts
+    orders.push(createdOrder);
+  }
 
     // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
     // const cart = await this.cartRepository.findOne({
@@ -116,178 +123,178 @@ export class OrderService {
     return orders;
   }
 
-  async updateOrderStatus(orderId: number, status: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId },
-    });
+  async updateOrderStatus(orderId: number, status: string): Promise < Order > {
+  const order = await this.orderRepository.findOne({
+    where: { id: orderId },
+  });
 
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} not found.`);
-    }
-
-    if (order.status !== 'pending') {
-      throw new NotFoundException(
-        `Order with ID ${orderId} cannot be updated.`,
-      );
-    }
-    order.status = status;
-    await this.orderRepository.save(order);
-
-    return order;
+  if(!order) {
+    throw new NotFoundException(`Order with ID ${orderId} not found.`);
   }
 
-  async findOrdersByShop(shopId: number): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: {
-        shopId: shopId,
-      },
-    });
+    if(order.status !== 'pending') {
+  throw new NotFoundException(
+    `Order with ID ${orderId} cannot be updated.`,
+  );
+}
+order.status = status;
+await this.orderRepository.save(order);
 
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for shop with ID ${shopId}.`,
-      );
-    }
-
-    return orders;
+return order;
   }
 
-  async myOrder(user: User): Promise<Order[]> {
-    if (!user) {
-      throw new NotFoundException('User not provided.');
-    }
+  async findOrdersByShop(shopId: number): Promise < Order[] > {
+  const orders = await this.orderRepository.find({
+    where: {
+      shopId: shopId,
+    },
+  });
+
+  if(!orders.length) {
+  throw new NotFoundException(
+    `No orders found for shop with ID ${shopId}.`,
+  );
+}
+
+return orders;
+  }
+
+  async myOrder(user: User): Promise < Order[] > {
+  if(!user) {
+    throw new NotFoundException('User not provided.');
+  }
 
     const orders = await this.orderRepository.find({
-      where: {
-        user_id: user.id,
-      },
-    });
+    where: {
+      user_id: user.id,
+    },
+  });
 
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for user with ID ${user.id}.`,
-      );
-    }
+  if(!orders.length) {
+  throw new NotFoundException(
+    `No orders found for user with ID ${user.id}.`,
+  );
+}
 
-    return orders;
+return orders;
   }
 
   async findOrdersByUserAndStatus(
-    user: User,
-    status: string,
-  ): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: {
-        user_id: user.id,
-        status: status,
-      },
-      relations: [
-        'shop',
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
-    });
+  user: User,
+  status: string,
+): Promise < Order[] > {
+  const orders = await this.orderRepository.find({
+    where: {
+      user_id: user.id,
+      status: status,
+    },
+    relations: [
+      'shop',
+      'order_items',
+      'order_items.version',
+      'order_items.version.product',
+    ],
+  });
 
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for user with ID ${user.id} and status '${status}'.`,
-      );
-    }
+  if(!orders.length) {
+  throw new NotFoundException(
+    `No orders found for user with ID ${user.id} and status '${status}'.`,
+  );
+}
 
-    return orders;
+return orders;
   }
 
-  async orderDetail(user: User, orderId: number): Promise<Order> {
-    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId, user_id: user.id },
-      relations: ['shop', 'order_items', 'order_items.version'],
-    });
+  async orderDetail(user: User, orderId: number): Promise < Order > {
+  // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+  const order = await this.orderRepository.findOne({
+    where: { id: orderId, user_id: user.id },
+    relations: ['shop', 'order_items', 'order_items.version'],
+  });
 
-    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} not found.`);
-    }
+  // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+  if(!order) {
+    throw new NotFoundException(`Order with ID ${orderId} not found.`);
+  }
 
     return order;
+}
+
+  async orderDetailForShop(user: User, orderId: number): Promise < Order > {
+  // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+  const order = await this.orderRepository.findOne({
+    where: { id: orderId, shopId: user.shop_id },
+    relations: [
+      'order_items',
+      'order_items.version',
+      'order_items.version.product',
+    ],
+  });
+
+  // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+  if(!order) {
+    throw new NotFoundException(`Order with ID ${orderId} not found.`);
   }
-
-  async orderDetailForShop(user: User, orderId: number): Promise<Order> {
-    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId, shopId: user.shop_id },
-      relations: [
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
-    });
-
-    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} not found.`);
-    }
 
     // Kiểm tra xem đơn hàng có thuộc về cửa hàng của người dùng không
-    if (order.shopId !== user.shop_id) {
-      throw new UnauthorizedException(
-        `You don't have permission to view this order.`,
-      );
-    }
+    if(order.shopId !== user.shop_id) {
+  throw new UnauthorizedException(
+    `You don't have permission to view this order.`,
+  );
+}
 
-    return order;
+return order;
   }
 
   async findOrdersByShopAndStatus(
-    user: User,
-    status: string,
-  ): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: {
-        shopId: user.shop_id,
-        status: status,
-      },
-      relations: [
-        'user',
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
-    });
+  user: User,
+  status: string,
+): Promise < Order[] > {
+  const orders = await this.orderRepository.find({
+    where: {
+      shopId: user.shop_id,
+      status: status,
+    },
+    relations: [
+      'user',
+      'order_items',
+      'order_items.version',
+      'order_items.version.product',
+    ],
+  });
 
-    // Nếu không có đơn hàng nào thỏa mãn, ném một NotFoundException
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for shop with status '${status}'.`,
-      );
-    }
+  // Nếu không có đơn hàng nào thỏa mãn, ném một NotFoundException
+  if(!orders.length) {
+  throw new NotFoundException(
+    `No orders found for shop with status '${status}'.`,
+  );
+}
 
-    return orders;
+return orders;
   }
   async findId(id: number) {
-    const result = await this.orderRepository.findOne({
-      where: { id },
-      relations: [
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
-    });
+  const result = await this.orderRepository.findOne({
+    where: { id },
+    relations: [
+      'order_items',
+      'order_items.version',
+      'order_items.version.product',
+    ],
+  });
 
-    return result;
-  }
+  return result;
+}
 
-  async findAllOrdersForUser(userId: number): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      where: { user_id: userId },
-      relations: [
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
-    });
+  async findAllOrdersForUser(userId: number): Promise < Order[] > {
+  const orders = await this.orderRepository.find({
+    where: { user_id: userId },
+    relations: [
+      'order_items',
+      'order_items.version',
+      'order_items.version.product',
+    ],
+  });
 
-    return orders;
-  }
+  return orders;
+}
 }
