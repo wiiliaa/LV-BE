@@ -657,7 +657,7 @@ export class ProductService {
 
   async findAllPage(
     page: number = 1, // Default to page 1 if not provided
-    pageSize: number = 10, // Default to a page size of 10 if not provided
+    pageSize: number = 8, // Default to a page size of 10 if not provided
   ): Promise<Product[]> {
     try {
       const skip = (page - 1) * pageSize;
