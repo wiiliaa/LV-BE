@@ -19,7 +19,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 @ApiTags('Order')
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService) {}
 
   @Post('createOrder')
   @UseGuards(AuthGuard('jwt')) // Sử dụng Guard nếu cần xác thực người dùng
@@ -27,11 +27,11 @@ export class OrderController {
     @GetUser() user: User,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    console.log("-----------createOrderDto", createOrderDto);
     const order = await this.orderService.order(user, createOrderDto);
 
     return order;
   }
+
   @Put('status/:id')
   updateOrderStatus(
     @Param('id') orderId: number,
@@ -47,7 +47,7 @@ export class OrderController {
 
   @Get('myOrder')
   @UseGuards(AuthGuard('jwt'))
-  findOrdersByUser(@GetUser() user: User): Promise<Order[]> {
+  findOrdersByUser(@GetUser() user: User) {
     return this.orderService.myOrder(user);
   }
 
@@ -84,7 +84,7 @@ export class OrderController {
   async findOrdersByShopAndStatus(
     @GetUser() user: User, // Sử dụng decorator để lấy thông tin người dùng từ token
     @Param('status') status: string,
-  ): Promise<Order[]> {
+  ) {
     return this.orderService.findOrdersByShopAndStatus(user, status);
   }
 
