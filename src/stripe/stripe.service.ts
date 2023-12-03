@@ -7,7 +7,7 @@ const stripe = require('stripe')(
 );
 @Injectable()
 export class StripeService {
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService) { }
 
   async checkout(orderId: number, res: Response) {
     // Tìm order dựa trên orderId từ OrderService hoặc từ cơ sở dữ liệu của bạn
@@ -31,9 +31,9 @@ export class StripeService {
       payment_intent_data: {
         setup_future_usage: 'on_session',
       },
-      customer: 'cus_P6kG8rMlCGPOSm',
+      customer: 'cus_P7MRva6pDlIcHf',
       success_url:
-        'http://localhost:3456/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}',
+        'http://localhost:3000',
       cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
     });
 
@@ -48,5 +48,5 @@ export class StripeService {
     console.log(billing_detail, session);
   }
 
-  async Failedpayment(session_id: any) {}
+  async Failedpayment(session_id: any) { }
 }

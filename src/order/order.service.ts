@@ -23,7 +23,7 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-  ) {}
+  ) { }
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
   //   const order = this.orderRepository.create({
@@ -55,25 +55,7 @@ export class OrderService {
   //   return createdOrder;
   // }
   async order(user: User, createOrderDtos: CreateOrderDto) {
-    const orders: Order[] = [];
-
-    // const uniqueShopIds = Array.from(
-    //   new Set(createOrderDtos.cartItems.map((orderDto) => orderDto.shopId)),
-    // );
-
     for (const currentShopItem of createOrderDtos.cartItems) {
-      // const ordersForShop = createOrderDtos.cartItems.filter(
-      //   (order) => order.shopId === currentShopId,
-      // );
-
-      // const orderTotal = ordersForShop.reduce((total, order) => {
-      //   return (
-      //     total +
-      //     order.cartItems.reduce((subtotal, item) => {
-      //       return subtotal + item.discountedPrice * item.quantity;
-      //     }, 0)
-      //   );
-      // }, 0);
 
       const orderEntity = this.orderRepository.create({
         user: { id: user.id },
@@ -87,27 +69,12 @@ export class OrderService {
         const orderItemEntity = this.orderItemRepository.create({
           quantity: versionItem.quantity,
           version_id: versionItem.versionId,
+          order_id: createdOrder.id,
           discountedPrice: versionItem.sellingPrice,
-          sizeIds: versionItem.sizeId,
+          sizeId: versionItem.sizeId,
         });
-
-        // for (const cartItemDto of orderForShop.cartItems) {
-        //   const sizesString = cartItemDto.sizes
-        //     .map((size) => `${size.sizeId}:${size.quantity}`)
-        //     .join(',');
-
-        //   const orderItemEntity = this.orderItemRepository.create({
-        //     quantity: cartItemDto.quantity,
-        //     version_id: cartItemDto.versionId,
-        //     discountedPrice: cartItemDto.discountedPrice,
-        //     sizes: sizesString,
-        //   });
-
         await this.orderItemRepository.save(orderItemEntity);
       }
-
-      // order.service.ts
-      orders.push(createdOrder);
     }
 
     // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
@@ -119,7 +86,7 @@ export class OrderService {
     //   await this.cartItemRepository.remove(cart.cart_items);
     // }
 
-    return orders;
+    return { message: 'success' };
   }
 
   async updateOrderStatus(orderId: number, status: string): Promise<Order> {
