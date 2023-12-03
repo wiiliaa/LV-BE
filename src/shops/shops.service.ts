@@ -15,6 +15,7 @@ import { User } from 'src/user/entities/user.entity';
 import { ImageService } from 'src/image/image.service';
 import { promisify } from 'util';
 import * as fs from 'fs';
+import { join } from 'path';
 @Injectable()
 export class ShopService {
   constructor(
@@ -98,14 +99,60 @@ export class ShopService {
     }
   }
 
-  async update(id: number, updateShopDto: UpdateShopDto): Promise<Shop> {
-    const shop = await this.shopRepository.findOne({ where: { id } });
-    if (!shop) {
-      throw new NotFoundException(`Shop with id ${id} not found.`);
-    }
-    this.shopRepository.merge(shop, updateShopDto);
+  async update(
+    id: number,
+    updateShopDto: UpdateShopDto,
+  ): Promise<{ success: boolean }> {
+    const existsSync = fs.existsSync;
+    const unlinkAsync = promisify(fs.unlink);
+    const writeFileAsync = promisify(fs.writeFile);
 
-    return await this.shopRepository.save(shop);
+    try {
+      const shopToUpdate = await this.shopRepository.findOne({
+        where: { id: id },
+      });
+
+      if (!shopToUpdate) {
+        throw new NotFoundException('Shop not found');
+      }
+
+      // If a new avatar is provided in the DTO, perform the update
+      if (updateShopDto.avatar) {
+        // Check if there is an old avatar
+        if (shopToUpdate.avatar) {
+          const oldImagePath = join('public/uploads/', shopToUpdate.avatar);
+
+          // If the old file exists, delete it
+          if (existsSync(oldImagePath)) {
+            await unlinkAsync(oldImagePath);
+          }
+        }
+
+        // Use the shop name as part of the file name (adjust as needed)
+        const fileName = `${shopToUpdate.name}-avatar.txt`;
+        const filePath = join('public/uploads/', fileName);
+
+        // Save the new avatar to the text file
+        await writeFileAsync(filePath, updateShopDto.avatar);
+        updateShopDto.avatar = fileName;
+      }
+
+      const updateResult = await this.shopRepository
+        .createQueryBuilder('shop')
+        .update(Shop)
+        .set(updateShopDto)
+        .where('id = :id', { id: id })
+        .execute();
+
+      if (updateResult.affected && updateResult.affected > 0) {
+        return { success: true };
+      } else {
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      throw new InternalServerErrorException('Error updating shop');
+    }
   }
 
   async findOne(id: number) {

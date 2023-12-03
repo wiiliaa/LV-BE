@@ -160,13 +160,19 @@ export class ProductService {
     return productsWithImages;
   }
 
-  async filterProducts(user: User, filter: string): Promise<Product[]> {
+  async filterProducts(filter: string): Promise<Product[]> {
     const filteredProducts = await this.productRepository
       .createQueryBuilder('product')
-      .where('product.name LIKE :filter', { filter: `${filter}` })
-      .orWhere('product.description LIKE :filter', { filter: `${filter}` })
+      .leftJoinAndSelect('product.versions', 'version')
+      .leftJoinAndSelect('product.sizes', 'size')
+      .leftJoinAndSelect('product.shop', 'shop')
+      .where('product.name LIKE :filter', { filter: `%${filter}%` })
+      .orWhere('product.description LIKE :filter', { filter: `%${filter}%` })
+      .orWhere('version.color LIKE :filter', { filter: `%${filter}%` })
+      .orWhere('size.name LIKE :filter', { filter: `%${filter}%` })
+      .orWhere('shop.name LIKE :filter', { filter: `%${filter}%` })
       .getMany();
-    await this.searchKeywordService.createKeyword(user, filter);
+
     return filteredProducts;
   }
 

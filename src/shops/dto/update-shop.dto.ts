@@ -12,4 +12,7 @@ export class UpdateShopDto {
 
   @IsOptional()
   address: string;
+
+  @IsOptional()
+  avatar: string;
 }

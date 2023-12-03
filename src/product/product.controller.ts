@@ -22,7 +22,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @ApiTags('Product')
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly productService: ProductService) {}
 
   @Get('byCategory/:categoryId')
   async findProductsByCategory(@Param('categoryId') categoryId: number) {
@@ -74,8 +74,8 @@ export class ProductController {
   }
 
   @Get('/search/:filter')
-  filterProducts(@GetUser() user: User, @Param('filter') filter: string) {
-    return this.productService.filterProducts(user, filter);
+  filterProducts(@Param('filter') filter: string) {
+    return this.productService.filterProducts(filter);
   }
 
   @Get('/shop/:id/all')

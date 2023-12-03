@@ -53,11 +53,8 @@ export class ShopController {
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateShopDto: UpdateShopDto,
-  ): Promise<Shop> {
-    return this.shopService.update(+id, updateShopDto);
+  update(@Param('id') id: number, @Body() updateShopDto: UpdateShopDto) {
+    return this.shopService.update(id, updateShopDto);
   }
 
   @Delete(':id')
