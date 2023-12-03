@@ -20,6 +20,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/entities/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { Product } from './entities/product.entity';
 @ApiTags('Product')
 @Controller('products')
 export class ProductController {
@@ -174,13 +175,18 @@ export class ProductController {
     }
   }
 
-  @Get('/getAll')
+  @Get()
   async findAll(
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
-  ) {
-    const products = await this.productService.findAllPage(page, pageSize);
-    return products;
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
+    @Query('searchTerm') searchTerm?: string,
+  ): Promise<{ products: Product[]; total: number }> {
+    const { products, total } = await this.productService.findAll(
+      page,
+      pageSize,
+      searchTerm,
+    );
+    return { products, total };
   }
 
   @Get('/byCategory')

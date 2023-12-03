@@ -48,6 +48,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   address: string;
 
+  @Column({ nullable: true })
+  payment: string;
+
   @OneToMany(() => SearchKeyword, (searchKeyword) => searchKeyword.user)
   searchKeywords: SearchKeyword[];
 
