@@ -104,15 +104,6 @@ export class OrderService {
       orders.push(createdOrder);
     }
 
-    // Xóa các mục giỏ hàng sau khi đã tạo đơn hàng
-    // const cart = await this.cartRepository.findOne({
-    //   where: { user_id: user.id },
-    //   relations: ['cart_items'],
-    // });
-    // if (cart) {
-    //   await this.cartItemRepository.remove(cart.cart_items);
-    // }
-
     return orders;
   }
 
