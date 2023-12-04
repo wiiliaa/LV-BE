@@ -133,12 +133,32 @@ export class OrderService {
 
     return order;
   }
+  async findUserNameByOrderId(orderId: number): Promise<string> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
 
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+    }
+
+    const user = order.user;
+
+    if (!user) {
+      throw new NotFoundException(
+        `User not found for order with ID ${orderId}.`,
+      );
+    }
+
+    return user.name;
+  }
   async findOrdersByShop(shopId: number): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: {
         shopId: shopId,
       },
+      relations: ['user', 'order_items', 'order_items.version'],
     });
 
     if (!orders.length) {
@@ -147,8 +167,15 @@ export class OrderService {
       );
     }
 
-    return orders;
+    // Map over the orders and modify each order to include userName
+    const ordersWithUserName = orders.map((order) => {
+      order.username = order.user.name;
+      return order;
+    });
+
+    return ordersWithUserName;
   }
+
   async myOrder(user: User): Promise<
     {
       orderId: number;
