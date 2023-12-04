@@ -36,6 +36,8 @@ export class Order extends BaseEntity {
   @Column({ nullable: true })
   user_id: number;
 
+  @Column({ nullable: true })
+  username: string;
   @ManyToOne(() => Shop, (shop) => shop.orders)
   @JoinColumn({
     name: 'shopId',

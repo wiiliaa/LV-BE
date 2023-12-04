@@ -133,12 +133,32 @@ export class OrderService {
 
     return order;
   }
+  async findUserNameByOrderId(orderId: number): Promise<string> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
 
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+    }
+
+    const user = order.user;
+
+    if (!user) {
+      throw new NotFoundException(
+        `User not found for order with ID ${orderId}.`,
+      );
+    }
+
+    return user.name;
+  }
   async findOrdersByShop(shopId: number): Promise<Order[]> {
     const orders = await this.orderRepository.find({
       where: {
         shopId: shopId,
       },
+      relations: ['user', 'order_items', 'order_items.version'],
     });
 
     if (!orders.length) {
@@ -147,43 +167,53 @@ export class OrderService {
       );
     }
 
-    return orders;
+    // Map over the orders and modify each order to include userName
+    const ordersWithUserName = orders.map((order) => {
+      order.username = order.user.name;
+      return order;
+    });
+
+    return ordersWithUserName;
   }
-  async myOrder(user: User): Promise<{
-    orderId: number;
-    total: number;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    shop: string;
-  }> {
+
+  async myOrder(user: User): Promise<
+    {
+      orderId: number;
+      total: number;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+      shop: string;
+    }[]
+  > {
     if (!user) {
       throw new NotFoundException('User not provided.');
     }
 
-    const order = await this.orderRepository
+    const orders = await this.orderRepository
       .createQueryBuilder('order')
-      .innerJoinAndSelect('order.shop', 'shop') // Thiết lập mối quan hệ với mô hình Shop
+      .innerJoinAndSelect('order.shop', 'shop')
       .where('order.user_id = :userId', { userId: user.id })
-      .getOne();
+      .getMany();
 
-    if (!order) {
+    if (!orders || orders.length === 0) {
       throw new NotFoundException(
         `No orders found for user with ID ${user.id}.`,
       );
     }
 
-    const result = {
+    const result = orders.map((order) => ({
       orderId: order.id,
       total: order.total,
       status: order.status,
       createdAt: order.created_at.toISOString(),
       updatedAt: order.updated_at.toISOString(),
       shop: order.shop.name,
-    };
+    }));
 
     return result;
   }
+
   async findOrdersByUserAndStatus(
     user: User,
     status: string,

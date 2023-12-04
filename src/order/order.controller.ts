@@ -41,7 +41,7 @@ export class OrderController {
   }
 
   @Get('shop/:shopId')
-  findOrdersByShop(@Param('shopId') shopId: number): Promise<Order[]> {
+  findOrdersByShop(@Param('shopId') shopId: number) {
     return this.orderService.findOrdersByShop(shopId);
   }
 
