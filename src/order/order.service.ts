@@ -263,6 +263,7 @@ export class OrderService {
         'order_items',
         'order_items.version',
         'order_items.version.product',
+        'order_items.version.product.discounts',
       ],
     });
 

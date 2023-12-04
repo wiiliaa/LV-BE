@@ -134,7 +134,7 @@ export class ProductService {
   async findById(id: number) {
     const res = await this.productRepository.findOne({
       where: { id },
-      relations: ['categories', 'versions', 'versions.sizes'], // Add 'versions.image' to load version images
+      relations: ['categories', 'versions', 'versions.sizes', 'discount'], // Add 'versions.image' to load version images
     });
 
     if (!res) {
