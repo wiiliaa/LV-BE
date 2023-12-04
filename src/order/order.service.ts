@@ -12,6 +12,9 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { ProductSize } from 'src/product_size/entities/product_size.entity';
+import { Image } from 'src/image/entities/image.entity';
+import { ImageService } from 'src/image/image.service';
+import { ProductVersion } from 'src/product-version/entities/product-version.entity';
 
 @Injectable()
 export class OrderService {
@@ -26,6 +29,7 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(ProductSize)
     private readonly sizeRepository: Repository<ProductSize>,
+    private image: ImageService,
   ) {}
   // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
   //   const shop = await createOrderDto.cartItems[0].shopId;
@@ -239,20 +243,44 @@ export class OrderService {
 
     return orders;
   }
-
   async orderDetail(user: User, orderId: number): Promise<Order> {
-    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId, user_id: user.id },
-      relations: ['shop', 'order_items', 'order_items.version'],
-    });
+    try {
+      // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+      const order = await this.orderRepository.findOne({
+        where: { id: orderId, user_id: user.id },
+        relations: [
+          'shop',
+          'order_items',
+          'order_items.version',
+          'order_items.version.product', // Thêm mối quan hệ đến sản phẩm của version
+        ],
+      });
 
-    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} not found.`);
+      // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${orderId} not found.`);
+      }
+
+      // Load hình cho các version trong đơn hàng
+      const versionsWithImages = await Promise.all(
+        order.order_items.map(async (orderItem) => {
+          const version = orderItem.version;
+          const versionImage = await this.image.getImage(version.product.image);
+          return { ...version, image: versionImage };
+        }),
+      );
+
+      // Cập nhật order với các version có hình
+      order.order_items.forEach((orderItem, index) => {
+        orderItem.version = new ProductVersion();
+        Object.assign(orderItem.version, versionsWithImages[index]);
+      });
+
+      return order;
+    } catch (error) {
+      // Xử lý lỗi nếu cần thiết
+      throw new Error(`Error retrieving order details: ${error.message}`);
     }
-
-    return order;
   }
 
   async orderDetailForShop(user: User, orderId: number): Promise<Order> {
@@ -263,6 +291,7 @@ export class OrderService {
         'order_items',
         'order_items.version',
         'order_items.version.product',
+        'order_items.version.product.discounts',
       ],
     });
 
