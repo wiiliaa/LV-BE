@@ -149,41 +149,44 @@ export class OrderService {
 
     return orders;
   }
-  async myOrder(user: User): Promise<{
-    orderId: number;
-    total: number;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-    shop: string;
-  }> {
+  async myOrder(user: User): Promise<
+    {
+      orderId: number;
+      total: number;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+      shop: string;
+    }[]
+  > {
     if (!user) {
       throw new NotFoundException('User not provided.');
     }
 
-    const order = await this.orderRepository
+    const orders = await this.orderRepository
       .createQueryBuilder('order')
-      .innerJoinAndSelect('order.shop', 'shop') // Thiết lập mối quan hệ với mô hình Shop
+      .innerJoinAndSelect('order.shop', 'shop')
       .where('order.user_id = :userId', { userId: user.id })
-      .getOne();
+      .getMany();
 
-    if (!order) {
+    if (!orders || orders.length === 0) {
       throw new NotFoundException(
         `No orders found for user with ID ${user.id}.`,
       );
     }
 
-    const result = {
+    const result = orders.map((order) => ({
       orderId: order.id,
       total: order.total,
       status: order.status,
       createdAt: order.created_at.toISOString(),
       updatedAt: order.updated_at.toISOString(),
       shop: order.shop.name,
-    };
+    }));
 
     return result;
   }
+
   async findOrdersByUserAndStatus(
     user: User,
     status: string,
