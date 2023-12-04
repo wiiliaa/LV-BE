@@ -287,15 +287,9 @@ export class OrderService {
         shopId: user.shop_id,
         status: status,
       },
-      relations: [
-        'user',
-        'order_items',
-        'order_items.version',
-        'order_items.version.product',
-      ],
+      relations: ['user'],
     });
 
-    // Nếu không có đơn hàng nào thỏa mãn, ném một NotFoundException
     if (!orders.length) {
       throw new NotFoundException(
         `No orders found for shop with status '${status}'.`,
@@ -303,13 +297,19 @@ export class OrderService {
     }
 
     const ordersWithUserName = orders.map((order) => ({
-      order,
-      Name: order.user.name,
+      order: {
+        id: order.id,
+        total: order.total,
+        username: order.user.name,
+        // Include other fields here as needed
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        // Add other fields above as needed
+      },
     }));
 
     return ordersWithUserName;
   }
-
   async findId(id: number) {
     const result = await this.orderRepository.findOne({
       where: { id },
