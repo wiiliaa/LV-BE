@@ -18,11 +18,11 @@ import { User } from 'src/user/entities/user.entity';
 @Controller('discounts')
 export class DiscountsController {
   constructor(private readonly discountsService: DiscountsService) {}
-  // @Get('/shop/:id/all')
-  // @UseGuards(AuthGuard('jwt'))
-  // async find(@GetUser() user: User, @Param('id') shopId: number) {
-  //   return this.discountsService.findAll();
-  // }
+  @Get('/shop/:id/all')
+  @UseGuards(AuthGuard('jwt'))
+  async find(@GetUser() user: User, @Param('id') shopId: number) {
+    return this.discountsService.findAll();
+  }
 
   @Get('/detail/:id')
   async findOne(@Param('id') id: number) {
