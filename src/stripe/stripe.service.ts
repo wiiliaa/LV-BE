@@ -6,24 +6,26 @@ import { Response } from 'express';
 export class StripeService {
   constructor(private orderService: OrderService) {}
 
-  async checkout(orderId: number, res: Response) {
+  async checkout(orderId: number, ab: string, res: Response) {
     const findShopid = await this.orderService.findShopByOrderId(orderId);
     const a = await findShopid.shop_payment;
-    const stripe = require('stripe')(a);
+    const stripe = require('stripe')(
+      'sk_test_51O8Gv7IHrHSi5RteLXMGDZPC0rX3ZgYlJQXImFOpgDvi0qSDdlR1Vk38phyrZNv3Jcqluhn99nrz91gFUevLP1Mz00iqTwdjII',
+    );
 
     const order = await this.orderService.findId(orderId);
-    if (!order || !order.order_items) {
-      throw new NotFoundException('Order not found');
-    }
-
-    const line_items = order.order_items.map((orderItem) => ({
+    const line_items = order.order_items.map((orderItem, index) => ({
       price_data: {
         currency: 'usd',
-        product_data: { name: orderItem.version.color },
-        unit_amount: orderItem.version.product.price * 100,
+        product_data: {
+          name: 'Total',
+        },
+        unit_amount: order.total * 100,
       },
       quantity: orderItem.quantity,
     }));
+    console.log('Order:', order);
+    console.log('Order Items:', order.order_items);
 
     const session = await stripe.checkout.sessions.create({
       line_items,
@@ -31,7 +33,7 @@ export class StripeService {
       payment_intent_data: {
         setup_future_usage: 'on_session',
       },
-      customer: res,
+      customer: ab,
       success_url: 'http://localhost:3000',
       cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
     });

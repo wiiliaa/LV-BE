@@ -7,6 +7,7 @@ import {
   Res,
   Get,
   Param,
+  Query,
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { Order } from 'src/order/entities/order.entity';
@@ -17,8 +18,8 @@ export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   @Get(':id')
-  async checkout(@Param('id') id: number, @Res() res) {
-    return this.stripeService.checkout(id, res);
+  async checkout(@Param('id') id: number, @Query('ab') ab: string, @Res() res) {
+    return this.stripeService.checkout(id, ab, res);
   }
 
   // @Get('/pay/success/checkout/session/:session_id')
