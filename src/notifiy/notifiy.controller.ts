@@ -27,7 +27,7 @@ export class NotifiyController {
     return createdNotification;
   }
 
-  @Get('notify/:userId')
+  @Get(':userId')
   async getAllNotifications(@Param('userId') userId: number) {
     const notifications = await this.notifiyService.getAllNotifications(userId);
 

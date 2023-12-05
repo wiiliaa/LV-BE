@@ -5,7 +5,7 @@ export class CreateDiscountDto {
   name: string;
 
   @IsNumber()
-  limit: number;
+  endDate: Date;
 
   @IsNumber()
   percent: number;

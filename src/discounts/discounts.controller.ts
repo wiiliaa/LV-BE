@@ -77,7 +77,7 @@ export class DiscountsController {
       }
 
       // Sử dụng 'discount' trực tiếp như một đối tượng Discount
-      const expirationDate = new Date(discount.limit);
+      const expirationDate = new Date(discount.endDate);
 
       // Chuyển đổi thời gian sang mili giây và tính số ngày còn lại
       const remainingMilliseconds = expirationDate.getTime() - Date.now();

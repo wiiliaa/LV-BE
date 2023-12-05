@@ -59,7 +59,7 @@ export class DiscountsService {
     if (user.role !== 'seller') {
       throw new NotFoundException('User does not have a shop');
     }
-    const { name, limit, percent, description, image } = createDiscountDto;
+    const { name, endDate, percent, description, image } = createDiscountDto;
     const existingDiscount = await this.discountRepository.findOne({
       where: { name, shop_id: user.shop_id },
     });
@@ -70,7 +70,7 @@ export class DiscountsService {
     const writeFileAsync = promisify(fs.writeFile);
     const discount = this.discountRepository.create({
       name,
-      limit,
+      endDate,
       percent,
       description,
       shop_id: user.shop_id,
@@ -194,7 +194,7 @@ export class DiscountsService {
   ): Promise<{ remainingDays: number }> {
     try {
       // Sử dụng 'id' trực tiếp như một đối tượng Discount
-      const expirationDate = new Date(id.limit);
+      const expirationDate = new Date(id.endDate);
 
       // Chuyển đổi thời gian sang mili giây và tính số ngày còn lại
       const remainingMilliseconds = expirationDate.getTime() - Date.now();
@@ -213,7 +213,7 @@ export class DiscountsService {
   async deleteExpiredDiscounts(): Promise<void> {
     const expiredDiscounts = await this.discountRepository.find({
       where: {
-        limit: LessThan(new Date()), // Tìm các discount hết hạn
+        endDate: LessThan(new Date()), // Tìm các discount hết hạn
       },
       relations: ['product'], // Lấy cả thông tin sản phẩm liên quan
     });
