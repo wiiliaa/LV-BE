@@ -295,7 +295,6 @@ export class OrderService {
 
     return order;
   }
-
   async findOrdersByShopAndStatus(user: User, status: string) {
     const orders = await this.orderRepository.find({
       where: {
@@ -305,21 +304,13 @@ export class OrderService {
       relations: ['user'],
     });
 
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for shop with status '${status}'.`,
-      );
-    }
-
     const ordersWithUserName = orders.map((order) => ({
       order: {
         id: order.id,
         total: order.total,
         username: order.user.name,
-        // Include other fields here as needed
         created_at: order.created_at,
         updated_at: order.updated_at,
-        // Add other fields above as needed
       },
     }));
 
