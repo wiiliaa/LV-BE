@@ -151,10 +151,9 @@ export class OrderService {
       relations: ['user', 'order_items', 'order_items.version'],
     });
 
-    if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for shop with ID ${shopId}.`,
-      );
+    // Check if orders is null or undefined, and return an empty array if true
+    if (!orders) {
+      return [];
     }
 
     // Map over the orders and modify each order to include userName
@@ -186,12 +185,6 @@ export class OrderService {
       .where('order.user_id = :userId', { userId: user.id })
       .getMany();
 
-    if (!orders || orders.length === 0) {
-      throw new NotFoundException(
-        `No orders found for user with ID ${user.id}.`,
-      );
-    }
-
     const result = orders.map((order) => ({
       orderId: order.id,
       total: order.total,
@@ -222,13 +215,13 @@ export class OrderService {
     });
 
     if (!orders.length) {
-      throw new NotFoundException(
-        `No orders found for user with ID ${user.id} and status '${status}'.`,
-      );
+      // Return an empty array instead of throwing NotFoundException
+      return [];
     }
 
     return orders;
   }
+
   async orderDetail(user: User, orderId: number): Promise<Order> {
     try {
       // Tìm đơn hàng theo id và load các mối quan hệ liên quan
@@ -316,6 +309,7 @@ export class OrderService {
 
     return ordersWithUserName;
   }
+
   async findId(id: number) {
     const result = await this.orderRepository.findOne({
       where: { id },
