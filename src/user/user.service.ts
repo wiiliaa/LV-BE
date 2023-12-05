@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-uset.dto';
 import * as bcrypt from 'bcrypt';
 import { join } from 'path';
@@ -190,5 +190,12 @@ export class UserService {
       console.error('Lỗi khi cập nhật người dùng:', error);
       throw new InternalServerErrorException('Lỗi khi cập nhật người dùng');
     }
+  }
+
+  async findNoti(id: number) {
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['categories'],
+    });
   }
 }

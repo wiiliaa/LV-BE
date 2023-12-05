@@ -4,9 +4,11 @@ import { ShopController } from './shops.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Shop } from './entities/shop.entity';
 import { ImageModule } from 'src/image/image.module';
+import { Notifiy } from 'src/notifiy/entities/notifiy.entity';
+import { NotifiyModule } from 'src/notifiy/notifiy.module';
 @Module({
   controllers: [ShopController],
   providers: [ShopService],
-  imports: [TypeOrmModule.forFeature([Shop]), ImageModule],
+  imports: [TypeOrmModule.forFeature([Shop]), ImageModule, NotifiyModule],
 })
 export class ShopsModule {}

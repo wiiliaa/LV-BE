@@ -16,12 +16,14 @@ import { ImageService } from 'src/image/image.service';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import { join } from 'path';
+import { NotifiyService } from 'src/notifiy/notifiy.service';
 @Injectable()
 export class ShopService {
   constructor(
     @InjectRepository(Shop)
     private readonly shopRepository: Repository<Shop>,
     private imageService: ImageService,
+    private noti: NotifiyService,
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
@@ -82,26 +84,42 @@ export class ShopService {
       // Update user role to 'seller'
       shop.user.role = 'seller';
 
-      // Save changes
+      await this.noti.createNotification(
+        shop.user_id,
+        'Shop request accepted successfully',
+      );
       await this.shopRepository.save(shop);
       await shop.user.save();
 
       message = 'Shop request accepted successfully.';
     } else if (status === 'reject') {
-      // Update shop status to 'reject'
-      shop.status = 'reject';
       shop.user.role = 'customer';
-
-      // Save changes
-      await this.shopRepository.save(shop);
-      await shop.user.save();
-
+      await this.deleteShop(shop);
+      await this.noti.createNotification(
+        shop.user_id,
+        'Shop request accepted successfully',
+      );
       message = 'Shop request rejected.';
     } else {
       throw new BadRequestException('Invalid status');
     }
 
     return { shop, message };
+  }
+
+  // New method to delete a shop and associated resources
+  private async deleteShop(shop: Shop): Promise<void> {
+    const existsSync = fs.existsSync;
+    const unlinkAsync = promisify(fs.unlink);
+    if (shop.avatar) {
+      const imagePath = join('public/uploads/', shop.avatar);
+      if (existsSync(imagePath)) {
+        await unlinkAsync(imagePath);
+      }
+    }
+
+    // Remove the shop from the database
+    await this.shopRepository.remove(shop);
   }
 
   async update(
