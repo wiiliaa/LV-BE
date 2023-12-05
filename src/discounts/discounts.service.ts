@@ -3,9 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Param,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import * as fs from 'fs';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { Discount } from './entities/discount.entity';
@@ -184,6 +185,45 @@ export class DiscountsService {
     } catch (error) {
       console.error('Error finding discounts by shop:', error);
       throw new InternalServerErrorException('Error finding discounts by shop');
+    }
+  }
+
+  // Thay đổi kiểu của 'id' từ 'number' sang 'Discount'
+  async getRemainingDays(
+    @Param('id') id: Discount,
+  ): Promise<{ remainingDays: number }> {
+    try {
+      // Sử dụng 'id' trực tiếp như một đối tượng Discount
+      const expirationDate = new Date(id.limit);
+
+      // Chuyển đổi thời gian sang mili giây và tính số ngày còn lại
+      const remainingMilliseconds = expirationDate.getTime() - Date.now();
+      const remainingDays = Math.ceil(
+        remainingMilliseconds / (1000 * 60 * 60 * 24),
+      );
+
+      return { remainingDays };
+    } catch (error) {
+      // Xử lý lỗi và trả về phản hồi
+      console.error('Error getting remaining days:', error);
+      throw new InternalServerErrorException('Error getting remaining days');
+    }
+  }
+
+  async deleteExpiredDiscounts(): Promise<void> {
+    const expiredDiscounts = await this.discountRepository.find({
+      where: {
+        limit: LessThan(new Date()), // Tìm các discount hết hạn
+      },
+      relations: ['product'], // Lấy cả thông tin sản phẩm liên quan
+    });
+
+    for (const discount of expiredDiscounts) {
+      // Xóa discount từ cơ sở dữ liệu
+      await this.discountRepository.remove(discount);
+
+      // Sử dụng ProductService để xóa discount khỏi các sản phẩm liên quan
+      await this.productService.removeDiscountFromProducts(discount.id);
     }
   }
 }
