@@ -93,10 +93,9 @@ export class OrderController {
     return this.orderService.findId(id);
   }
 
-  // @Post('buy-now')
-  // @UseGuards(AuthGuard('jwt'))
-  // async buyNow(@GetUser() user: User, @Body() createOrderDto: CreateOrderDto) {
-  //   const order = await this.orderService.buyNow(user, createOrderDto);
-  //   return order;
-  // }
+  @Patch('/cancel/:id')
+  async cancelOrder(@Param('id') orderId: number) {
+    const result = await this.orderService.cancelOrder(orderId);
+    return { message: result.message };
+  }
 }

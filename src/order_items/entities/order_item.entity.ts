@@ -46,6 +46,9 @@ export class OrderItem extends BaseEntity {
   @Column({ nullable: true })
   sizeId: number;
 
+  @Column({ nullable: true })
+  sizeName: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
