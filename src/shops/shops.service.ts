@@ -60,11 +60,10 @@ export class ShopService {
 
     return shop;
   }
-
   async processShopRequest(
     shopId: number,
     status: 'accept' | 'reject',
-  ): Promise<Shop> {
+  ): Promise<{ shop: Shop; message: string }> {
     const shop = await this.shopRepository.findOne({
       where: { id: shopId },
       relations: ['user'],
@@ -73,6 +72,8 @@ export class ShopService {
     if (!shop) {
       throw new NotFoundException('Shop not found');
     }
+
+    let message = '';
 
     if (status === 'accept') {
       // Update shop status to 'accept'
@@ -85,18 +86,22 @@ export class ShopService {
       await this.shopRepository.save(shop);
       await shop.user.save();
 
-      return shop;
+      message = 'Shop request accepted successfully.';
     } else if (status === 'reject') {
       // Update shop status to 'reject'
       shop.status = 'reject';
       shop.user.role = 'customer';
+
       // Save changes
       await this.shopRepository.save(shop);
+      await shop.user.save();
 
-      return shop;
+      message = 'Shop request rejected.';
     } else {
       throw new BadRequestException('Invalid status');
     }
+
+    return { shop, message };
   }
 
   async update(
