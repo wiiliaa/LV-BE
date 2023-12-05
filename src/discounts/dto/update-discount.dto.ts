@@ -11,7 +11,7 @@ export class UpdateDiscountDto {
   name?: string;
 
   @IsOptional()
-  limit?: number;
+  endDate?: Date;
 
   @IsOptional()
   percent?: number;

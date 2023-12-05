@@ -28,7 +28,7 @@ export class Discount extends BaseEntity {
   name: string;
 
   @Column({ nullable: true, type: 'timestamp' })
-  limit: Date;
+  endDate: Date;
 
   @Column({ default: 0 })
   percent: number;
@@ -67,19 +67,19 @@ export class Discount extends BaseEntity {
 
   @BeforeInsert()
   setDefaultExpirationDate() {
-    if (this.limit) {
-      const expirationDate = new Date(this.limit);
+    if (this.endDate) {
+      const expirationDate = new Date(this.endDate);
       expirationDate.setDate(expirationDate.getDate()); // Thêm một ngày
-      this.limit = expirationDate;
+      this.endDate = expirationDate;
     }
   }
 
   @BeforeUpdate()
   updateExpirationDate() {
-    if (this.limit) {
-      const expirationDate = new Date(this.limit);
+    if (this.endDate) {
+      const expirationDate = new Date(this.endDate);
       expirationDate.setDate(expirationDate.getDate()); // Thêm một ngày
-      this.limit = expirationDate;
+      this.endDate = expirationDate;
     }
   }
 }
