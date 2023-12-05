@@ -90,7 +90,6 @@ export class ShopService {
     } else if (status === 'reject') {
       // Update shop status to 'reject'
       shop.status = 'reject';
-      shop.user.role = 'customer';
 
       // Save changes
       await this.shopRepository.save(shop);
