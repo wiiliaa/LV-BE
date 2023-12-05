@@ -88,12 +88,8 @@ export class ShopService {
 
       message = 'Shop request accepted successfully.';
     } else if (status === 'reject') {
-      // Update shop status to 'reject'
-      shop.status = 'reject';
-
-      // Save changes
-      await this.shopRepository.save(shop);
-      await shop.user.save();
+      // Delete the shop associated with the rejected request
+      await this.deleteShop(shop);
 
       message = 'Shop request rejected.';
     } else {
@@ -101,6 +97,21 @@ export class ShopService {
     }
 
     return { shop, message };
+  }
+
+  // New method to delete a shop and associated resources
+  private async deleteShop(shop: Shop): Promise<void> {
+    const existsSync = fs.existsSync;
+    const unlinkAsync = promisify(fs.unlink);
+    if (shop.avatar) {
+      const imagePath = join('public/uploads/', shop.avatar);
+      if (existsSync(imagePath)) {
+        await unlinkAsync(imagePath);
+      }
+    }
+
+    // Remove the shop from the database
+    await this.shopRepository.remove(shop);
   }
 
   async update(
