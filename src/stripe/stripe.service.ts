@@ -4,22 +4,10 @@ import { Response } from 'express';
 
 @Injectable()
 export class StripeService {
-<<<<<<< HEAD
   constructor(private orderService: OrderService) { }
-
-  async checkout(orderId: number, ab: string, res: Response) {
-    const findShopid = await this.orderService.findShopByOrderId(orderId);
-    console.log("-------------findShopid.shop_payment", findShopid.shop_payment)
-    const a = await findShopid.shop_payment;
-    const stripe = require('stripe')(
-      'sk_test_51O8Gv7IHrHSi5RteLXMGDZPC0rX3ZgYlJQXImFOpgDvi0qSDdlR1Vk38phyrZNv3Jcqluhn99nrz91gFUevLP1Mz00iqTwdjII',
-    );
-=======
-  constructor(private orderService: OrderService) {}
   async checkout(orderId: number, ab: string, res: Response) {
     try {
       const order = await this.orderService.findId(orderId);
->>>>>>> 94f4ac55e9ecd02035646916b97eee735e769699
 
       const line_items = order.order_items.map((orderItem, index) => ({
         price_data: {
