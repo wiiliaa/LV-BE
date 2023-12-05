@@ -718,12 +718,12 @@ export class ProductService {
     categoryId: number,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{ products: Product[]; total: number; totalPage: number }> {
+  ): Promise<{ products: Product[]; total: number }> {
     try {
       const skip = (page - 1) * pageSize;
       const take = pageSize;
 
-      const [products, total] = await this.productRepository.findAndCount({
+      const [products, count] = await this.productRepository.findAndCount({
         join: {
           alias: 'product',
           innerJoinAndSelect: {
@@ -739,10 +739,6 @@ export class ProductService {
         take,
       });
 
-      if (total === 0) {
-        throw new NotFoundException('No products found for the category.');
-      }
-
       // Process products and return them
       const productsWithImages: Product[] = await Promise.all(
         products.map(async (product) => {
@@ -757,9 +753,9 @@ export class ProductService {
         }),
       );
 
-      const totalPage = Math.ceil(total / pageSize);
+      const total = Math.ceil(count / pageSize);
 
-      return { products: productsWithImages, total, totalPage };
+      return { products: productsWithImages, total };
     } catch (error) {
       console.error('Error finding products by category:', error.message);
       throw new NotFoundException('Error finding products by category');
