@@ -88,11 +88,7 @@ export class ProductService {
 
     throw new InternalServerErrorException(`Bạn không có quyền`);
   }
-  async findAll(
-    page: number = 1,
-    pageSize: number = 8,
-    searchTerm?: string,
-  ): Promise<{ products: Product[]; total: number }> {
+  async findAll(page: number = 1, pageSize: number = 8, searchTerm?: string) {
     try {
       const skip = (page - 1) * pageSize;
       const take = pageSize;
@@ -109,7 +105,7 @@ export class ProductService {
       });
 
       if (total === 0) {
-        throw new NotFoundException('No products found.');
+        return { message: 'Không có sản phẩm nào được tìm thấy.' };
       }
 
       const productsWithImages: Product[] = await Promise.all(
@@ -131,6 +127,7 @@ export class ProductService {
       throw new NotFoundException('Error retrieving products');
     }
   }
+
   async findById(id: number) {
     const res = await this.productRepository.findOne({
       where: { id },
@@ -759,6 +756,20 @@ export class ProductService {
     } catch (error) {
       console.error('Error finding products by category:', error.message);
       throw new NotFoundException('Error finding products by category');
+    }
+  }
+
+  async removeDiscountFromProducts(discountId: number): Promise<void> {
+    const products = await this.productRepository.find({
+      where: {
+        discount: { id: discountId },
+      },
+    });
+
+    for (const product of products) {
+      product.discount = null; // Xóa reference đến discount
+      await this.productRepository.save(product);
+      await this.updateDiscountedPrice(product.id);
     }
   }
 }

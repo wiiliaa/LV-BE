@@ -10,5 +10,6 @@ import { ImageModule } from 'src/image/image.module';
   controllers: [DiscountsController],
   providers: [DiscountsService],
   imports: [TypeOrmModule.forFeature([Discount]), ProductModule, ImageModule],
+  exports: [DiscountsService],
 })
 export class DiscountsModule {}

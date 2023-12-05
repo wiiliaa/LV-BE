@@ -27,8 +27,8 @@ export class Discount extends BaseEntity {
   @Column({ unique: true })
   name: string;
 
-  @Column()
-  limit: number;
+  @Column({ nullable: true, type: 'timestamp' })
+  limit: Date;
 
   @Column({ default: 0 })
   percent: number;
@@ -64,4 +64,22 @@ export class Discount extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updated_at: Date;
+
+  @BeforeInsert()
+  setDefaultExpirationDate() {
+    if (this.limit) {
+      const expirationDate = new Date(this.limit);
+      expirationDate.setDate(expirationDate.getDate()); // Thêm một ngày
+      this.limit = expirationDate;
+    }
+  }
+
+  @BeforeUpdate()
+  updateExpirationDate() {
+    if (this.limit) {
+      const expirationDate = new Date(this.limit);
+      expirationDate.setDate(expirationDate.getDate()); // Thêm một ngày
+      this.limit = expirationDate;
+    }
+  }
 }

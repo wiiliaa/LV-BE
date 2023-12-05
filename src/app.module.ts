@@ -19,6 +19,7 @@ import { SearchKeywordModule } from './search_keyword/search_keyword.module';
 import { StripeModule } from './stripe/stripe.module';
 import { ImageModule } from './image/image.module';
 import { ProductVersionModule } from './product-version/product-version.module';
+import { DiscountSchedulerModule } from './discount_scheduler/discount_scheduler.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -43,6 +44,7 @@ import config from './config/TypeOrm.config';
     StripeModule,
     ImageModule,
     ProductVersionModule,
+    DiscountSchedulerModule,
   ],
 })
 export class AppModule {}
