@@ -162,4 +162,28 @@ export class DiscountsService {
     // Return the associated products with images
     return productsWithImages as Product[];
   }
+
+  async findDiscountsByShop(shopId: number): Promise<Discount[]> {
+    try {
+      const discounts = await this.discountRepository.find({
+        where: { shop_id: shopId },
+      });
+
+      const discountsWithImages: Discount[] = await Promise.all(
+        discounts.map(async (discount) => {
+          const image = await this.imageService.getImage(discount.image);
+
+          return {
+            ...discount,
+            image,
+          } as Discount;
+        }),
+      );
+
+      return discountsWithImages;
+    } catch (error) {
+      console.error('Error finding discounts by shop:', error);
+      throw new InternalServerErrorException('Error finding discounts by shop');
+    }
+  }
 }

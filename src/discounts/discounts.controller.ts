@@ -56,4 +56,9 @@ export class DiscountsController {
   async findAllProductsByDiscountId(@Param('discountId') discountId: number) {
     return this.discountsService.findAllProductsByDiscountId(discountId);
   }
+
+  @Get('byShop/:shopId')
+  getDiscountsByShop(@Param('shopId') shopId: number) {
+    return this.discountsService.findDiscountsByShop(shopId);
+  }
 }
