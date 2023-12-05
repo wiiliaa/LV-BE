@@ -31,36 +31,7 @@ export class OrderService {
     private readonly sizeRepository: Repository<ProductSize>,
     private image: ImageService,
   ) {}
-  // async Order(user: User, createOrderDto: CreateOrderDto): Promise<Order> {
-  //   const shop = await createOrderDto.cartItems[0].shopId;
-  //   const order = this.orderRepository.create({
-  //     user_id: user.id,
-  //     status: 'pending',
-  //     total: createOrderDto.total,
-  //     shopId: shop,
-  //   });
-  //   const createdOrder = await this.orderRepository.save(order);
 
-  //   // Bước 2: Tạo OrderItem từ CartItem và liên kết với Đơn Hàng
-  //   for (const cartItemDto of createOrderDto.cartItems) {
-  //     const orderItem = this.orderItemRepository.create({
-  //       quantity: cartItemDto.quantity,
-  //       version_id: cartItemDto.versionId,
-  //       order_id: createdOrder.id,
-  //     });
-  //     await this.orderItemRepository.save(orderItem);
-  //   }
-
-  //   const cart = await this.cartRepository.findOne({
-  //     where: { user_id: user.id },
-  //     relations: ['cart_items'],
-  //   });
-  //   if (cart) {
-  //     await this.cartItemRepository.remove(cart.cart_items);
-  //   }
-
-  //   return createdOrder;
-  // }
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
       const orderEntity = this.orderRepository.create({
@@ -79,6 +50,21 @@ export class OrderService {
           discountedPrice: versionItem.sellingPrice,
           sizeId: versionItem.sizeId,
         });
+
+        try {
+          const size = await this.sizeRepository.findOne({
+            where: { id: versionItem.sizeId },
+          });
+
+          // Include the sizeName in the order item entity
+          orderItemEntity.sizeName = size.sizeName;
+        } catch (error) {
+          console.error(
+            `Error fetching size for ID ${versionItem.sizeId}: ${error.message}`,
+          );
+          orderItemEntity.sizeName = 'Unknown Size';
+        }
+
         await this.orderItemRepository.save(orderItemEntity);
 
         // Giảm số lượng của kích thước sản phẩm sau khi tạo đơn hàng
@@ -384,5 +370,75 @@ export class OrderService {
     }
 
     return shop;
+  }
+
+  async cancelOrder(orderId: number): Promise<{ message: string }> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['order_items', 'order_items.version'],
+    });
+
+    if (!order) {
+      return { message: `Order with ID ${orderId} not found.` };
+    }
+
+    if (order.status !== 'pending') {
+      return { message: `Order with ID ${orderId} cannot be canceled.` };
+    }
+
+    // Rollback product size quantities
+    for (const orderItem of order.order_items) {
+      await this.rollbackProductSizeQuantity(
+        orderItem.sizeId,
+        orderItem.quantity,
+      );
+    }
+
+    // Update order status to 'cancel'
+    order.status = 'fail';
+    await this.orderRepository.save(order);
+
+    return { message: 'Order canceled successfully.' };
+  }
+
+  async rollbackProductSizeQuantity(
+    sizeId: number,
+    quantity: number,
+  ): Promise<void> {
+    const productSize = await this.sizeRepository.findOne({
+      where: { id: sizeId },
+    });
+
+    if (!productSize) {
+      // Handle this case as needed
+      console.error(`Product size with ID ${sizeId} not found.`);
+      return;
+    }
+
+    // Increase the quantity
+    productSize.quantity += quantity;
+
+    // Save back to the database
+    await this.sizeRepository.save(productSize);
+  }
+
+  async markOrderAsDone(orderId: number): Promise<{ message: string }> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      return { message: `Order with ID ${orderId} not found.` };
+    }
+
+    if (order.status !== 'pending') {
+      return { message: `Order with ID ${orderId} cannot be marked as done.` };
+    }
+
+    // Update order status to 'done'
+    order.status = 'done';
+    await this.orderRepository.save(order);
+
+    return { message: 'Order marked as done successfully.' };
   }
 }
