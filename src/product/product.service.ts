@@ -88,44 +88,43 @@ export class ProductService {
 
     throw new InternalServerErrorException(`Bạn không có quyền`);
   }
-  async findAll(page: number = 1, pageSize: number = 8, searchTerm?: string) {
-    try {
-      const skip = (page - 1) * pageSize;
-      const take = pageSize;
+  async findAll(
+    page: number = 1,
+    pageSize: number = 8,
+    searchTerm?: string,
+  ): Promise<{ products: Product[]; total: number }> {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
 
-      const [products, total] = await this.productRepository.findAndCount({
-        skip,
-        take,
-        where: searchTerm
-          ? [
-              { name: Like(`%${searchTerm}%`) },
-              { description: Like(`%${searchTerm}%`) },
-            ]
-          : {},
-      });
+    const [products, total] = await this.productRepository.findAndCount({
+      skip,
+      take,
+      where: searchTerm
+        ? [
+            { name: Like(`%${searchTerm}%`) },
+            { description: Like(`%${searchTerm}%`) },
+          ]
+        : {},
+    });
 
-      if (total === 0) {
-        return { message: 'Không có sản phẩm nào được tìm thấy.' };
-      }
-
-      const productsWithImages: Product[] = await Promise.all(
-        products.map(async (product) => {
-          await this.updateDiscountedPrice(product.id);
-          const image = await this.imageService.getImage(product.image);
-          return {
-            ...product,
-            image,
-          } as Product;
-        }),
-      );
-
-      const totalPages = Math.ceil(total / pageSize);
-
-      return { products: productsWithImages, total: totalPages };
-    } catch (error) {
-      console.error('Error retrieving products:', error);
-      throw new NotFoundException('Error retrieving products');
+    if (total === 0) {
+      return { products: [], total: 0 };
     }
+
+    const productsWithImages: Product[] = await Promise.all(
+      products.map(async (product) => {
+        await this.updateDiscountedPrice(product.id);
+        const image = await this.imageService.getImage(product.image);
+        return {
+          ...product,
+          image,
+        } as Product;
+      }),
+    );
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return { products: productsWithImages, total: totalPages };
   }
 
   async findById(id: number) {
