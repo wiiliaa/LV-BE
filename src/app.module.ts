@@ -20,6 +20,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { ImageModule } from './image/image.module';
 import { ProductVersionModule } from './product-version/product-version.module';
 import { DiscountSchedulerModule } from './discount_scheduler/discount_scheduler.module';
+import { NotifiyModule } from './notifiy/notifiy.module';
 import config from './config/TypeOrm.config';
 
 @Module({
@@ -45,6 +46,7 @@ import config from './config/TypeOrm.config';
     ImageModule,
     ProductVersionModule,
     DiscountSchedulerModule,
+    NotifiyModule,
   ],
 })
 export class AppModule {}
