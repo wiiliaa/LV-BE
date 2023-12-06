@@ -49,6 +49,7 @@ export class OrderService {
           order_id: createdOrder.id,
           discountedPrice: versionItem.sellingPrice,
           sizeId: versionItem.sizeId,
+          shopId: currentShopItem.shopId,
         });
 
         try {
@@ -236,7 +237,7 @@ export class OrderService {
 
       // Nếu không tìm thấy đơn hàng, ném một NotFoundException
       if (!order) {
-        throw new NotFoundException(`Order with ID ${orderId} not found.`);
+        return null;
       }
 
       // Load hình cho các version trong đơn hàng
