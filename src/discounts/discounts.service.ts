@@ -108,14 +108,16 @@ export class DiscountsService {
           const imagePath = `public/uploads/${discount.image}`;
           // Xóa ảnh từ thư mục
           await unlinkAsync(imagePath);
+          await this.discountRepository.delete(id);
         } catch (error) {
           // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
           status = false;
         }
+      } else {
+        await this.discountRepository.delete(id);
       }
 
       // Tiến hành xóa discount từ cơ sở dữ liệu
-      await this.discountRepository.delete(id);
     }
 
     return { status };
