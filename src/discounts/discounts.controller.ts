@@ -92,4 +92,8 @@ export class DiscountsController {
       throw new InternalServerErrorException('Error getting remaining days');
     }
   }
+  @Get('deleteDis')
+  async deletea() {
+    return this.discountsService.deleteExpiredDiscounts();
+  }
 }

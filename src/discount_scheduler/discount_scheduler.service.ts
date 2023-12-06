@@ -11,9 +11,8 @@ export class DiscountSchedulerService {
   }
 
   private scheduleJobs() {
-    // Lập lịch chạy mỗi ngày lúc 00:00
-    schedule.scheduleJob('0 0 * * *', async () => {
-      // Gọi hàm kiểm tra và xóa discount hết hạn từ service
+    // Lập lịch chạy mỗi ngày lúc 10:10 sáng
+    schedule.scheduleJob('*/2 * * * *', async () => {
       await this.discountsService.deleteExpiredDiscounts();
     });
   }

@@ -301,6 +301,7 @@ export class OrderService {
       order: {
         id: order.id,
         total: order.total,
+        user_id: order.user.id,
         username: order.user.name,
         created_at: order.created_at,
         updated_at: order.updated_at,

@@ -15,7 +15,6 @@ import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
 import { Product } from 'src/product/entities/product.entity';
-import { UserAuthResponse } from 'pusher';
 
 @Injectable()
 export class DiscountsService {
@@ -74,6 +73,7 @@ export class DiscountsService {
       percent,
       description,
       shop_id: user.shop_id,
+      active: true,
     });
     if (image) {
       try {
@@ -220,8 +220,8 @@ export class DiscountsService {
 
     for (const discount of expiredDiscounts) {
       // Xóa discount từ cơ sở dữ liệu
-      await this.discountRepository.remove(discount);
-
+      discount.active = false;
+      await this.discountRepository.save(discount);
       // Sử dụng ProductService để xóa discount khỏi các sản phẩm liên quan
       await this.productService.removeDiscountFromProducts(discount.id);
     }
