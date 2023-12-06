@@ -256,10 +256,10 @@ export class OrderService {
           const versionImage = await this.image.getImage(version.product.image);
 
           return Object.assign(orderItem, {
+            sizeName: sizeName,
             version: {
               ...version,
               image: versionImage,
-              sizeName: sizeName,
             },
           });
         }),
