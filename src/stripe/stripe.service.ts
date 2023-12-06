@@ -16,6 +16,13 @@ export class StripeService {
   ) {}
   async checkout(orderId: number, res: Response) {
     try {
+      // Check if the order is already marked as done
+
+      const ordera = await this.orderService.findId(orderId);
+      if (ordera.status === 'done') {
+        return 'Order has already been completed';
+      }
+
       const ab = await this.orderService.findShopByOrderId(orderId);
       const stripe = require('stripe')(ab.shop_payment);
 
@@ -52,8 +59,6 @@ export class StripeService {
       // Assume the payment was successful if the Stripe checkout session was created
       // Update order status to 'paid'
 
-      // Redirect the user to the Stripe checkout page
-
       await this.orderService.markOrderAsDone(orderId);
       return res.send({ URL: session.url });
     } catch (error) {
@@ -62,6 +67,7 @@ export class StripeService {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
   // async Successpayment(session_id: any) {
   //   const billing_detail = await stripe.checkout.sessions.listLineItems(
   //     session_id,
