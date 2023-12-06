@@ -15,7 +15,7 @@ import { ProductService } from 'src/product/product.service';
 import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
 import { Product } from 'src/product/entities/product.entity';
-
+import { existsSync } from 'fs';
 @Injectable()
 export class DiscountsService {
   constructor(
@@ -106,9 +106,9 @@ export class DiscountsService {
       if (discount.image) {
         try {
           const imagePath = `public/uploads/${discount.image}`;
-          // Xóa ảnh từ thư mục
-          await unlinkAsync(imagePath);
-          await this.discountRepository.delete(id);
+          if (existsSync(imagePath)) {
+            await unlinkAsync(imagePath);
+          }
         } catch (error) {
           // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
           status = false;
@@ -117,7 +117,7 @@ export class DiscountsService {
       if (!discount.image) {
         await this.discountRepository.delete(id);
       }
-
+      await this.discountRepository.delete(id);
       // Tiến hành xóa discount từ cơ sở dữ liệu
     }
 

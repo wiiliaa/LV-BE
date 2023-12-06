@@ -239,7 +239,6 @@ export class ProductService {
       delete updateProductDto.categoryIds;
 
       if (updateProductDto.image) {
-        console.log(updateProductDto.image);
         if (product.image) {
           const oldImagePath = join('public/uploads/', product.image);
           if (existsSync(oldImagePath)) {
