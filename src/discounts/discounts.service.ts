@@ -113,7 +113,8 @@ export class DiscountsService {
           // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
           status = false;
         }
-      } else {
+      }
+      if (!discount.image) {
         await this.discountRepository.delete(id);
       }
 
