@@ -12,7 +12,7 @@ export class DiscountSchedulerService {
 
   private scheduleJobs() {
     // Lập lịch chạy mỗi ngày lúc 10:10 sáng
-    schedule.scheduleJob('*/2 * * * *', async () => {
+    schedule.scheduleJob('0 0 * * *', async () => {
       await this.discountsService.deleteExpiredDiscounts();
     });
   }

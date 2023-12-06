@@ -1,44 +1,59 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
 import { OrderService } from 'src/order/order.service';
 import { Response } from 'express';
+import { OrderItem } from 'src/order_items/entities/order_item.entity';
+import { ImageService } from 'src/image/image.service';
+import { ProductService } from 'src/product/product.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class StripeService {
-  constructor(private orderService: OrderService) { }
-  async checkout(orderId: number, ab: string, res: Response) {
+  constructor(
+    private orderService: OrderService,
+    private imageService: ImageService,
+    private usera: UserService,
+  ) {}
+  async checkout(orderId: number, res: Response) {
     try {
-      const order = await this.orderService.findId(orderId);
+      const ab = await this.orderService.findShopByOrderId(orderId);
+      const stripe = require('stripe')(ab.shop_payment);
 
+      const order = await this.orderService.findId(orderId);
+      const customer = await stripe.customers.create({
+        metadata: {
+          userId: order.user_id,
+        },
+      });
+      const name = await this.usera.getName(order.user_id);
       const line_items = order.order_items.map((orderItem, index) => ({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: 'Total',
+            name: name,
           },
-          unit_amount: order.total * 100,
+          unit_amount: orderItem.discountedPrice * 100,
         },
         quantity: orderItem.quantity,
       }));
 
-      const stripe = require('stripe')('your_stripe_secret_key'); // Replace with your actual Stripe secret key
-
       const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
         line_items,
         mode: 'payment',
+
         payment_intent_data: {
           setup_future_usage: 'on_session',
         },
-        customer: ab,
-        success_url: 'http://localhost:3000/success', // Replace with your actual success URL
+        success_url: 'http://localhost:3000', // Replace with your actual success URL
         cancel_url: 'http://localhost:3000/pay/failed/checkout/session',
       });
 
       // Assume the payment was successful if the Stripe checkout session was created
       // Update order status to 'paid'
-      await this.orderService.updateOrderStatus(orderId, 'done');
 
       // Redirect the user to the Stripe checkout page
-      return res.status(302).redirect(session.url);
+      return res.send({ URL: session.url });
     } catch (error) {
       console.error('Error initiating Stripe checkout:', error.message);
       // Handle the error and send an appropriate response

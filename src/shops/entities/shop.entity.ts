@@ -45,7 +45,7 @@ export class Shop extends BaseEntity {
   @Column({ default: 'pending' })
   status: string;
 
-  @Column({ nullable: true, default: "sk_test_51O8Gv7IHrHSi5RteLXMGDZPC0rX3ZgYlJQXImFOpgDvi0qSDdlR1Vk38phyrZNv3Jcqluhn99nrz91gFUevLP1Mz00iqTwdjII" })
+  @Column({ nullable: true })
   shop_payment: string;
 
   @OneToMany(() => Discount, (discount) => discount.shop)

@@ -7,6 +7,8 @@ export class CreateShopDto {
   @IsNotEmpty()
   description: string;
 
+  shop_payment: string;
+
   @IsNotEmpty()
   user_id: number;
 

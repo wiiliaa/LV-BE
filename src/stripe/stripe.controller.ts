@@ -15,11 +15,11 @@ import { Response } from 'express';
 
 @Controller('stripe')
 export class StripeController {
-  constructor(private stripeService: StripeService) { }
+  constructor(private stripeService: StripeService) {}
 
   @Get(':id')
-  async checkout(@Param('id') id: number, @Query('ab') ab: string, @Res() res) {
-    return this.stripeService.checkout(id, ab, res);
+  async checkout(@Param('id') id: number, @Res() res) {
+    return this.stripeService.checkout(id, res);
   }
 
   // @Get('/pay/success/checkout/session/:session_id')

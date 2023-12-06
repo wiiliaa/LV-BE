@@ -20,6 +20,11 @@ export class UserService {
     private imageService: ImageService,
   ) {}
 
+  async getName(id: number): Promise<string | undefined> {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    return user.name;
+  }
+
   async getCustomers(): Promise<User[]> {
     return this.findByRole('customer');
   }
