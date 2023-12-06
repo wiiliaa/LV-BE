@@ -296,7 +296,12 @@ export class OrderService {
       relations: ['user', 'order_items', 'order_items.version'],
     });
 
-    return orders;
+    const ordersWithUserName = orders.map((order) => {
+      order.username = order.user.name;
+      return order;
+    });
+
+    return ordersWithUserName;
   }
 
   async findId(id: number) {
