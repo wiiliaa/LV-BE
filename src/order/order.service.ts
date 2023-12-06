@@ -239,20 +239,31 @@ export class OrderService {
         return null;
       }
 
-      // Load hình cho các version trong đơn hàng
-      const versionsWithImages = await Promise.all(
+      // Load hình cho các version trong đơn hàng và cập nhật order_items
+      order.order_items = await Promise.all(
         order.order_items.map(async (orderItem) => {
           const version = orderItem.version;
+
+          // Lấy size entity từ sizeId
+          const size = await this.sizeRepository.findOne({
+            where: { id: orderItem.sizeId },
+          });
+
+          // Lấy sizeName từ size entity hoặc đặt giá trị mặc định nếu không tìm thấy
+          const sizeName = size ? size.sizeName : 'Unknown Size';
+
+          // Load hình và cập nhật orderItem
           const versionImage = await this.image.getImage(version.product.image);
-          return { ...version, image: versionImage };
+
+          return Object.assign(orderItem, {
+            version: {
+              ...version,
+              image: versionImage,
+              sizeName: sizeName,
+            },
+          });
         }),
       );
-
-      // Cập nhật order với các version có hình
-      order.order_items.forEach((orderItem, index) => {
-        orderItem.version = new ProductVersion();
-        Object.assign(orderItem.version, versionsWithImages[index]);
-      });
 
       return order;
     } catch (error) {
