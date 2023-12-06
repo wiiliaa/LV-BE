@@ -45,14 +45,14 @@ export class DiscountsController {
     return this.discountsService.delete(id);
   }
 
-  @Post('activate/:discountId/:productId')
-  async activateDiscount(
-    @Param('discountId') discountId: number,
-    @Param('productId') productId: number,
-  ) {
-    await this.discountsService.activateDiscount(discountId, productId);
-    return { success: true };
-  }
+  // @Post('activate/:discountId/:productId')
+  // async activateDiscount(
+  //   @Param('discountId') discountId: number,
+  //   @Param('productId') productId: number,
+  // ) {
+  //   await this.discountsService.activateDiscount(discountId, productId);
+  //   return { success: true };
+  // }
 
   @Get('getAllProductByDiscount/:discountId')
   async findAllProductsByDiscountId(@Param('discountId') discountId: number) {
@@ -95,5 +95,12 @@ export class DiscountsController {
   @Get('deleteDis')
   async deletea() {
     return this.discountsService.deleteExpiredDiscounts();
+  }
+
+  @Get('activeByShop/:shopId')
+  async getActiveDiscountsByShop(
+    @Param('shopId') shopId: number,
+  ): Promise<Discount[]> {
+    return this.discountsService.getActiveDiscountsByShop(shopId);
   }
 }

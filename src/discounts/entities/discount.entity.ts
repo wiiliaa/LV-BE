@@ -36,8 +36,8 @@ export class Discount extends BaseEntity {
   @Column()
   description: string;
 
-  @Column({ default: false })
-  active: boolean;
+  // @Column({ default: false })
+  // active: boolean;
 
   @Column({ nullable: true, type: 'text' })
   image: string;

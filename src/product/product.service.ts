@@ -383,6 +383,7 @@ export class ProductService {
       this.productRepository.save(found);
     }
   }
+
   async findVer(id: number) {
     try {
       const product = await this.productRepository.findOne({

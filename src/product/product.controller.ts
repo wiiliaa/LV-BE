@@ -26,15 +26,6 @@ import { Product } from './entities/product.entity';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  // @Get('byCategory/:categoryId')
-  // async findProductsByCategory(@Param('categoryId') categoryId: number) {
-  //   const products = await this.productService.findProductsByCategory(
-  //     categoryId,
-  //   );
-
-  //   return products;
-  // }
-
   @Get('byCategoryName/:name')
   async findProductsByCategoryName(@Param('name') name: string) {
     const decodedCategoryName = decodeURIComponent(name);
@@ -59,11 +50,6 @@ export class ProductController {
 
     return products;
   }
-
-  // @Get('/getAll')
-  // async getAll() {
-  //   return this.productService.findAll();
-  // }
 
   @Get('/search/:name')
   async findByName(@Param('name') name: string) {

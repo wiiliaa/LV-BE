@@ -6,7 +6,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import * as fs from 'fs';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { Discount } from './entities/discount.entity';
@@ -73,7 +73,6 @@ export class DiscountsService {
       percent,
       description,
       shop_id: user.shop_id,
-      active: true,
     });
     if (image) {
       try {
@@ -121,25 +120,25 @@ export class DiscountsService {
 
     return { status };
   }
-  async activateDiscount(discountId: number, productId: number) {
-    try {
-      // Find the product by ID
-      const product = await this.productService.findById(productId);
+  // async activateDiscount(discountId: number, productId: number) {
+  //   try {
+  //     // Find the product by ID
+  //     const product = await this.productService.findById(productId);
 
-      if (!product) {
-        throw new NotFoundException('Product not found');
-      }
+  //     if (!product) {
+  //       throw new NotFoundException('Product not found');
+  //     }
 
-      product.discount_id = discountId;
+  //     product.discount_id = discountId;
 
-      // Save changes to the database
-      return await this.productService.addDis(productId, discountId);
-    } catch (error) {
-      // Handle errors
-      console.error('Error activating discount:', error);
-      throw new InternalServerErrorException('Error activating discount');
-    }
-  }
+  //     // Save changes to the database
+  //     return await this.productService.addDis(productId, discountId);
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error('Error activating discount:', error);
+  //     throw new InternalServerErrorException('Error activating discount');
+  //   }
+  // }
 
   async findAllProductsByDiscountId(discountId: number): Promise<Product[]> {
     // Find the discount by ID with its associated products
@@ -220,10 +219,40 @@ export class DiscountsService {
 
     for (const discount of expiredDiscounts) {
       // Xóa discount từ cơ sở dữ liệu
-      discount.active = false;
+
       await this.discountRepository.save(discount);
       // Sử dụng ProductService để xóa discount khỏi các sản phẩm liên quan
       await this.productService.removeDiscountFromProducts(discount.id);
+    }
+  }
+
+  async getActiveDiscountsByShop(shopId: number): Promise<Discount[]> {
+    try {
+      const activeDiscounts = await this.discountRepository.find({
+        where: {
+          endDate: MoreThan(new Date()), // Find discounts with an end date greater than the current date
+          shop_id: shopId, // Filter by shop ID
+        },
+        relations: ['product'], // Include related product information
+      });
+
+      const activeDiscountsWithImages: Discount[] = await Promise.all(
+        activeDiscounts.map(async (discount) => {
+          const image = await this.imageService.getImage(discount.image);
+
+          return {
+            ...discount,
+            image,
+          } as Discount;
+        }),
+      );
+
+      return activeDiscountsWithImages;
+    } catch (error) {
+      console.error('Error getting active discounts by shop:', error);
+      throw new InternalServerErrorException(
+        'Error getting active discounts by shop',
+      );
     }
   }
 }
