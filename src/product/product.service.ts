@@ -56,20 +56,14 @@ export class ProductService {
       product.shop_id = user.shop_id;
 
       if (image) {
-        try {
-          await product.save();
-          const fileName = `${product.id}-image.txt`;
-          const filePath = `public/uploads/${fileName}`;
+        await product.save();
+        const fileName = `${product.id}-image.txt`;
+        const filePath = `public/uploads/${fileName}`;
 
-          // Lưu mã base64 vào tệp văn bản
-          await writeFileAsync(filePath, image);
-          // Lưu đường dẫn tệp vào trường image của sản phẩm
-          product.image = fileName;
-        } catch (error) {
-          throw new InternalServerErrorException(
-            'Lỗi khi lưu mã base64 vào tệp',
-          );
-        }
+        // Lưu mã base64 vào tệp văn bản
+        await writeFileAsync(filePath, image);
+        // Lưu đường dẫn tệp vào trường image của sản phẩm
+        product.image = fileName;
       }
 
       // Lưu sản phẩm và cập nhật danh sách sản phẩm của người bán
@@ -134,7 +128,7 @@ export class ProductService {
     });
 
     if (!res) {
-      throw new Error(`Product with ID ${id} not found`);
+      return [];
     }
 
     // Load images for the product and its versions
@@ -162,7 +156,7 @@ export class ProductService {
       .getMany();
 
     if (!found) {
-      throw new InternalServerErrorException(`Product: ${name} non-exist`);
+      return [];
     }
 
     const productsWithImages: Product[] = await Promise.all(
@@ -227,57 +221,6 @@ export class ProductService {
     return productsWithImages;
   }
 
-  // async update(
-  //   id: number,
-  //   updateProductDto: UpdateProductDto,
-  //   user: User,
-  // ): Promise<{ success: boolean }> {
-  //   const unlinkAsync = promisify(fs.unlink);
-  //   const writeFileAsync = promisify(fs.writeFile);
-
-  //   try {
-  //     const product = await this.productRepository.findOne({
-  //       where: { id },
-  //     });
-
-  //     if (!product) {
-  //       throw new NotFoundException('Sản phẩm không tồn tại');
-  //     }
-
-  //     // Nếu có hình ảnh mới được cung cấp trong DTO, thực hiện cập nhật
-  //     if (updateProductDto.image) {
-  //       // Kiểm tra xem có hình ảnh cũ không
-  //       if (product.image) {
-  //         const oldImagePath = join('/public/uploads/', product.image);
-
-  //         // Nếu file cũ tồn tại, xóa nó đi
-  //         if (existsSync(oldImagePath)) {
-  //           await unlinkAsync(oldImagePath);
-  //         }
-  //       }
-
-  //       // Tạo đường dẫn và tên file cho hình mới
-  //       const fileName = `${product.id}_${Date.now()}-image.txt`;
-  //       const filePath = `public/uploads/${fileName}`;
-
-  //       // Lưu mã base64 mới vào tệp văn bản
-  //       await writeFileAsync(filePath, updateProductDto.image);
-
-  //       // Lưu đường dẫn tệp vào trường image của sản phẩm
-  //       updateProductDto.image = fileName;
-  //     }
-
-  //     // Thực hiện cập nhật thông tin sản phẩm
-  //     await this.productRepository.update(id, updateProductDto);
-  //     await this.updateTotal(id);
-  //     await this.updateDiscountedPrice(id);
-  //     return { success: true };
-  //   } catch (error) {
-  //     console.error('Lỗi khi cập nhật sản phẩm:', error);
-  //     throw new InternalServerErrorException('Lỗi khi cập nhật sản phẩm');
-  //   }
-  // }
-
   async update(
     id: number,
     updateProductDto: UpdateProductDto,
@@ -291,10 +234,6 @@ export class ProductService {
         where: { id },
         relations: ['categories'],
       });
-
-      if (!product) {
-        throw new NotFoundException('Sản phẩm không tồn tại');
-      }
 
       const categoryIds = updateProductDto.categoryIds;
       delete updateProductDto.categoryIds;
@@ -338,8 +277,7 @@ export class ProductService {
       await this.productRepository.save(product);
       return { success: true };
     } catch (error) {
-      console.error('Lỗi khi cập nhật sản phẩm:', error);
-      throw new InternalServerErrorException('Lỗi khi cập nhật sản phẩm');
+      return { success: false };
     }
   }
 
@@ -351,7 +289,7 @@ export class ProductService {
       });
 
       if (!product) {
-        throw new NotFoundException('Sản phẩm không tồn tại');
+        return { success: false };
       }
 
       // Nếu sản phẩm có hình ảnh, xóa nội dung của file hình ảnh
@@ -369,8 +307,7 @@ export class ProductService {
         return { success: false };
       }
     } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
-      throw new InternalServerErrorException('Lỗi khi xóa sản phẩm');
+      return { success: false };
     }
   }
 
@@ -392,7 +329,7 @@ export class ProductService {
       });
 
       if (!product) {
-        throw new NotFoundException(`Không tìm thấy sản phẩm với ID: ${id}`);
+        return [];
       }
 
       const versionsWithImages = await Promise.all(
@@ -404,7 +341,6 @@ export class ProductService {
 
       return versionsWithImages;
     } catch (error) {
-      console.error('Lỗi:', error.message);
       return null;
     }
   }
@@ -457,7 +393,7 @@ export class ProductService {
   async addProductToCategories(
     productId: number,
     categoryIds: number | number[],
-  ): Promise<void> {
+  ) {
     const product = await this.productRepository.findOne({
       where: { id: productId },
       relations: ['categories'],
@@ -472,7 +408,7 @@ export class ProductService {
     );
 
     if (!product || categories.some((category) => !category)) {
-      throw new Error('Product or categories not found');
+      return { success: false };
     }
 
     product.categories = [
@@ -486,14 +422,14 @@ export class ProductService {
   async deleteProductFromCategories(
     productId: number,
     categoryIds: number | number[],
-  ): Promise<void> {
+  ) {
     const product = await this.productRepository.findOne({
       where: { id: productId },
       relations: ['categories'],
     });
 
     if (!product) {
-      throw new Error('Product not found');
+      return { success: false };
     }
 
     const categoryIdsArray = Array.isArray(categoryIds)
@@ -514,7 +450,7 @@ export class ProductService {
       const category = await this.productCategoryService.findById(categoryId);
 
       if (!category) {
-        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+        return [];
       }
 
       // Find products associated with the category
@@ -541,10 +477,7 @@ export class ProductService {
       // Trả về danh sách sản phẩm với thông tin ảnh
       return productsWithImages;
     } catch (error) {
-      console.error('Lỗi khi tìm sản phẩm theo danh mục:', error.message);
-      throw new InternalServerErrorException(
-        'Lỗi khi tìm sản phẩm theo danh mục',
-      );
+      return [];
     }
   }
 
@@ -556,9 +489,7 @@ export class ProductService {
       );
 
       if (!category) {
-        throw new NotFoundException(
-          `Category with name ${categoryName} not found`,
-        );
+        return [];
       }
 
       // Find products associated with the category
@@ -585,10 +516,7 @@ export class ProductService {
       // Trả về danh sách sản phẩm với thông tin ảnh
       return productsWithImages;
     } catch (error) {
-      console.error('Lỗi khi tìm sản phẩm theo tên danh mục:', error.message);
-      throw new InternalServerErrorException(
-        'Lỗi khi tìm sản phẩm theo tên danh mục',
-      );
+      return [];
     }
   }
 
@@ -601,7 +529,7 @@ export class ProductService {
       const category = await this.productCategoryService.findById(categoryId);
 
       if (!category) {
-        throw new NotFoundException(`Category with ID ${categoryId} not found`);
+        return [];
       }
 
       // Find products associated with the user's shop and category, including discount
@@ -630,17 +558,11 @@ export class ProductService {
 
       return productsWithImages;
     } catch (error) {
-      console.error(
-        'Error finding products by category and shop:',
-        error.message,
-      );
-      throw new InternalServerErrorException(
-        'Error finding products by category and shop',
-      );
+      return [];
     }
   }
 
-  async addProductToNewProducts(productId: number): Promise<void> {
+  async addProductToNewProducts(productId: number) {
     try {
       // Tìm sản phẩm theo ID
       const product = await this.productRepository.findOne({
@@ -649,9 +571,7 @@ export class ProductService {
       });
 
       if (!product) {
-        throw new NotFoundException(
-          `Sản phẩm với ID ${productId} không tồn tại`,
-        );
+        return [];
       }
 
       // Tìm hoặc tạo danh mục "New Products"

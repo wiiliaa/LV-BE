@@ -215,7 +215,6 @@ export class OrderService {
     });
 
     if (!orders.length) {
-      // Return an empty array instead of throwing NotFoundException
       return [];
     }
 
@@ -294,21 +293,10 @@ export class OrderService {
         shopId: user.shop_id,
         status: status,
       },
-      relations: ['user'],
+      relations: ['user', 'order_items', 'order_items.version'],
     });
 
-    const ordersWithUserName = orders.map((order) => ({
-      order: {
-        id: order.id,
-        total: order.total,
-        user_id: order.user.id,
-        username: order.user.name,
-        created_at: order.created_at,
-        updated_at: order.updated_at,
-      },
-    }));
-
-    return ordersWithUserName;
+    return orders;
   }
 
   async findId(id: number) {
