@@ -65,7 +65,7 @@ export class OrderController {
   @UseGuards(AuthGuard('jwt'))
   async getOrderDetail(
     @GetUser() user: User,
-    @Param('orderId') orderId: number,
+    @Param('id') orderId: number,
   ): Promise<Order> {
     return this.orderService.orderDetail(user, orderId);
   }
@@ -74,7 +74,7 @@ export class OrderController {
   @UseGuards(AuthGuard('jwt'))
   async getOrderDetailOfShop(
     @GetUser() user: User,
-    @Param('orderId') orderId: number,
+    @Param('id') orderId: number,
   ): Promise<Order> {
     return this.orderService.orderDetailForShop(user, orderId);
   }

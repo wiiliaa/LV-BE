@@ -224,14 +224,13 @@ export class OrderService {
 
   async orderDetail(user: User, orderId: number): Promise<Order> {
     try {
-      // Tìm đơn hàng theo id và load các mối quan hệ liên quan
+      console.log(orderId);
       const order = await this.orderRepository.findOne({
-        where: { id: orderId, user_id: user.id },
+        where: { id: orderId },
         relations: [
-          'shop',
           'order_items',
           'order_items.version',
-          'order_items.version.product', // Thêm mối quan hệ đến sản phẩm của version
+          'order_items.version.product',
         ],
       });
 
@@ -270,7 +269,6 @@ export class OrderService {
         'order_items',
         'order_items.version',
         'order_items.version.product',
-        'order_items.version.product.discounts',
       ],
     });
 
