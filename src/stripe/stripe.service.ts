@@ -53,6 +53,8 @@ export class StripeService {
       // Update order status to 'paid'
 
       // Redirect the user to the Stripe checkout page
+
+      await this.orderService.markOrderAsDone(orderId);
       return res.send({ URL: session.url });
     } catch (error) {
       console.error('Error initiating Stripe checkout:', error.message);
