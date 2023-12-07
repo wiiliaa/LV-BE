@@ -310,28 +310,28 @@ export class OrderService {
   }
 
   async orderDetailForShop(user: User, orderId: number): Promise<Order> {
-    // Tìm đơn hàng theo id và load các mối quan hệ liên quan
     const order = await this.orderRepository.findOne({
       where: { id: orderId, shopId: user.shop_id },
       relations: [
         'order_items',
         'order_items.version',
         'order_items.version.product',
+        'user',
       ],
     });
 
-    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+    const username = order.user ? order.user.name : '';
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found.`);
     }
 
-    // Kiểm tra xem đơn hàng có thuộc về cửa hàng của người dùng không
     if (order.shopId !== user.shop_id) {
       return null;
     }
-
-    return order;
+    delete order.user;
+    return { ...order, username } as Order;
   }
+
   async findOrdersByShopAndStatus(user: User, status: string) {
     const orders = await this.orderRepository.find({
       where: {
