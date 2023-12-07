@@ -21,7 +21,7 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private usersService: UserService) {}
+  constructor(private usersService: UserService) { }
 
   @Get('/getAll')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -50,7 +50,6 @@ export class UserController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'))
   async delete(@Param('id') id: number) {
     return this.usersService.delete(id);
   }

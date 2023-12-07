@@ -20,7 +20,7 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Shop) private shopRepository: Repository<Shop>,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async getName(id: number): Promise<string | undefined> {
     const user = await this.userRepository.findOne({ where: { id: id } });
@@ -106,7 +106,7 @@ export class UserService {
     return { ...res, avatar: image };
   }
   async delete(id: number): Promise<{ success: boolean }> {
-    const unlinkAsync = promisify(fs.unlink);
+    // const unlinkAsync = promisify(fs.unlink);
 
     try {
       const userToDelete = await this.userRepository.findOne({
@@ -114,20 +114,22 @@ export class UserService {
         relations: ['shop'],
       });
 
+      console.log('userToDelete', userToDelete)
+
       if (!userToDelete) {
         return { success: false };
       }
 
       // Check if the user has an avatar
-      if (userToDelete.avatar) {
-        // Determine the absolute path of the image
-        const imagePath = join('public/upload/', userToDelete.avatar);
+      // if (userToDelete.avatar) {
+      //   // Determine the absolute path of the image
+      //   const imagePath = join('public/upload/', userToDelete.avatar);
 
-        if (fs.existsSync(imagePath)) {
-          // If the image file exists, delete it
-          await unlinkAsync(imagePath);
-        }
-      }
+      //   if (fs.existsSync(imagePath)) {
+      //     // If the image file exists, delete it
+      //     await unlinkAsync(imagePath);
+      //   }
+      // }
 
       // Delete the user and associated shop (using cascade delete)
       await this.userRepository.remove(userToDelete);
