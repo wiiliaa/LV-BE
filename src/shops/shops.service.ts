@@ -108,7 +108,7 @@ export class ShopService {
   }
 
   // New method to delete a shop and associated resources
-  private async deleteShop(shop: Shop): Promise<void> {
+  async deleteShop(shop: Shop): Promise<void> {
     const existsSync = fs.existsSync;
     const unlinkAsync = promisify(fs.unlink);
     if (shop.avatar) {

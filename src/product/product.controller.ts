@@ -188,4 +188,13 @@ export class ProductController {
     );
     return products;
   }
+
+  @Get('totalSold/:id')
+  async getTotalSoldQuantity(@Param('id') id: number): Promise<number> {
+    const totalSoldQuantity = await this.productService.getTotalSoldQuantity(
+      id,
+    );
+
+    return totalSoldQuantity;
+  }
 }

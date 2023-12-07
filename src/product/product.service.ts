@@ -129,30 +129,44 @@ export class ProductService {
   }
 
   async findById(id: number) {
-    const res = await this.productRepository.findOne({
-      where: { id },
-      relations: ['categories', 'versions', 'versions.sizes', 'discount'], // Add 'versions.image' to load version images
-    });
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: ['categories', 'versions', 'versions.sizes', 'discount'],
+      });
 
-    if (!res) {
-      return [];
+      if (!product) {
+        return null;
+      }
+
+      // Load images for the product and its versions
+      const productImage = await this.imageService.getImage(product.image);
+
+      // Load images for each version and nest them within the version object
+      const versionsWithImages = await Promise.all(
+        product.versions.map(async (version) => {
+          const versionImage = await this.imageService.getImage(version.image);
+          return { ...version, image: versionImage };
+        }),
+      );
+
+      // Update discounted price for the product
+      await this.updateDiscountedPrice(product.id);
+
+      // Get totalSold for the product
+      const totalSold = await this.getTotalSoldQuantity(product.id);
+
+      // Return the product object with additional information
+      return {
+        ...product,
+        image: productImage,
+        versions: versionsWithImages,
+        totalSold,
+      };
+    } catch (error) {
+      console.error('Error finding product by ID:', error.message);
+      throw new NotFoundException('Error finding product by ID');
     }
-
-    // Load images for the product and its versions
-    const productImage = await this.imageService.getImage(res.image);
-
-    // Load images for each version and nest them within the version object
-    const versionsWithImages = await Promise.all(
-      res.versions.map(async (version) => {
-        const versionImage = await this.imageService.getImage(version.image);
-        return { ...version, image: versionImage };
-      }),
-    );
-
-    // Update discounted price for the product
-    await this.updateDiscountedPrice(res.id);
-
-    return { ...res, image: productImage, versions: versionsWithImages };
   }
 
   async findByName(name: string): Promise<Product[]> {
@@ -204,7 +218,7 @@ export class ProductService {
       relations: ['discount'],
     });
 
-    // Duyệt qua từng sản phẩm và thêm thông tin ảnh và discount
+    // Duyệt qua từng sản phẩm và thêm thông tin ảnh, discount và totalSold
     const productsWithImages: Product[] = await Promise.all(
       products.map(async (product) => {
         await this.updateDiscountedPrice(product.id);
@@ -215,16 +229,19 @@ export class ProductService {
         // Lấy thông tin discount nếu tồn tại
         const discount = product.discount;
 
-        // Tạo một đối tượng mới chỉ với thông tin ảnh và discount được thêm vào
-        return {
-          ...product,
-          image,
-          discount,
-        } as Product;
+        // Lấy totalSold cho sản phẩm
+        const totalSold = await this.getTotalSoldQuantity(product.id);
+
+        // Thêm trực tiếp thuộc tính image, discount, và totalSold vào đối tượng product
+        product.image = image;
+        product.discount = discount;
+        product.totalSold = totalSold;
+
+        // Trả về sản phẩm với thông tin ảnh, discount và totalSold
+        return product;
       }),
     );
 
-    // Trả về danh sách sản phẩm với thông tin ảnh và discount
     return productsWithImages;
   }
 
@@ -701,5 +718,16 @@ export class ProductService {
 
   async findProduct(id: number) {
     return this.productRepository.findOne({ where: { id } });
+  }
+  async getTotalSoldQuantity(productId: number): Promise<number> {
+    const totalSold = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.versions', 'version')
+      .leftJoin('version.order_items', 'order_item')
+      .where('product.id = :productId', { productId })
+      .select('SUM(order_item.quantity)', 'totalSold')
+      .getRawOne();
+
+    return totalSold.totalSold || 0;
   }
 }
