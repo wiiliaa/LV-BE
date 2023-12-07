@@ -118,6 +118,7 @@ export class DiscountsService {
 
     return { status };
   }
+
   async activateDiscount(discountId: number, productId: number) {
     try {
       // Find the product by ID

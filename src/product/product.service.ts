@@ -720,6 +720,7 @@ export class ProductService {
   async findProduct(id: number) {
     return this.productRepository.findOne({ where: { id } });
   }
+
   async getTotalSoldQuantity(productId: number): Promise<number> {
     const totalSold = await this.productRepository
       .createQueryBuilder('product')
