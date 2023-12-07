@@ -25,13 +25,15 @@ export class ProductSize extends BaseEntity {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => ProductVersion, (version) => version.sizes)
+  @ManyToOne(() => ProductVersion, (version) => version.sizes, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'version_id' })
   version: ProductVersion;
   @Column({ nullable: true })
   version_id: number;
 
-  @ManyToOne(() => Product, (product) => product.sizes)
+  @ManyToOne(() => Product, (product) => product.sizes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
   @Column({ nullable: true })

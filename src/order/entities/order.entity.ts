@@ -3,7 +3,6 @@
 import { CartItem } from 'src/cart_items/entities/cart_item.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
 import { OrderItem } from 'src/order_items/entities/order_item.entity';
-import { PaymentDetail } from 'src/payment_details/entities/payment_detail.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -24,7 +23,7 @@ export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.order)
+  @ManyToOne(() => User, (user) => user.order, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'user_id',
   })
@@ -38,7 +37,7 @@ export class Order extends BaseEntity {
 
   @Column({ nullable: true })
   username: string;
-  @ManyToOne(() => Shop, (shop) => shop.orders)
+  @ManyToOne(() => Shop, (shop) => shop.orders, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'shopId',
   })
@@ -57,8 +56,6 @@ export class Order extends BaseEntity {
 
   // @Column()
   // discountPrice: number;
-  @OneToOne(() => PaymentDetail, (payment_detail) => payment_detail.order)
-  payment_detail: PaymentDetail;
 
   @OneToMany(() => OrderItem, (order_items) => order_items.order)
   order_items: OrderItem[];

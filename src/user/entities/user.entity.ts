@@ -15,11 +15,9 @@ import * as bcrypt from 'bcrypt';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
-import { UserPayment } from 'src/user_payments/entities/user_payment.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Exclude } from 'class-transformer';
 import { SearchKeyword } from 'src/search_keyword/entities/search_keyword.entity';
-import { Notifiy } from 'src/notifiy/entities/notifiy.entity';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -74,12 +72,6 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   shop_id: number;
-
-  @OneToMany(() => Notifiy, (notification) => notification.user)
-  notifications: Notifiy[];
-
-  @OneToMany(() => UserPayment, (user_payment) => user_payment.user)
-  user_payments: UserPayment[];
 
   @CreateDateColumn({
     type: 'timestamp',

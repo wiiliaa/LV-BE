@@ -49,20 +49,15 @@ export class UserController {
     return this.usersService.findByRole('pending');
   }
 
-  // @Delete('/:id')
-  // @UseGuards(AuthGuard('jwt'))
-  // async delete(@Param('id') id: number) {
-  //   return this.usersService.delete(id);
-  // }
+  @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async delete(@Param('id') id: number) {
+    return this.usersService.delete(id);
+  }
 
   @Put('/updateProfile')
   @UseGuards(AuthGuard('jwt'))
   async update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
     return this.usersService.update(user, updateUserDto);
-  }
-
-  @Delete('delete/:id')
-  async delete(@Param('id') id: number) {
-    return this.usersService.delete(id);
   }
 }

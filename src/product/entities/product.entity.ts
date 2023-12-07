@@ -71,7 +71,7 @@ export class Product extends BaseEntity {
   @OneToMany(() => ProductSize, (size) => size.product)
   sizes: ProductSize[];
 
-  @ManyToOne(() => Shop, (shop) => shop.products)
+  @ManyToOne(() => Shop, (shop) => shop.products, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 
