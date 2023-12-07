@@ -22,7 +22,8 @@ import { ProductVersionModule } from './product-version/product-version.module';
 import { DiscountSchedulerModule } from './discount_scheduler/discount_scheduler.module';
 import { NotifiyModule } from './notifiy/notifiy.module';
 import config from './config/TypeOrm.config';
-
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 @Module({
   imports: [
     AuthModule,

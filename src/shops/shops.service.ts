@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getRepository } from 'typeorm';
 import { Shop } from './entities/shop.entity';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
@@ -17,6 +17,9 @@ import { promisify } from 'util';
 import * as fs from 'fs';
 import { join } from 'path';
 import { NotifiyService } from 'src/notifiy/notifiy.service';
+import { OrderService } from 'src/order/order.service';
+import { Order } from 'src/order/entities/order.entity';
+import { ProductService } from 'src/product/product.service';
 @Injectable()
 export class ShopService {
   constructor(
@@ -24,6 +27,8 @@ export class ShopService {
     private readonly shopRepository: Repository<Shop>,
     private imageService: ImageService,
     private noti: NotifiyService,
+    private orderService: OrderService,
+    private productService: ProductService,
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
@@ -108,7 +113,7 @@ export class ShopService {
   }
 
   // New method to delete a shop and associated resources
-  private async deleteShop(shop: Shop): Promise<void> {
+  async deleteShop(shop: Shop): Promise<void> {
     const existsSync = fs.existsSync;
     const unlinkAsync = promisify(fs.unlink);
     if (shop.avatar) {
@@ -179,9 +184,39 @@ export class ShopService {
   }
 
   async findOne(id: number) {
-    const shop = await this.shopRepository.findOne({ where: { id } });
+    const shop = await this.shopRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+
+    if (!shop) {
+      return null;
+    }
+
+    // Calculate the total quantity of products for the shop
+    let totalProducts = 0;
+
+    if (shop.products && shop.products.length > 0) {
+      totalProducts = shop.products.reduce(
+        (sum, product) => sum + product.total,
+        0,
+      );
+    }
+
+    // Get the total sale for the shop by iterating over products
+    let totalSale = '0'; // Initialize totalSale as a string
+    if (shop.products && shop.products.length > 0) {
+      for (const product of shop.products) {
+        const productSale = await this.productService.getTotalSoldQuantity(
+          product.id,
+        );
+        totalSale = (BigInt(totalSale) + BigInt(productSale)).toString();
+      }
+    }
     const image1 = await this.imageService.getImage(shop.avatar);
-    return { ...shop, avatar: image1 };
+
+    // Return the result with total products and total sale
+    return { shop: { ...shop, totalProducts, totalSale, avatar: image1 } };
   }
 
   async remove(id: number): Promise<void> {
@@ -190,5 +225,88 @@ export class ShopService {
       throw new NotFoundException(`Shop with id ${id} not found.`);
     }
     await this.shopRepository.remove(shop);
+  }
+
+  async getTotalProductsForShop(shopId: number): Promise<number> {
+    const shop = await this.shopRepository.findOne({
+      where: { id: shopId },
+      relations: ['products'],
+    });
+
+    if (!shop) {
+      // Handle the case where the shop with the provided ID is not found
+      return 0;
+    }
+
+    const totalProductsForShop = shop.products.reduce(
+      (sum, product) => sum + product.total,
+      0,
+    );
+
+    return totalProductsForShop;
+  }
+  async dashboard(
+    shopId: number,
+  ): Promise<
+    { week: number; totalUsers: number; totalSoldProducts: number }[]
+  > {
+    // Get the shop's creation date
+    const shop = await this.shopRepository.findOne({ where: { id: shopId } });
+    const shopCreationDate = shop.created_at;
+
+    // Get all orders for the shop using OrderService
+    const orders: Order[] = await this.orderService.findOrdersByShop(shopId);
+
+    // Initialize the result array
+    const result: {
+      week: number;
+      totalUsers: number;
+      totalSoldProducts: number;
+    }[] = [];
+
+    // Extract user information and calculate total sold products
+    const users: Set<number> = new Set();
+    let totalSoldProducts: number = 0;
+
+    for (const order of orders) {
+      users.add(order.user.id);
+
+      for (const orderItem of order.order_items) {
+        totalSoldProducts += orderItem.quantity;
+      }
+
+      // Calculate the ISO week for the order
+      const week = this.getISOWeek(shopCreationDate, order.created_at);
+
+      // Find existing entry for the week or create a new one
+      const entry = result.find((entry) => entry.week === week);
+
+      if (entry) {
+        entry.totalUsers += users.size;
+        entry.totalSoldProducts += totalSoldProducts;
+      } else {
+        result.push({
+          week,
+          totalUsers: users.size,
+          totalSoldProducts,
+        });
+      }
+    }
+
+    return result;
+  }
+  private getISOWeek(shopCreationDate: Date, orderDate: Date): number {
+    const millisecondsInDay: number = 86400000;
+
+    // Calculate the difference in days between the order date and the shop's creation date
+    const daysDifference = Math.ceil(
+      (orderDate.getTime() - shopCreationDate.getTime()) / millisecondsInDay +
+        1, // Add 1 to handle the day of the shop creation itself
+    );
+
+    // Calculate the ISO week number
+    const weekNumber = Math.ceil(daysDifference / 7);
+
+    return weekNumber;
   }
 }

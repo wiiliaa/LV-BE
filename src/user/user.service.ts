@@ -203,4 +203,9 @@ export class UserService {
       relations: ['categories'],
     });
   }
+
+  async findMail(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    return user.email;
+  }
 }

@@ -40,6 +40,9 @@ export class Product extends BaseEntity {
   @Column({ nullable: true, type: 'float' })
   discountedPrice: number;
 
+  @Column({ default: '0' })
+  totalSold: number;
+
   @Column()
   description: string;
 

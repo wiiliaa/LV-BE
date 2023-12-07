@@ -49,12 +49,14 @@ export class Order extends BaseEntity {
   @Column({ default: 'pending' })
   status: string;
 
+  @Column({ nullable: true })
+  address: string;
+
   // @Column()
   // price: number;
 
   // @Column()
   // discountPrice: number;
-
   @OneToOne(() => PaymentDetail, (payment_detail) => payment_detail.order)
   payment_detail: PaymentDetail;
 
