@@ -214,9 +214,10 @@ export class ShopService {
       }
     }
     const image1 = await this.imageService.getImage(shop.avatar);
+    delete shop.products;
 
     // Return the result with total products and total sale
-    return { shop: { ...shop, totalProducts, totalSale, avatar: image1 } };
+    return { ...shop, totalProducts, totalSale, avatar: image1 };
   }
 
   async remove(id: number): Promise<void> {
@@ -255,7 +256,9 @@ export class ShopService {
     const shopCreationDate = shop.created_at;
 
     // Get all orders for the shop using OrderService
-    const orders: Order[] = await this.orderService.findOrdersByShop(shopId);
+    const orders: Order[] = await this.orderService.findCompletedOrdersByShop(
+      shopId,
+    );
 
     // Initialize the result array
     const result: {

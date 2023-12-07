@@ -171,6 +171,30 @@ export class OrderService {
 
     return ordersWithUserName;
   }
+  async findCompletedOrdersByShop(shopId: number): Promise<Order[]> {
+    // Find orders with status 'done'
+    const completedOrders = await this.orderRepository.find({
+      where: {
+        shopId: shopId,
+        status: 'done', // Assuming 'done' is the status you are looking for
+      },
+      relations: ['user', 'order_items', 'order_items.version'],
+    });
+
+    // Check if completedOrders is null or undefined, and return an empty array if true
+    if (!completedOrders) {
+      return [];
+    }
+
+    // Map over the completedOrders and modify each order to include userName
+    const completedOrdersWithUserName = completedOrders.map((order) => {
+      order.username = order.user.name;
+      return order;
+    });
+
+    return completedOrdersWithUserName;
+  }
+
   async myOrder(user: User): Promise<
     {
       orderId: number;
