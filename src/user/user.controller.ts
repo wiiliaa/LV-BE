@@ -50,7 +50,6 @@ export class UserController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'))
   async delete(@Param('id') id: number) {
     return this.usersService.delete(id);
   }
