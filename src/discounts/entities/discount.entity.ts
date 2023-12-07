@@ -42,14 +42,16 @@ export class Discount extends BaseEntity {
   @Column({ nullable: true, type: 'text' })
   image: string;
 
-  @ManyToOne(() => Shop, (shop) => shop.discounts)
+  @ManyToOne(() => Shop, (shop) => shop.discounts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 
   @Column()
   shop_id: number;
 
-  @OneToMany(() => Product, (product) => product.discount)
+  @OneToMany(() => Product, (product) => product.discount, {
+    onDelete: 'CASCADE',
+  })
   product: Product[];
 
   @CreateDateColumn({
