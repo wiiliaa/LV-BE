@@ -27,10 +27,16 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get('byCategoryName/:name')
-  async findProductsByCategoryName(@Param('name') name: string) {
+  async findProductsByCategoryName(
+    @Param('name') name: string,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
     const decodedCategoryName = decodeURIComponent(name);
     const products = await this.productService.findProductsByCategoryName(
       decodedCategoryName,
+      page,
+      pageSize,
     );
 
     return products;
@@ -200,5 +206,19 @@ export class ProductController {
     );
 
     return totalSoldQuantity;
+  }
+
+  @Get('/shop/discount/:shopId')
+  async findProductsByDiscountPage(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+    @Query('shopId') shopId?: number,
+  ) {
+    const result = await this.productService.findProductsByDiscountPage(
+      page,
+      pageSize,
+      shopId,
+    );
+    return result;
   }
 }
