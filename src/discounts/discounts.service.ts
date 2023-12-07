@@ -123,10 +123,11 @@ export class DiscountsService {
 
     return { status };
   }
-  // async activateDiscount(discountId: number, productId: number) {
-  //   try {
-  //     // Find the product by ID
-  //     const product = await this.productService.findById(productId);
+
+  async activateDiscount(discountId: number, productId: number) {
+    try {
+      // Find the product by ID
+      const product = await this.productService.findProduct(productId);
 
   //     if (!product) {
   //       throw new NotFoundException('Product not found');
@@ -143,119 +144,119 @@ export class DiscountsService {
   //   }
   // }
 
-  async findAllProductsByDiscountId(discountId: number): Promise<Product[]> {
-    // Find the discount by ID with its associated products
-    const discount = await this.discountRepository.findOne({
-      where: { id: discountId },
-      relations: ['product'],
-    });
+  async findAllProductsByDiscountId(discountId: number): Promise < Product[] > {
+        // Find the discount by ID with its associated products
+        const discount = await this.discountRepository.findOne({
+          where: { id: discountId },
+          relations: ['product'],
+        });
 
-    if (!discount) {
-      throw new NotFoundException('Discount not found');
-    }
+        if(!discount) {
+          throw new NotFoundException('Discount not found');
+        }
 
     // Retrieve images for each associated product
     const productsWithImages = await Promise.all(
-      discount.product.map(async (product) => ({
-        ...product,
-        image: await this.imageService.getImage(product.image), // Replace with your actual service or logic
-      })),
-    );
+          discount.product.map(async (product) => ({
+            ...product,
+            image: await this.imageService.getImage(product.image), // Replace with your actual service or logic
+          })),
+        );
 
-    // Return the associated products with images
-    return productsWithImages as Product[];
-  }
+        // Return the associated products with images
+        return productsWithImages as Product[];
+      }
 
-  async findDiscountsByShop(shopId: number): Promise<Discount[]> {
-    try {
-      const discounts = await this.discountRepository.find({
-        where: { shop_id: shopId },
-      });
+  async findDiscountsByShop(shopId: number): Promise < Discount[] > {
+        try {
+          const discounts = await this.discountRepository.find({
+            where: { shop_id: shopId },
+          });
 
-      const discountsWithImages: Discount[] = await Promise.all(
-        discounts.map(async (discount) => {
-          const image = await this.imageService.getImage(discount.image);
+          const discountsWithImages: Discount[] = await Promise.all(
+            discounts.map(async (discount) => {
+              const image = await this.imageService.getImage(discount.image);
 
-          return {
-            ...discount,
-            image,
-          } as Discount;
-        }),
-      );
+              return {
+                ...discount,
+                image,
+              } as Discount;
+            }),
+          );
 
-      return discountsWithImages;
-    } catch (error) {
-      console.error('Error finding discounts by shop:', error);
-      throw new InternalServerErrorException('Error finding discounts by shop');
-    }
-  }
+          return discountsWithImages;
+        } catch(error) {
+          console.error('Error finding discounts by shop:', error);
+          throw new InternalServerErrorException('Error finding discounts by shop');
+        }
+      }
 
   // Thay đổi kiểu của 'id' từ 'number' sang 'Discount'
   async getRemainingDays(
     @Param('id') id: Discount,
-  ): Promise<{ remainingDays: number }> {
-    try {
-      // Sử dụng 'id' trực tiếp như một đối tượng Discount
-      const expirationDate = new Date(id.endDate);
+  ): Promise < { remainingDays: number } > {
+        try {
+          // Sử dụng 'id' trực tiếp như một đối tượng Discount
+          const expirationDate = new Date(id.endDate);
 
-      // Chuyển đổi thời gian sang mili giây và tính số ngày còn lại
-      const remainingMilliseconds = expirationDate.getTime() - Date.now();
-      const remainingDays = Math.ceil(
-        remainingMilliseconds / (1000 * 60 * 60 * 24),
-      );
+          // Chuyển đổi thời gian sang mili giây và tính số ngày còn lại
+          const remainingMilliseconds = expirationDate.getTime() - Date.now();
+          const remainingDays = Math.ceil(
+            remainingMilliseconds / (1000 * 60 * 60 * 24),
+          );
 
-      return { remainingDays };
-    } catch (error) {
-      // Xử lý lỗi và trả về phản hồi
-      console.error('Error getting remaining days:', error);
-      throw new InternalServerErrorException('Error getting remaining days');
+          return { remainingDays };
+        } catch(error) {
+          // Xử lý lỗi và trả về phản hồi
+          console.error('Error getting remaining days:', error);
+          throw new InternalServerErrorException('Error getting remaining days');
+        }
+      }
+
+  async deleteExpiredDiscounts(): Promise < void> {
+        const expiredDiscounts = await this.discountRepository.find({
+          where: {
+            endDate: LessThan(new Date()), // Tìm các discount hết hạn
+          },
+          relations: ['product'], // Lấy cả thông tin sản phẩm liên quan
+        });
+
+        for(const discount of expiredDiscounts) {
+          // Xóa discount từ cơ sở dữ liệu
+
+          await this.discountRepository.save(discount);
+          // Sử dụng ProductService để xóa discount khỏi các sản phẩm liên quan
+          await this.productService.removeDiscountFromProducts(discount.id);
+        }
+      }
+
+  async getActiveDiscountsByShop(shopId: number): Promise < Discount[] > {
+        try {
+          const activeDiscounts = await this.discountRepository.find({
+            where: {
+              endDate: MoreThan(new Date()), // Find discounts with an end date greater than the current date
+              shop_id: shopId, // Filter by shop ID
+            },
+            relations: ['product'], // Include related product information
+          });
+
+          const activeDiscountsWithImages: Discount[] = await Promise.all(
+            activeDiscounts.map(async (discount) => {
+              const image = await this.imageService.getImage(discount.image);
+
+              return {
+                ...discount,
+                image,
+              } as Discount;
+            }),
+          );
+
+          return activeDiscountsWithImages;
+        } catch(error) {
+          console.error('Error getting active discounts by shop:', error);
+          throw new InternalServerErrorException(
+            'Error getting active discounts by shop',
+          );
+        }
+      }
     }
-  }
-
-  async deleteExpiredDiscounts(): Promise<void> {
-    const expiredDiscounts = await this.discountRepository.find({
-      where: {
-        endDate: LessThan(new Date()), // Tìm các discount hết hạn
-      },
-      relations: ['product'], // Lấy cả thông tin sản phẩm liên quan
-    });
-
-    for (const discount of expiredDiscounts) {
-      // Xóa discount từ cơ sở dữ liệu
-
-      await this.discountRepository.save(discount);
-      // Sử dụng ProductService để xóa discount khỏi các sản phẩm liên quan
-      await this.productService.removeDiscountFromProducts(discount.id);
-    }
-  }
-
-  async getActiveDiscountsByShop(shopId: number): Promise<Discount[]> {
-    try {
-      const activeDiscounts = await this.discountRepository.find({
-        where: {
-          endDate: MoreThan(new Date()), // Find discounts with an end date greater than the current date
-          shop_id: shopId, // Filter by shop ID
-        },
-        relations: ['product'], // Include related product information
-      });
-
-      const activeDiscountsWithImages: Discount[] = await Promise.all(
-        activeDiscounts.map(async (discount) => {
-          const image = await this.imageService.getImage(discount.image);
-
-          return {
-            ...discount,
-            image,
-          } as Discount;
-        }),
-      );
-
-      return activeDiscountsWithImages;
-    } catch (error) {
-      console.error('Error getting active discounts by shop:', error);
-      throw new InternalServerErrorException(
-        'Error getting active discounts by shop',
-      );
-    }
-  }
-}

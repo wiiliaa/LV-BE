@@ -45,14 +45,14 @@ export class DiscountsController {
     return this.discountsService.delete(id);
   }
 
-  // @Post('activate/:discountId/:productId')
-  // async activateDiscount(
-  //   @Param('discountId') discountId: number,
-  //   @Param('productId') productId: number,
-  // ) {
-  //   await this.discountsService.activateDiscount(discountId, productId);
-  //   return { success: true };
-  // }
+  @Post('activate/:discountId/:productId')
+  async activateDiscount(
+    @Param('discountId') discountId: number,
+    @Param('productId') productId: number,
+  ) {
+    await this.discountsService.activateDiscount(discountId, productId);
+    return { success: true };
+  }
 
   @Get('getAllProductByDiscount/:discountId')
   async findAllProductsByDiscountId(@Param('discountId') discountId: number) {
