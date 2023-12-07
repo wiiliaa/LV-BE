@@ -35,7 +35,7 @@ export class OrderService {
     private image: ImageService,
     private readonly mailerService: MailerService,
     private userService: UserService,
-  ) { }
+  ) {}
 
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
@@ -327,9 +327,7 @@ export class OrderService {
 
     // Kiểm tra xem đơn hàng có thuộc về cửa hàng của người dùng không
     if (order.shopId !== user.shop_id) {
-      throw new UnauthorizedException(
-        `You don't have permission to view this order.`,
-      );
+      return null;
     }
 
     return order;
