@@ -33,13 +33,9 @@ export class OrderService {
     @InjectRepository(ProductSize)
     private readonly sizeRepository: Repository<ProductSize>,
     private image: ImageService,
-<<<<<<< HEAD
-  ) { }
-=======
     private readonly mailerService: MailerService,
     private userService: UserService,
-  ) {}
->>>>>>> 5916525a2ad9ba4347f5e7684a6280fd37d6bf4c
+  ) { }
 
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
