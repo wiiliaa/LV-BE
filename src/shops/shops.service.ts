@@ -19,6 +19,7 @@ import { join } from 'path';
 import { NotifiyService } from 'src/notifiy/notifiy.service';
 import { OrderService } from 'src/order/order.service';
 import { Order } from 'src/order/entities/order.entity';
+import { ProductService } from 'src/product/product.service';
 @Injectable()
 export class ShopService {
   constructor(
@@ -27,6 +28,7 @@ export class ShopService {
     private imageService: ImageService,
     private noti: NotifiyService,
     private orderService: OrderService,
+    private productService: ProductService,
   ) {}
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
@@ -182,9 +184,39 @@ export class ShopService {
   }
 
   async findOne(id: number) {
-    const shop = await this.shopRepository.findOne({ where: { id } });
+    const shop = await this.shopRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+
+    if (!shop) {
+      return null;
+    }
+
+    // Calculate the total quantity of products for the shop
+    let totalProducts = 0;
+
+    if (shop.products && shop.products.length > 0) {
+      totalProducts = shop.products.reduce(
+        (sum, product) => sum + product.total,
+        0,
+      );
+    }
+
+    // Get the total sale for the shop by iterating over products
+    let totalSale = '0'; // Initialize totalSale as a string
+    if (shop.products && shop.products.length > 0) {
+      for (const product of shop.products) {
+        const productSale = await this.productService.getTotalSoldQuantity(
+          product.id,
+        );
+        totalSale = (BigInt(totalSale) + BigInt(productSale)).toString();
+      }
+    }
     const image1 = await this.imageService.getImage(shop.avatar);
-    return { ...shop, avatar: image1 };
+
+    // Return the result with total products and total sale
+    return { shop: { ...shop, totalProducts, totalSale, avatar: image1 } };
   }
 
   async remove(id: number): Promise<void> {

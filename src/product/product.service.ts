@@ -86,14 +86,19 @@ export class ProductService {
     page: number = 1,
     pageSize: number = 8,
     searchTerm?: string,
+    shopId?: number,
   ): Promise<{ products: Product[]; total: number }> {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
     const queryBuilder: SelectQueryBuilder<Product> =
       this.productRepository.createQueryBuilder('product');
 
+    if (shopId) {
+      queryBuilder.andWhere('product.shop_id = :shopId', { shopId });
+    }
+
     if (searchTerm) {
-      queryBuilder.where(
+      queryBuilder.andWhere(
         `(LOWER(product.name) LIKE LOWER(:searchTerm) OR LOWER(product.description) LIKE LOWER(:searchTerm))`,
         { searchTerm: `%${searchTerm}%` },
       );

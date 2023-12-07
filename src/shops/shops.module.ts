@@ -7,6 +7,7 @@ import { ImageModule } from 'src/image/image.module';
 import { Notifiy } from 'src/notifiy/entities/notifiy.entity';
 import { NotifiyModule } from 'src/notifiy/notifiy.module';
 import { OrderModule } from 'src/order/order.module';
+import { ProductModule } from 'src/product/product.module';
 @Module({
   controllers: [ShopController],
   providers: [ShopService],
@@ -15,6 +16,7 @@ import { OrderModule } from 'src/order/order.module';
     ImageModule,
     NotifiyModule,
     OrderModule,
+    ProductModule,
   ],
 })
 export class ShopsModule {}
