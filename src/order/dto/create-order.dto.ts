@@ -1,6 +1,7 @@
 export class CreateOrderDto {
   user_id: number;
   total: number;
+
   cartItems: CartItemDto[];
 }
 

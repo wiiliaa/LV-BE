@@ -12,12 +12,20 @@ import { ImageModule } from 'src/image/image.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { UserModule } from 'src/user/user.module';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { Shop } from 'src/shops/entities/shop.entity';
 
 @Module({
   controllers: [OrderController],
   providers: [OrderService],
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, CartItem, Cart, ProductSize]),
+    TypeOrmModule.forFeature([
+      Order,
+      OrderItem,
+      CartItem,
+      Cart,
+      ProductSize,
+      Shop,
+    ]),
     ImageModule,
     UserModule,
     MailerModule.forRoot({
