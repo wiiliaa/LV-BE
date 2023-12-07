@@ -737,7 +737,9 @@ export class ProductService {
       .createQueryBuilder('product')
       .leftJoin('product.versions', 'version')
       .leftJoin('version.order_items', 'order_item')
+      .leftJoin('order_item.order', 'order')
       .where('product.id = :productId', { productId })
+      .andWhere('order.status = :orderStatus', { orderStatus: 'done' })
       .select('SUM(order_item.quantity)', 'totalSold')
       .getRawOne();
 
