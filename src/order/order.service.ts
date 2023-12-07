@@ -35,7 +35,7 @@ export class OrderService {
     private image: ImageService,
     private readonly mailerService: MailerService,
     private userService: UserService,
-  ) {}
+  ) { }
 
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
