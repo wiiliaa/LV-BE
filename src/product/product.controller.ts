@@ -182,11 +182,13 @@ export class ProductController {
     @Param('categoryId') categoryId: number,
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
+    @Query('shopId') shopId: number,
   ) {
     const products = await this.productService.findProductsByCategoryPage(
       categoryId,
       page,
       pageSize,
+      shopId,
     );
     return products;
   }

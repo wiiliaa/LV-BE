@@ -23,7 +23,7 @@ export class DiscountsService {
     private readonly discountRepository: Repository<Discount>,
     private productService: ProductService,
     private imageService: ImageService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Discount[]> {
     const discounts = await this.discountRepository.find();
