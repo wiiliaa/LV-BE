@@ -492,40 +492,33 @@ export class OrderService {
   }
 
   async sendOrderConfirmationEmail(orderId: number) {
-    try {
-      // Lấy thông tin đơn hàng từ cơ sở dữ liệu
-      const order = await this.orderRepository.findOne({
-        where: { id: orderId },
-      });
+    // Lấy thông tin đơn hàng từ cơ sở dữ liệu
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+    });
 
-      if (!order) {
-        console.error(`Order with ID ${orderId} not found.`);
-        return;
-      }
-
-      // Mark the order as done (assuming you have this function)
-      await this.markOrderAsDone(orderId);
-      await this.orderRepository.save(order);
-      // Get the user's email (assuming this returns a Promise<string>)
-      const userEmail: string = await this.userService.findMail(order.user_id);
-
-      // Extract order details
-      const { id: order_id, total, status } = order;
-
-      // Send order confirmation email
-      await this.mailerService.sendMail({
-        to: userEmail,
-        subject: 'Order Confirmation',
-        template: 'order-confirmation',
-        context: {
-          total,
-          status,
-        },
-      });
-
-      console.log(`Order confirmation email sent to ${userEmail}`);
-    } catch (error) {
-      console.error('Error sending order confirmation email:', error);
+    if (!order) {
+      console.error(`Order with ID ${orderId} not found.`);
+      return;
     }
+
+    // Mark the order as done (assuming you have this function)
+
+    // Get the user's email (assuming this returns a Promise<string>)
+    const userEmail: string = await this.userService.findMail(order.user_id);
+
+    // Extract order details
+    const { id: order_id, total, status } = order;
+
+    // Send order confirmation email
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject: 'Order Confirmation',
+      template: 'order-confirmation',
+      context: {
+        total,
+        status,
+      },
+    });
   }
 }
