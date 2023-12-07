@@ -43,6 +43,7 @@ export class OrderService {
         user: { id: user.id },
         total: currentShopItem.totalPrice,
         shopId: currentShopItem.shopId,
+        address: user.address,
       });
 
       const createdOrder = await this.orderRepository.save(orderEntity);
