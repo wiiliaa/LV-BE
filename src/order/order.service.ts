@@ -327,9 +327,13 @@ export class OrderService {
 
         // Get the image for the product version
         const versionImage = await this.image.getImage(version.product.image);
-
+        const size = await this.sizeRepository.findOne({
+          where: { id: orderItem.sizeId },
+        });
+        const sizeName = size ? size.sizeName : 'Unknown Size';
         return {
           ...orderItem,
+          sizeName: sizeName,
           version: {
             ...version,
             image: versionImage,
@@ -341,8 +345,13 @@ export class OrderService {
     if (order.shopId !== user.shop_id) {
       return null;
     }
+
     delete order.user;
-    return { ...order, username, order_items: orderItemsWithImages } as Order;
+    return {
+      ...order,
+      username,
+      order_items: orderItemsWithImages,
+    } as Order;
   }
 
   async findOrdersByShopAndStatus(user: User, status: string) {
