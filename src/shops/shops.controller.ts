@@ -67,4 +67,10 @@ export class ShopController {
     const totalProducts = await this.shopService.getTotalProductsForShop(id);
     return totalProducts;
   }
+  @Get('dashBoard/:id')
+  async getShopDashboard(@Param('id') shopId: number) {
+    const dashboardData = await this.shopService.dashboard(shopId);
+
+    return dashboardData;
+  }
 }

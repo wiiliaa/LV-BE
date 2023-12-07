@@ -6,9 +6,15 @@ import { Shop } from './entities/shop.entity';
 import { ImageModule } from 'src/image/image.module';
 import { Notifiy } from 'src/notifiy/entities/notifiy.entity';
 import { NotifiyModule } from 'src/notifiy/notifiy.module';
+import { OrderModule } from 'src/order/order.module';
 @Module({
   controllers: [ShopController],
   providers: [ShopService],
-  imports: [TypeOrmModule.forFeature([Shop]), ImageModule, NotifiyModule],
+  imports: [
+    TypeOrmModule.forFeature([Shop]),
+    ImageModule,
+    NotifiyModule,
+    OrderModule,
+  ],
 })
 export class ShopsModule {}
