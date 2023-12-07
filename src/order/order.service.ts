@@ -30,7 +30,7 @@ export class OrderService {
     @InjectRepository(ProductSize)
     private readonly sizeRepository: Repository<ProductSize>,
     private image: ImageService,
-  ) {}
+  ) { }
 
   async order(user: User, createOrderDtos: CreateOrderDto) {
     for (const currentShopItem of createOrderDtos.cartItems) {
