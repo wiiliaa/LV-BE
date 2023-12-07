@@ -48,16 +48,20 @@ export class Shop extends BaseEntity {
   @Column({ nullable: true })
   shop_payment: string;
 
-  @OneToMany(() => Discount, (discount) => discount.shop)
+  @OneToMany(() => Discount, (discount) => discount.shop, {
+    onDelete: 'CASCADE',
+  })
   discounts: Discount[];
 
-  @OneToMany(() => Order, (order) => order.shop)
+  @OneToMany(() => Order, (order) => order.shop, { onDelete: 'CASCADE' })
   orders: Order[];
 
-  @OneToMany(() => Product, (product) => product.shop)
+  @OneToMany(() => Product, (product) => product.shop, { onDelete: 'CASCADE' })
   products: Product[];
 
-  @OneToMany(() => CartItem, (cart_items) => cart_items.shop)
+  @OneToMany(() => CartItem, (cart_items) => cart_items.shop, {
+    onDelete: 'CASCADE',
+  })
   cart_items: CartItem[];
 
   @CreateDateColumn({

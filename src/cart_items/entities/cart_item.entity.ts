@@ -25,7 +25,9 @@ export class CartItem extends BaseEntity {
   @Column()
   cart_id: number;
 
-  @ManyToOne(() => ProductVersion, (version) => version.cart_items)
+  @ManyToOne(() => ProductVersion, (version) => version.cart_items, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'version_id' })
   version: ProductVersion;
 

@@ -56,17 +56,17 @@ export class User extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
 
-  @OneToOne(() => Cart, (cart) => cart.user)
+  @OneToOne(() => Cart, (cart) => cart.user, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cart_id' })
   cart: Cart;
 
   @Column({ nullable: true })
   cart_id: number;
 
-  @OneToMany(() => Order, (order) => order.user)
+  @OneToMany(() => Order, (order) => order.user, { onDelete: 'CASCADE' })
   order: Order[];
 
-  @OneToOne(() => Shop, (shop) => shop.user)
+  @OneToOne(() => Shop, (shop) => shop.user, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 

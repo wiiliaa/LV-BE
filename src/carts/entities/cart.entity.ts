@@ -23,7 +23,9 @@ export class Cart extends BaseEntity {
   @Column({ nullable: true })
   user_id: number;
 
-  @OneToMany(() => CartItem, (cart_item) => cart_item.cart)
+  @OneToMany(() => CartItem, (cart_item) => cart_item.cart, {
+    onDelete: 'CASCADE',
+  })
   cart_items: CartItem[];
 
   @CreateDateColumn({
