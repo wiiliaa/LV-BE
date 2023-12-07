@@ -505,43 +505,47 @@ export class ProductService {
     }
   }
 
-  async findProductsByCategoryName(categoryName: string): Promise<Product[]> {
-    try {
-      // Find the category by name
-      const category = await this.productCategoryService.findByName(
-        categoryName,
-      );
+  async findProductsByCategoryName(
+    categoryName: string,
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<{ products: Product[]; total: number }> {
+    // Find the category by name
+    const category = await this.productCategoryService.findByName(categoryName);
 
-      if (!category) {
-        return [];
-      }
-
-      // Find products associated with the category
-      const products = await this.productRepository
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.categories', 'categories')
-        .where('categories.id = :categoryId', { categoryId: category.id })
-        .getMany();
-
-      // Duyệt qua từng sản phẩm và thêm thông tin ảnh
-      const productsWithImages: Product[] = await Promise.all(
-        products.map(async (product) => {
-          await this.updateDiscountedPrice(product.id);
-          const image = await this.imageService.getImage(product.image);
-
-          // Tạo một đối tượng mới chỉ với thông tin ảnh được thêm vào
-          return {
-            ...product,
-            image,
-          } as Product;
-        }),
-      );
-
-      // Trả về danh sách sản phẩm với thông tin ảnh
-      return productsWithImages;
-    } catch (error) {
-      return [];
+    if (!category) {
+      return { products: [], total: 0 };
     }
+
+    // Calculate skip and take based on pagination parameters
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    // Find products associated with the category with pagination
+    const [products, total] = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .where('categories.id = :categoryId', { categoryId: category.id })
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+    // Process products and return them with total count
+    const productsWithImages: Product[] = await Promise.all(
+      products.map(async (product) => {
+        await this.updateDiscountedPrice(product.id);
+        const image = await this.imageService.getImage(product.image);
+
+        // Create a new object with added image information
+        return {
+          ...product,
+          image,
+        } as Product;
+      }),
+    );
+
+    // Return the list of products with image information and total count
+    return { products: productsWithImages, total };
   }
 
   async findProductsByCategoryAndShop(
@@ -598,12 +602,10 @@ export class ProductService {
         return [];
       }
 
-      // Tìm hoặc tạo danh mục "New Products"
       let newProductsCategory = await this.productCategoryService.findByName(
         'New Products',
       );
 
-      // Thêm sản phẩm vào danh mục "New Products"
       await this.addProductToCategories(productId, newProductsCategory.id);
     } catch (error) {
       console.error(
@@ -654,31 +656,37 @@ export class ProductService {
       throw new NotFoundException('Error retrieving products');
     }
   }
-
   async findProductsByCategoryPage(
     categoryId: number,
     page: number = 1,
     pageSize: number = 10,
+    shopId?: number, // Thêm tham số shopId
   ): Promise<{ products: Product[]; total: number }> {
     try {
       const skip = (page - 1) * pageSize;
       const take = pageSize;
 
-      const [products, count] = await this.productRepository.findAndCount({
-        join: {
-          alias: 'product',
-          innerJoinAndSelect: {
-            categories: 'product.categories',
-          },
-        },
-        where: {
-          categories: {
-            id: categoryId,
-          },
-        },
-        skip,
-        take,
-      });
+      let queryBuilder = this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categories', 'categories');
+
+      if (shopId) {
+        // Nếu có shopId, thêm điều kiện tìm kiếm theo cả categoryId và shopId
+        queryBuilder = queryBuilder
+          .innerJoin('product.shop', 'shop')
+          .where('categories.id = :categoryId', { categoryId })
+          .andWhere('shop.id = :shopId', { shopId });
+      } else {
+        // Nếu không có shopId, chỉ tìm kiếm theo categoryId
+        queryBuilder = queryBuilder.where('categories.id = :categoryId', {
+          categoryId,
+        });
+      }
+
+      const [products, count] = await queryBuilder
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
 
       // Process products and return them
       const productsWithImages: Product[] = await Promise.all(
