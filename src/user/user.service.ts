@@ -112,20 +112,20 @@ export class UserService {
     });
 
     if (!userToDelete) {
-      throw new NotFoundException('Người dùng không tồn tại');
+      return null;
     }
 
     // Kiểm tra xem người dùng có hình ảnh không
-    if (userToDelete.avatar) {
-      // Xác định đường dẫn tuyệt đối của hình ảnh
-      const imagePath = join('public/upload/', userToDelete.avatar);
-      if (fs.existsSync(imagePath)) {
-        await unlinkAsync(imagePath);
-      }
-      const deleteResult = await this.userRepository.delete(id);
-    } else if (!userToDelete.avatar) {
-      const deleteResult = await this.userRepository.delete(id);
-    }
+    // if (userToDelete.avatar) {
+    //   // Xác định đường dẫn tuyệt đối của hình ảnh
+    //   const imagePath = join('public/upload/', userToDelete.avatar);
+    //   if (fs.existsSync(imagePath)) {
+    //     await unlinkAsync(imagePath);
+    //   }
+    //   const deleteResult = await this.userRepository.delete(id);
+    // } else if (!userToDelete.avatar) {
+    //   const deleteResult = await this.userRepository.delete(id);
+    // }
     const deleteResult = await this.userRepository.delete(id);
 
     if (deleteResult.affected && deleteResult.affected > 0) {
