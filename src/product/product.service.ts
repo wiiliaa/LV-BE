@@ -93,13 +93,9 @@ export class ProductService {
       this.productRepository.createQueryBuilder('product');
 
     if (searchTerm) {
-      const normalizedSearchTerm = unorm
-        .nfd(searchTerm)
-        .replace(/[\u0300-\u036f]/g, ''); // Remove diacritics from search term
-
       queryBuilder.where(
-        `(LOWER(UNACCENT(product.name)) LIKE LOWER(UNACCENT(:searchTerm)) OR LOWER(UNACCENT(product.description)) LIKE LOWER(UNACCENT(:searchTerm)))`,
-        { searchTerm: `%${normalizedSearchTerm}%` },
+        `(LOWER(product.name) LIKE LOWER(:searchTerm) OR LOWER(product.description) LIKE LOWER(:searchTerm))`,
+        { searchTerm: `%${searchTerm}%` },
       );
     }
 
