@@ -207,4 +207,18 @@ export class ProductController {
 
     return totalSoldQuantity;
   }
+
+  @Get('/shop/discount/:shopId')
+  async findProductsByDiscountPage(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+    @Query('shopId') shopId?: number,
+  ) {
+    const result = await this.productService.findProductsByDiscountPage(
+      page,
+      pageSize,
+      shopId,
+    );
+    return result;
+  }
 }

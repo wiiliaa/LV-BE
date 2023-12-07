@@ -743,4 +743,49 @@ export class ProductService {
 
     return totalSold.totalSold || 0;
   }
+
+  async findProductsByDiscountPage(
+    page: number = 1,
+    pageSize: number = 10,
+    shopId?: number,
+  ): Promise<{ products: Product[]; total: number }> {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    let queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .leftJoinAndSelect('product.discount', 'discount')
+      .where('discount IS NOT NULL'); // Chỉ chọn sản phẩm có discount
+
+    // Nếu có shopId, thêm điều kiện tìm kiếm theo shopId
+    if (shopId) {
+      queryBuilder = queryBuilder.andWhere('product.shop_id = :shopId', {
+        shopId,
+      });
+    }
+
+    const [products, count] = await queryBuilder
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+    // Process products and return them
+    const productsWithImages: Product[] = await Promise.all(
+      products.map(async (product) => {
+        await this.updateDiscountedPrice(product.id);
+        const image = await this.imageService.getImage(product.image);
+
+        // Create a new object with added image and discount information
+        return {
+          ...product,
+          image,
+        } as Product;
+      }),
+    );
+
+    const total = Math.ceil(count / pageSize);
+
+    return { products: productsWithImages, total };
+  }
 }
