@@ -18,6 +18,7 @@ import { ProductVersion } from 'src/product-version/entities/product-version.ent
 import { MailerService } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { UserService } from 'src/user/user.service';
+import { Shop } from 'src/shops/entities/shop.entity';
 
 @Injectable()
 export class OrderService {
@@ -32,6 +33,8 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(ProductSize)
     private readonly sizeRepository: Repository<ProductSize>,
+    @InjectRepository(Shop)
+    private readonly shopRepository: Repository<Shop>,
     private image: ImageService,
     private readonly mailerService: MailerService,
     private userService: UserService,
@@ -256,57 +259,51 @@ export class OrderService {
   }
 
   async orderDetail(user: User, orderId: number): Promise<Order> {
-    try {
-      console.log(orderId);
-      const order = await this.orderRepository.findOne({
-        where: { id: orderId },
-        relations: [
-          'order_items',
-          'order_items.version',
-          'order_items.version.product',
-        ],
-      });
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: [
+        'order_items',
+        'order_items.version',
+        'order_items.version.product',
+      ],
+    });
 
-      // Nếu không tìm thấy đơn hàng, ném một NotFoundException
-      if (!order) {
-        return null;
-      }
-
-      // Load hình cho các version trong đơn hàng và cập nhật order_items
-      order.order_items = await Promise.all(
-        order.order_items.map(async (orderItem) => {
-          const version = orderItem.version;
-
-          // Lấy size entity từ sizeId
-          const size = await this.sizeRepository.findOne({
-            where: { id: orderItem.sizeId },
-          });
-          const shop = await this.orderRepository.findOne({
-            where: { id: orderItem.shopId },
-          });
-
-          // Lấy sizeName từ size entity hoặc đặt giá trị mặc định nếu không tìm thấy
-          const sizeName = size ? size.sizeName : 'Unknown Size';
-
-          // Load hình và cập nhật orderItem
-          const versionImage = await this.image.getImage(version.product.image);
-
-          return Object.assign(orderItem, {
-            sizeName: sizeName,
-            shopName: shop.shop.name,
-            version: {
-              ...version,
-              image: versionImage,
-            },
-          });
-        }),
-      );
-
-      return order;
-    } catch (error) {
-      // Xử lý lỗi nếu cần thiết
-      throw new Error(`Error retrieving order details: ${error.message}`);
+    // Nếu không tìm thấy đơn hàng, ném một NotFoundException
+    if (!order) {
+      return null;
     }
+
+    // Load hình cho các version trong đơn hàng và cập nhật order_items
+    order.order_items = await Promise.all(
+      order.order_items.map(async (orderItem) => {
+        const version = orderItem.version;
+
+        // Lấy size entity từ sizeId
+        const size = await this.sizeRepository.findOne({
+          where: { id: orderItem.sizeId },
+        });
+        const shop = await this.shopRepository.findOne({
+          where: { id: orderItem.shopId },
+        });
+
+        // Lấy sizeName từ size entity hoặc đặt giá trị mặc định nếu không tìm thấy
+        const sizeName = size ? size.sizeName : 'Unknown Size';
+        const shopName = shop.name;
+        // Load hình và cập nhật orderItem
+        const versionImage = await this.image.getImage(version.product.image);
+
+        return Object.assign(orderItem, {
+          sizeName: sizeName,
+          shopName: shopName,
+          version: {
+            ...version,
+            image: versionImage,
+          },
+        });
+      }),
+    );
+
+    return order;
   }
 
   async orderDetailForShop(user: User, orderId: number): Promise<Order> {
