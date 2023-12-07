@@ -60,4 +60,9 @@ export class UserController {
   async update(@Body() updateUserDto: UpdateUserDto, @GetUser() user: User) {
     return this.usersService.update(user, updateUserDto);
   }
+
+  @Delete('delete/:id')
+  async delete(@Param('id') id: number) {
+    return this.usersService.delete(id);
+  }
 }

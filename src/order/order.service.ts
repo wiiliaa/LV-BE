@@ -15,6 +15,9 @@ import { ProductSize } from 'src/product_size/entities/product_size.entity';
 import { Image } from 'src/image/entities/image.entity';
 import { ImageService } from 'src/image/image.service';
 import { ProductVersion } from 'src/product-version/entities/product-version.entity';
+import { MailerService } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class OrderService {
@@ -30,6 +33,8 @@ export class OrderService {
     @InjectRepository(ProductSize)
     private readonly sizeRepository: Repository<ProductSize>,
     private image: ImageService,
+    private readonly mailerService: MailerService,
+    private userService: UserService,
   ) {}
 
   async order(user: User, createOrderDtos: CreateOrderDto) {
@@ -165,7 +170,6 @@ export class OrderService {
 
     return ordersWithUserName;
   }
-
   async myOrder(user: User): Promise<
     {
       orderId: number;
@@ -184,6 +188,7 @@ export class OrderService {
       .createQueryBuilder('order')
       .innerJoinAndSelect('order.shop', 'shop')
       .where('order.user_id = :userId', { userId: user.id })
+      .orderBy('order.created_at', 'DESC') // Sắp xếp theo thời gian đã tạo giảm dần
       .getMany();
 
     const result = orders.map((order) => ({
@@ -213,6 +218,9 @@ export class OrderService {
         'order_items.version',
         'order_items.version.product',
       ],
+      order: {
+        created_at: 'DESC', // Sắp xếp theo thời gian đã tạo giảm dần (mới nhất trên cùng)
+      },
     });
 
     if (!orders.length) {
@@ -248,6 +256,9 @@ export class OrderService {
           const size = await this.sizeRepository.findOne({
             where: { id: orderItem.sizeId },
           });
+          const shop = await this.orderRepository.findOne({
+            where: { id: orderItem.shopId },
+          });
 
           // Lấy sizeName từ size entity hoặc đặt giá trị mặc định nếu không tìm thấy
           const sizeName = size ? size.sizeName : 'Unknown Size';
@@ -257,6 +268,7 @@ export class OrderService {
 
           return Object.assign(orderItem, {
             sizeName: sizeName,
+            shopName: shop.shop.name,
             version: {
               ...version,
               image: versionImage,
@@ -304,6 +316,9 @@ export class OrderService {
         status: status,
       },
       relations: ['user', 'order_items', 'order_items.version'],
+      order: {
+        created_at: 'DESC', // Sắp xếp theo thời gian đã tạo giảm dần
+      },
     });
 
     const ordersWithUserName = orders.map((order) => {
@@ -429,5 +444,43 @@ export class OrderService {
     await this.orderRepository.save(order);
 
     return { message: 'Order marked as done successfully.' };
+  }
+
+  async sendOrderConfirmationEmail(orderId: number) {
+    try {
+      // Lấy thông tin đơn hàng từ cơ sở dữ liệu
+      const order = await this.orderRepository.findOne({
+        where: { id: orderId },
+      });
+
+      if (!order) {
+        console.error(`Order with ID ${orderId} not found.`);
+        return;
+      }
+
+      // Mark the order as done (assuming you have this function)
+      await this.markOrderAsDone(orderId);
+
+      // Get the user's email (assuming this returns a Promise<string>)
+      const userEmail: string = await this.userService.findMail(order.user_id);
+
+      // Extract order details
+      const { id: order_id, total, status } = order;
+
+      // Send order confirmation email
+      await this.mailerService.sendMail({
+        to: userEmail,
+        subject: 'Order Confirmation',
+        template: 'order-confirmation',
+        context: {
+          total,
+          status,
+        },
+      });
+
+      console.log(`Order confirmation email sent to ${userEmail}`);
+    } catch (error) {
+      console.error('Error sending order confirmation email:', error);
+    }
   }
 }

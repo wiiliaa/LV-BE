@@ -98,4 +98,10 @@ export class OrderController {
     const result = await this.orderService.cancelOrder(orderId);
     return { message: result.message };
   }
+
+  @Get('sendMail/:id')
+  async sendOrderConfirmationEmail(@Param('id') id: number): Promise<string> {
+    await this.orderService.sendOrderConfirmationEmail(id);
+    return 'Order confirmation email sent successfully';
+  }
 }

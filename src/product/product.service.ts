@@ -691,4 +691,8 @@ export class ProductService {
       await this.updateDiscountedPrice(product.id);
     }
   }
+
+  async findProduct(id: number) {
+    return this.productRepository.findOne({ where: { id } });
+  }
 }
