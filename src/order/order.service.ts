@@ -503,7 +503,8 @@ export class OrderService {
     }
 
     // Mark the order as done (assuming you have this function)
-
+    await this.markOrderAsDone(orderId);
+    await this.orderRepository.save(order);
     // Get the user's email (assuming this returns a Promise<string>)
     const userEmail: string = await this.userService.findMail(order.user_id);
 
