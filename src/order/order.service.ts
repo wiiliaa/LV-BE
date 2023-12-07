@@ -324,12 +324,28 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found.`);
     }
+    const orderItemsWithImages = await Promise.all(
+      order.order_items.map(async (orderItem) => {
+        const version = orderItem.version;
+
+        // Get the image for the product version
+        const versionImage = await this.image.getImage(version.product.image);
+
+        return {
+          ...orderItem,
+          version: {
+            ...version,
+            image: versionImage,
+          },
+        };
+      }),
+    );
 
     if (order.shopId !== user.shop_id) {
       return null;
     }
     delete order.user;
-    return { ...order, username } as Order;
+    return { ...order, username, order_items: orderItemsWithImages } as Order;
   }
 
   async findOrdersByShopAndStatus(user: User, status: string) {
