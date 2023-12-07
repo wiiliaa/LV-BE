@@ -32,11 +32,11 @@ export class CartItem extends BaseEntity {
   @Column()
   version_id: number;
 
-  @ManyToOne(() => Shop, (shop) => shop.cart_items)
+  @ManyToOne(() => Shop, (shop) => shop.cart_items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'shop_id' })
   shop: Shop;
 
-  @Column()
+  @Column({ nullable: true })
   shop_id: number;
 
   @Column()

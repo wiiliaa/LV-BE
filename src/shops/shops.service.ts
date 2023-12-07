@@ -16,7 +16,6 @@ import { ImageService } from 'src/image/image.service';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import { join } from 'path';
-import { NotifiyService } from 'src/notifiy/notifiy.service';
 import { OrderService } from 'src/order/order.service';
 import { Order } from 'src/order/entities/order.entity';
 import { ProductService } from 'src/product/product.service';
@@ -26,7 +25,6 @@ export class ShopService {
     @InjectRepository(Shop)
     private readonly shopRepository: Repository<Shop>,
     private imageService: ImageService,
-    private noti: NotifiyService,
     private orderService: OrderService,
     private productService: ProductService,
   ) {}
@@ -89,10 +87,6 @@ export class ShopService {
       // Update user role to 'seller'
       shop.user.role = 'seller';
 
-      await this.noti.createNotification(
-        shop.user_id,
-        'Shop request accepted successfully',
-      );
       await this.shopRepository.save(shop);
       await shop.user.save();
 
@@ -100,10 +94,7 @@ export class ShopService {
     } else if (status === 'reject') {
       shop.user.role = 'customer';
       await this.deleteShop(shop);
-      await this.noti.createNotification(
-        shop.user_id,
-        'Shop request accepted successfully',
-      );
+
       message = 'Shop request rejected.';
     } else {
       throw new BadRequestException('Invalid status');

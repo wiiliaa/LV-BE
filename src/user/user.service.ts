@@ -13,10 +13,12 @@ import { join } from 'path';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import { ImageService } from 'src/image/image.service';
+import { Shop } from 'src/shops/entities/shop.entity';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Shop) private shopRepository: Repository<Shop>,
     private imageService: ImageService,
   ) {}
 
@@ -103,34 +105,36 @@ export class UserService {
     const image = await this.imageService.getImage(res.avatar);
     return { ...res, avatar: image };
   }
-
   async delete(id: number): Promise<{ success: boolean }> {
     const unlinkAsync = promisify(fs.unlink);
 
-    const userToDelete = await this.userRepository.findOne({
-      where: { id },
-    });
+    try {
+      const userToDelete = await this.userRepository.findOne({
+        where: { id },
+        relations: ['shop'],
+      });
 
-    if (!userToDelete) {
-      return null;
-    }
+      if (!userToDelete) {
+        return { success: false };
+      }
 
-    // Kiểm tra xem người dùng có hình ảnh không
-    // if (userToDelete.avatar) {
-    //   // Xác định đường dẫn tuyệt đối của hình ảnh
-    //   const imagePath = join('public/upload/', userToDelete.avatar);
-    //   if (fs.existsSync(imagePath)) {
-    //     await unlinkAsync(imagePath);
-    //   }
-    //   const deleteResult = await this.userRepository.delete(id);
-    // } else if (!userToDelete.avatar) {
-    //   const deleteResult = await this.userRepository.delete(id);
-    // }
-    const deleteResult = await this.userRepository.delete(id);
+      // Check if the user has an avatar
+      if (userToDelete.avatar) {
+        // Determine the absolute path of the image
+        const imagePath = join('public/upload/', userToDelete.avatar);
 
-    if (deleteResult.affected && deleteResult.affected > 0) {
+        if (fs.existsSync(imagePath)) {
+          // If the image file exists, delete it
+          await unlinkAsync(imagePath);
+        }
+      }
+
+      // Delete the user and associated shop (using cascade delete)
+      await this.userRepository.remove(userToDelete);
+
       return { success: true };
-    } else {
+    } catch (error) {
+      console.error('Error deleting user:', error.message);
       return { success: false };
     }
   }

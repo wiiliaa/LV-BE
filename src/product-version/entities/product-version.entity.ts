@@ -33,7 +33,9 @@ export class ProductVersion extends BaseEntity {
   @Column({ default: 0, nullable: true })
   total: number;
 
-  @ManyToOne(() => Product, (product) => product.versions)
+  @ManyToOne(() => Product, (product) => product.versions, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

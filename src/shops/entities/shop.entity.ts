@@ -35,7 +35,7 @@ export class Shop extends BaseEntity {
   @Column({ nullable: true, default: null })
   avatar: string;
 
-  @OneToOne(() => User, (user) => user.shop)
+  @OneToOne(() => User, (user) => user.shop, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
