@@ -27,7 +27,7 @@ export class ShopService {
     private imageService: ImageService,
     private orderService: OrderService,
     private productService: ProductService,
-  ) {}
+  ) { }
 
   async create(user: User, createShopDto: CreateShopDto): Promise<Shop> {
     if (user.shop) {
@@ -295,7 +295,7 @@ export class ShopService {
     // Calculate the difference in days between the order date and the shop's creation date
     const daysDifference = Math.ceil(
       (orderDate.getTime() - shopCreationDate.getTime()) / millisecondsInDay +
-        1, // Add 1 to handle the day of the shop creation itself
+      1, // Add 1 to handle the day of the shop creation itself
     );
 
     // Calculate the ISO week number

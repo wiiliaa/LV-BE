@@ -19,6 +19,7 @@ export class ImageService {
       const imageContent = await readFileAsync(absolutePath, 'utf-8');
       return imageContent;
     } catch (error) {
+      console.log("------------------------", error);
       console.error('Lỗi khi đọc nội dung tệp tin:', error.message);
       return null;
     }
