@@ -61,4 +61,10 @@ export class ShopController {
   remove(@Param('id') id: number): Promise<void> {
     return this.shopService.remove(id);
   }
+
+  @Get('total/:id')
+  async getTotalProductsForShop(@Param('id') id: number): Promise<number> {
+    const totalProducts = await this.shopService.getTotalProductsForShop(id);
+    return totalProducts;
+  }
 }

@@ -191,4 +191,23 @@ export class ShopService {
     }
     await this.shopRepository.remove(shop);
   }
+
+  async getTotalProductsForShop(shopId: number): Promise<number> {
+    const shop = await this.shopRepository.findOne({
+      where: { id: shopId },
+      relations: ['products'],
+    });
+
+    if (!shop) {
+      // Handle the case where the shop with the provided ID is not found
+      return 0;
+    }
+
+    const totalProductsForShop = shop.products.reduce(
+      (sum, product) => sum + product.total,
+      0,
+    );
+
+    return totalProductsForShop;
+  }
 }

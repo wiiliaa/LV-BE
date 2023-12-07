@@ -26,8 +26,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         port: 587, // or the port your SMTP server uses
         secure: false, // set to true if using SSL
         auth: {
-          user: 'datduong010@gmail.com',
-          pass: 'leul qngo dzgo bmhi',
+          user: 'daditmdt@gmail.com',
+          pass: 'bphu omfk dpqz trpj',
         },
       },
       defaults: {

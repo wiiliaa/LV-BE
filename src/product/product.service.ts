@@ -6,7 +6,7 @@ import {
 import * as fs from 'fs';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Like, Repository } from 'typeorm';
+import { Like, QueryBuilder, Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { User } from 'src/user/entities/user.entity';
@@ -17,7 +17,7 @@ import { promisify } from 'util';
 import { ImageService } from 'src/image/image.service';
 import { ProductCategoriesService } from 'src/product_categories/product_categories.service';
 import { version } from 'os';
-
+import * as unorm from 'unorm';
 @Injectable()
 export class ProductService {
   constructor(
@@ -89,17 +89,24 @@ export class ProductService {
   ): Promise<{ products: Product[]; total: number }> {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
+    const queryBuilder: SelectQueryBuilder<Product> =
+      this.productRepository.createQueryBuilder('product');
 
-    const [products, total] = await this.productRepository.findAndCount({
-      skip,
-      take,
-      where: searchTerm
-        ? [
-            { name: Like(`%${searchTerm}%`) },
-            { description: Like(`%${searchTerm}%`) },
-          ]
-        : {},
-    });
+    if (searchTerm) {
+      const normalizedSearchTerm = unorm
+        .nfd(searchTerm)
+        .replace(/[\u0300-\u036f]/g, ''); // Remove diacritics from search term
+
+      queryBuilder.where(
+        `(LOWER(UNACCENT(product.name)) LIKE LOWER(UNACCENT(:searchTerm)) OR LOWER(UNACCENT(product.description)) LIKE LOWER(UNACCENT(:searchTerm)))`,
+        { searchTerm: `%${normalizedSearchTerm}%` },
+      );
+    }
+
+    const [products, total] = await queryBuilder
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
 
     if (total === 0) {
       return { products: [], total: 0 };
