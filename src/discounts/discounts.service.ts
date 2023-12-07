@@ -104,14 +104,9 @@ export class DiscountsService {
     } else {
       // Nếu discount được tìm thấy, xóa ảnh nếu tồn tại
       if (discount.image) {
-        try {
-          const imagePath = `public/uploads/${discount.image}`;
-          if (existsSync(imagePath)) {
-            await unlinkAsync(imagePath);
-          }
-        } catch (error) {
-          // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
-          status = false;
+        const imagePath = `public/uploads/${discount.image}`;
+        if (existsSync(imagePath)) {
+          await unlinkAsync(imagePath);
         }
       }
       if (!discount.image) {
