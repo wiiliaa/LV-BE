@@ -530,7 +530,7 @@ export class ProductService {
       .take(take)
       .getManyAndCount();
 
-    // Process products and return them with total count
+    // Process products and return them
     const productsWithImages: Product[] = await Promise.all(
       products.map(async (product) => {
         await this.updateDiscountedPrice(product.id);
@@ -544,8 +544,11 @@ export class ProductService {
       }),
     );
 
-    // Return the list of products with image information and total count
-    return { products: productsWithImages, total };
+    // Calculate total based on total count and page size
+    const totalPages = Math.ceil(total / pageSize);
+
+    // Return the list of products with image information and total pages
+    return { products: productsWithImages, total: totalPages };
   }
 
   async findProductsByCategoryAndShop(
