@@ -107,37 +107,32 @@ export class UserService {
   async delete(id: number): Promise<{ success: boolean }> {
     const unlinkAsync = promisify(fs.unlink);
 
-    try {
-      const userToDelete = await this.userRepository.findOne({
-        where: { id },
-      });
+    const userToDelete = await this.userRepository.findOne({
+      where: { id },
+    });
 
-      if (!userToDelete) {
-        throw new NotFoundException('Người dùng không tồn tại');
+    if (!userToDelete) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+
+    // Kiểm tra xem người dùng có hình ảnh không
+    if (userToDelete.avatar) {
+      // Xác định đường dẫn tuyệt đối của hình ảnh
+      const imagePath = join('public/uploads/', userToDelete.avatar);
+      if (fs.existsSync(imagePath)) {
+        await unlinkAsync(imagePath);
       }
-
-      // Kiểm tra xem người dùng có hình ảnh không
-      if (userToDelete.avatar) {
-        // Xác định đường dẫn tuyệt đối của hình ảnh
-        const imagePath = join('public/uploads/', userToDelete.avatar);
-
-        // Nếu file tồn tại, xóa nó
-        if (fs.existsSync(imagePath)) {
-          await unlinkAsync(imagePath);
-        }
-      }
-
-      // Xóa người dùng từ cơ sở dữ liệu
       const deleteResult = await this.userRepository.delete(id);
+    }
+    if (!userToDelete.avatar) {
+      const deleteResult = await this.userRepository.delete(id);
+    }
+    const deleteResult = await this.userRepository.delete(id);
 
-      if (deleteResult.affected && deleteResult.affected > 0) {
-        return { success: true };
-      } else {
-        return { success: false };
-      }
-    } catch (error) {
-      console.error('Lỗi khi xóa người dùng:', error);
-      throw new InternalServerErrorException('Lỗi khi xóa người dùng');
+    if (deleteResult.affected && deleteResult.affected > 0) {
+      return { success: true };
+    } else {
+      return { success: false };
     }
   }
 
