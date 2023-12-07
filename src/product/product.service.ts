@@ -508,7 +508,7 @@ export class ProductService {
   async findProductsByCategoryName(
     categoryName: string,
     page: number = 1,
-    pageSize: number = 10,
+    pageSize: number = 8,
   ): Promise<{ products: Product[]; total: number }> {
     // Find the category by name
     const category = await this.productCategoryService.findByName(categoryName);
