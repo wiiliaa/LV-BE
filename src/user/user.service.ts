@@ -118,13 +118,12 @@ export class UserService {
     // Kiểm tra xem người dùng có hình ảnh không
     if (userToDelete.avatar) {
       // Xác định đường dẫn tuyệt đối của hình ảnh
-      const imagePath = join('public/uploads/', userToDelete.avatar);
+      const imagePath = join('public/upload/', userToDelete.avatar);
       if (fs.existsSync(imagePath)) {
         await unlinkAsync(imagePath);
       }
       const deleteResult = await this.userRepository.delete(id);
-    }
-    if (!userToDelete.avatar) {
+    } else if (!userToDelete.avatar) {
       const deleteResult = await this.userRepository.delete(id);
     }
     const deleteResult = await this.userRepository.delete(id);
