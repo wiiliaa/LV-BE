@@ -166,11 +166,13 @@ export class ProductController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 10,
     @Query('searchTerm') searchTerm?: string,
+    @Query('shopId') shopId?: number,
   ): Promise<{ products: Product[]; total: number }> {
     const { products, total } = await this.productService.findAll(
       page,
       pageSize,
       searchTerm,
+      shopId,
     );
     return { products, total };
   }
