@@ -23,7 +23,7 @@ export class DiscountsService {
     private readonly discountRepository: Repository<Discount>,
     private productService: ProductService,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Discount[]> {
     const discounts = await this.discountRepository.find();
@@ -104,9 +104,14 @@ export class DiscountsService {
     } else {
       // Nếu discount được tìm thấy, xóa ảnh nếu tồn tại
       if (discount.image) {
-        const imagePath = `public/uploads/${discount.image}`;
-        if (existsSync(imagePath)) {
-          await unlinkAsync(imagePath);
+        try {
+          const imagePath = `public/uploads/${discount.image}`;
+          if (existsSync(imagePath)) {
+            await unlinkAsync(imagePath);
+          }
+        } catch (error) {
+          // Nếu có lỗi trong quá trình xóa ảnh, đặt status về false
+          status = false;
         }
       }
       if (!discount.image) {
@@ -118,25 +123,25 @@ export class DiscountsService {
 
     return { status };
   }
-  async activateDiscount(discountId: number, productId: number) {
-    try {
-      // Find the product by ID
-      const product = await this.productService.findProduct(productId);
+  // async activateDiscount(discountId: number, productId: number) {
+  //   try {
+  //     // Find the product by ID
+  //     const product = await this.productService.findById(productId);
 
-      if (!product) {
-        return 'no product found';
-      }
+  //     if (!product) {
+  //       throw new NotFoundException('Product not found');
+  //     }
 
-      product.discount_id = discountId;
+  //     product.discount_id = discountId;
 
-      // Save changes to the database
-      return await this.productService.addDis(productId, discountId);
-    } catch (error) {
-      // Handle errors
-      console.error('Error activating discount:', error);
-      throw new InternalServerErrorException('Error activating discount');
-    }
-  }
+  //     // Save changes to the database
+  //     return await this.productService.addDis(productId, discountId);
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error('Error activating discount:', error);
+  //     throw new InternalServerErrorException('Error activating discount');
+  //   }
+  // }
 
   async findAllProductsByDiscountId(discountId: number): Promise<Product[]> {
     // Find the discount by ID with its associated products
